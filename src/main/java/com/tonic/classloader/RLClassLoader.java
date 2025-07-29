@@ -72,7 +72,7 @@ public class RLClassLoader extends URLClassLoader
         {
             try {
                 if (bytes.length > 0) {
-                    loadedClass = defineClass(name, bytes, 0, bytes.length, PROTECTION_DOMAIN);
+                    loadedClass = defineClass(name, bytes, 0, bytes.length);
                     if (loadedClass != null) {
                         return loadedClass;
                     }
