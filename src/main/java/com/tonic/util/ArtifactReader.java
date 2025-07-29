@@ -2,6 +2,8 @@ package com.tonic.util;
 
 import com.tonic.Main;
 import com.tonic.model.Artifact;
+import com.tonic.model.Libs;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,66 +16,52 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 public class ArtifactReader {
-    public static List<Artifact> read(URL[] urls) {
-        List<Artifact> artifacts = new ArrayList<>();
-
+    public static void read(Libs libs, URL[] urls) throws Exception {
         if (urls == null) {
-            return artifacts;
+            return;
         }
 
         for (URL url : urls) {
             if (url == null) continue;
 
             try {
-                Artifact artifact = readJarFromUrl(url);
-                artifacts.add(artifact);
+                readJarFromUrl(libs, url);
             } catch (IOException e) {
                 System.err.println("Error reading JAR from URL: " + url + " - " + e.getMessage());
             }
         }
-        return artifacts;
+        readGamepack(libs);
     }
 
-    private static Artifact readJarFromUrl(URL url) throws IOException {
-        Artifact artifact = new Artifact();
-
-        // Extract artifact name from URL
-        String urlPath = url.toString();
-        int lastSlash = urlPath.lastIndexOf('/');
-        artifact.artifactName = (lastSlash >= 0) ? urlPath.substring(lastSlash + 1) : urlPath;
-
+    private static void readJarFromUrl(Libs libs, URL url) throws IOException {
         try (JarInputStream jarIn = new JarInputStream(url.openStream())) {
             JarEntry entry;
 
             while ((entry = jarIn.getNextJarEntry()) != null) {
                 String entryName = entry.getName();
-
-                // Skip directories
                 if (!entry.isDirectory()) {
-                    // Read the entry bytes
                     byte[] entryBytes = readAllBytes(jarIn);
 
                     if (entryName.endsWith(".class")) {
-                        // Convert path to FQDN (replace / with . and remove .class extension)
                         String className = entryName.replace('/', '.')
                                 .substring(0, entryName.length() - 6);
-                        if(!className.startsWith("net.runelite.api") || className.endsWith("OverlayIndex"))
+                        if(className.startsWith("net.runelite"))
                         {
-                            artifact.classes.put(className, entryBytes);
+                            libs.getRunelite().classes.put(className, entryBytes);
+                        }
+                        else
+                        {
+                            libs.getOther().classes.put(className, entryBytes);
                         }
                     }
                 }
-
                 jarIn.closeEntry();
             }
         }
-
-        return artifact;
     }
 
-    public static Artifact readGamepack() throws Exception
+    private static void readGamepack(Libs libs) throws Exception
     {
-        Artifact artifact = new Artifact();
         try (JarFile jarFile = Main.JARFILE)
         {
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -88,13 +76,11 @@ public class ArtifactReader {
                         String className = entry.getName()
                                 .replace('/', '.')
                                 .substring(0, entry.getName().length() - 6);
-                        artifact.classes.put(className, entryBytes);
+                        libs.getGamepack().classes.put(className, entryBytes);
                     }
                 }
             }
         }
-
-        return artifact;
     }
 
     private static byte[] readAllBytes(InputStream input) throws IOException {

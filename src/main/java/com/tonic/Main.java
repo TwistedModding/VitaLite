@@ -2,6 +2,7 @@ package com.tonic;
 
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.Injector;
+import com.tonic.injector.RLInjector;
 import com.tonic.model.Artifact;
 import com.tonic.model.Libs;
 import com.tonic.util.ArtifactReader;
@@ -27,9 +28,10 @@ public class Main {
     {
         optionsParser.parse(args);
         loadArtifacts();
-        loadGamepack();
+        loadLibs();
         loadClassLoader();
         Injector.patch();
+        RLInjector.patch();
         RLMAIN = CLASSLOADER.launch(args);
     }
 
@@ -49,10 +51,9 @@ public class Main {
         }
     }
 
-    public static void loadGamepack() throws Exception {
+    public static void loadLibs() throws Exception {
         JARFILE = RuneliteConfigUtil.fetchGamePack();
-        Artifact gamepack = ArtifactReader.readGamepack();
-        LIBS = new Libs(URLS, gamepack);
+        LIBS = new Libs(URLS);
     }
 
     private static void loadClassLoader() {

@@ -85,11 +85,19 @@ public class Injector {
 
     private static void applyInterfaces(HashMap<ClassNode, ClassNode> pairs, HashMap<String, ClassNode> gamepack) {
         for (var entry : pairs.entrySet()) {
-            ClassNode mixin = entry.getKey();
-            ClassNode api = entry.getValue();
-            String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
-            ClassNode gamepackClass = gamepack.get(gamepackName);
-            gamepackClass.interfaces.add(api.name);
+            try
+            {
+                ClassNode mixin = entry.getKey();
+                ClassNode api = entry.getValue();
+                String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+                ClassNode gamepackClass = gamepack.get(gamepackName);
+                gamepackClass.interfaces.add(api.name);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
         }
     }
 }

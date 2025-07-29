@@ -1,28 +1,35 @@
 package com.tonic.injector;
 
+import com.tonic.Main;
+import com.tonic.injector.pipeline.StripAnnotationsTransformer;
 import com.tonic.injector.rlpipeline.ScheduleWithFixedDelayTransformer;
+import com.tonic.model.Artifact;
 import com.tonic.util.ClassNodeUtil;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.util.HashMap;
+
 public class RLInjector
 {
-    public static byte[] patch(String name, byte[] bytes)
+    public static void patch() throws Exception
     {
-        if(bytes == null || !name.startsWith("net.runelite") || name.startsWith("net.runelite.client.ui."))
-            return bytes;
-
-        ClassNode classNode = ClassNodeUtil.toNode(bytes);
-
-        ScheduleWithFixedDelayTransformer.patch2(classNode);
-
-        try
-        {
-            return ClassNodeUtil.toBytes(classNode);
+        HashMap<String, ClassNode> runelite = new HashMap<>();
+        for (var entry : Main.LIBS.getRunelite().classes.entrySet()) {
+            String name = entry.getKey();
+            byte[] bytes = entry.getValue();
+            runelite.put(name, ClassNodeUtil.toNode(bytes));
         }
-        catch (Exception e)
+
+        for(ClassNode node : runelite.values())
         {
-            e.printStackTrace();
-            return bytes;
+            ScheduleWithFixedDelayTransformer.patch(node);
+        }
+
+        for (var entry : runelite.entrySet()) {
+            Main.LIBS.getRunelite().classes.put(
+                    entry.getKey(),
+                    ClassNodeUtil.toBytes(entry.getValue())
+            );
         }
     }
 }
