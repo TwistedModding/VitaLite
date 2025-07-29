@@ -19,7 +19,6 @@ public class Main {
     public static final OptionsParser optionsParser = new OptionsParser();
     private static URL[] URLS = null;
     public static Libs LIBS;
-    public static JarFile JARFILE;
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
     public static Class<?> RLMAIN;
@@ -28,7 +27,6 @@ public class Main {
     {
         optionsParser.parse(args);
         loadArtifacts();
-        loadLibs();
         loadClassLoader();
         Injector.patch();
         RLInjector.patch();
@@ -45,19 +43,16 @@ public class Main {
             URLS = new URL[jarfiles.length];
             for (int i = 0; i < jarfiles.length; i++)
                 URLS[i] = jarfiles[i].toURI().toURL();
+
+            LIBS = new Libs(URLS);
         }
         catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
-    public static void loadLibs() throws Exception {
-        JARFILE = RuneliteConfigUtil.fetchGamePack();
-        LIBS = new Libs(URLS);
-    }
-
     private static void loadClassLoader() {
-        //PackageUtil.preloadPackages("com.tonic.api");
         System.setProperty("sun.awt.noerasebackground", "true");
         CLASSLOADER = new RLClassLoader(URLS);
         CTX_CLASSLOADER = new RLClassLoader(URLS);

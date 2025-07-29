@@ -87,8 +87,10 @@ public class Injector {
         for (var entry : pairs.entrySet()) {
             try
             {
-                ClassNode mixin = entry.getKey();
                 ClassNode api = entry.getValue();
+                if(api == null)
+                    continue;
+                ClassNode mixin = entry.getKey();
                 String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
                 ClassNode gamepackClass = gamepack.get(gamepackName);
                 gamepackClass.interfaces.add(api.name);

@@ -11,12 +11,6 @@ import java.security.ProtectionDomain;
 
 public class RLClassLoader extends URLClassLoader
 {
-    private static final CodeSource CODE_SOURCE =
-            Main.class.getProtectionDomain().getCodeSource();     // loaded earlier via URLCL
-
-    private static final ProtectionDomain PROTECTION_DOMAIN =
-            new ProtectionDomain(CODE_SOURCE,
-                    Main.class.getProtectionDomain().getPermissions());
     public RLClassLoader(URL[] urls)
     {
         super(urls, TClient.class.getClassLoader());
@@ -32,15 +26,8 @@ public class RLClassLoader extends URLClassLoader
         return mainClass;
     }
 
-
-
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException
-    {
-        return getLoadedClass(name);
-    }
-
-    public Class<?> getLoadedClass(String name) throws ClassNotFoundException
     {
         try
         {
@@ -54,12 +41,12 @@ public class RLClassLoader extends URLClassLoader
             }
 
             byte[] bytes = Main.LIBS.gamepackByName(name);
-            loadedClass = loadArtifactClass(name, bytes);
-            if(loadedClass != null) return loadedClass;
+            if(bytes == null)
+                bytes = Main.LIBS.classByName(name);
 
-            bytes = Main.LIBS.classByName(name);
             loadedClass = loadArtifactClass(name, bytes);
-            if(loadedClass != null) return loadedClass;
+            if(loadedClass != null)
+                return loadedClass;
         }
         catch (Exception ignored) {}
         return super.loadClass(name);

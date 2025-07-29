@@ -1,16 +1,11 @@
 package com.tonic.util;
 
-import com.tonic.Main;
-import com.tonic.model.Artifact;
 import com.tonic.model.Libs;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -62,7 +57,7 @@ public class ArtifactReader {
 
     private static void readGamepack(Libs libs) throws Exception
     {
-        try (JarFile jarFile = Main.JARFILE)
+        try (JarFile jarFile = RuneliteConfigUtil.fetchGamePack())
         {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements())
