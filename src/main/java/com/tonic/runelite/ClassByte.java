@@ -1,4 +1,4 @@
-package com.tonic.hijack;
+package com.tonic.runelite;
 
 public class ClassByte
 {

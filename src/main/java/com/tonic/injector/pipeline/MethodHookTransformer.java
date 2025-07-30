@@ -8,7 +8,8 @@ import org.objectweb.asm.tree.*;
 
 public class MethodHookTransformer
 {
-    public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
+    public static void
+    patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
         InjectTransformer.patch(gamepack, mixin, method);
         String methodName = AnnotationUtil.getAnnotation(method, MethodHook.class, "name");
         String methodDesc = AnnotationUtil.getAnnotation(method, MethodHook.class, "desc");

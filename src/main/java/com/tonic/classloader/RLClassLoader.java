@@ -3,14 +3,21 @@ package com.tonic.classloader;
 import com.tonic.Main;
 import com.tonic.api.TClient;
 import com.tonic.injector.RLInjector;
+
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AllPermission;
 import java.security.CodeSource;
+import java.security.Permissions;
 import java.security.ProtectionDomain;
+import java.util.HashMap;
 
 public class RLClassLoader extends URLClassLoader
 {
+    private HashMap<String, InputStream> resources = new HashMap<>();
+
     public RLClassLoader(URL[] urls)
     {
         super(urls, TClient.class.getClassLoader());
@@ -29,6 +36,14 @@ public class RLClassLoader extends URLClassLoader
         System.out.println(out);
         main.invoke(null, (Object) newArgs);
         return mainClass;
+    }
+
+    public void addResource(String name, InputStream resource)
+    {
+        if (name == null || resource == null) {
+            return;
+        }
+        resources.put(name, resource);
     }
 
     @Override
@@ -73,5 +88,53 @@ public class RLClassLoader extends URLClassLoader
             catch (Exception ignored) {}
         }
         return null;
+    }
+
+    public Class<?> forName(String className) throws ClassNotFoundException {
+        return Class.forName(className, true, this);
+    }
+
+    public Class<?> loadClass(String name, byte[] bytes)
+    {
+        try
+        {
+            return super.loadClass(name);
+        }
+        catch (ClassNotFoundException | NoClassDefFoundError e)
+        {
+            return lookupClass(name, bytes);
+        }
+    }
+
+    public Class<?> lookupClass(String name, byte[] bytes)
+    {
+        Permissions perms = new Permissions();
+        perms.add(new AllPermission());
+        final ProtectionDomain protDomain =
+                new ProtectionDomain(getClass().getProtectionDomain().getCodeSource(), perms,
+                        this,
+                        getClass().getProtectionDomain().getPrincipals());
+
+        try
+        {
+            return defineClass(name, bytes, 0, bytes.length, protDomain);
+        }
+        catch (ClassFormatError | NoClassDefFoundError | VerifyError ex)
+        {
+            return null;
+        }
+        catch (LinkageError ex)
+        {
+            return null;
+        }
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String name)
+    {
+        if (resources.containsKey(name)) {
+            return resources.get(name);
+        }
+        return super.getResourceAsStream(name);
     }
 }

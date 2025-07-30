@@ -1,7 +1,7 @@
-package com.tonic.hijack.model;
+package com.tonic.runelite.model;
 
 import com.google.inject.Injector;
-import com.tonic.hijack.SimpleClassLoader;
+import com.tonic.runelite.SimpleClassLoader;
 import com.tonic.util.ReflectUtil;
 import lombok.Getter;
 @Getter

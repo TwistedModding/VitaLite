@@ -1,4 +1,4 @@
-package com.tonic.hijack.model;
+package com.tonic.runelite.model;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;

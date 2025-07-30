@@ -19,21 +19,21 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
+import static com.tonic.Main.RUNELITE_REPOSITORY_DIR;
+
 public class RLUpdater
 {
-    private static final Path REPOSITORY = Path.of(System.getProperty("user.home"), ".runelite", "repository2");
     private static Map<String, String> properties;
     private static HttpClient httpClient;
 
     public static void run() throws IOException, InterruptedException, NoSuchAlgorithmException
     {
         properties = Properties.fetch();
-        // 1. Build HTTP client
+
         httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
                 .build();
 
-        // 2. Download bootstrap.json
         HttpRequest bootstrapReq = HttpRequest.newBuilder()
                 .uri(URI.create(properties.get("runelite.bootstrap")))
                 .header("User-Agent", "RuneLite/" + properties.get("runelite.launcher.version"))
@@ -50,20 +50,20 @@ public class RLUpdater
         Bootstrap bootstrap = new Gson().fromJson(bootstrapRes.body(), Bootstrap.class);
         Artifact[] artifacts = bootstrap.getArtifacts();
 
-        if (!Files.exists(REPOSITORY)) {
-            Files.createDirectories(REPOSITORY);
+        if (!Files.exists(RUNELITE_REPOSITORY_DIR)) {
+            Files.createDirectories(RUNELITE_REPOSITORY_DIR);
         }
 
         for (Artifact art : artifacts)
         {
             if (art.getDiffs() != null) {
                 for (Diff diff : art.getDiffs()) {
-                    Path oldFile = REPOSITORY.resolve(diff.getFrom());
+                    Path oldFile = RUNELITE_REPOSITORY_DIR.resolve(diff.getFrom());
                     Files.deleteIfExists(oldFile);
                 }
             }
 
-            Path localFile = REPOSITORY.resolve(art.getName());
+            Path localFile = RUNELITE_REPOSITORY_DIR.resolve(art.getName());
             boolean needsDownload = true;
 
             if (Files.exists(localFile)) {
