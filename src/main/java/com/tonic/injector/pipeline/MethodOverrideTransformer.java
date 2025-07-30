@@ -1,14 +1,11 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.MethodOverride;
 import com.tonic.util.AnnotationUtil;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -22,6 +22,11 @@ public class RLClassLoader extends URLClassLoader
         newArgs[args.length] = "--disable-telemetry";
         Class<?> mainClass = loadClass("net.runelite.client.RuneLite");
         Method main = mainClass.getMethod("main", String[].class);
+        String out = "RuneLite started with arguments: ";
+        for (String arg : newArgs) {
+            out += arg + " ";
+        }
+        System.out.println(out);
         main.invoke(null, (Object) newArgs);
         return mainClass;
     }
@@ -36,7 +41,7 @@ public class RLClassLoader extends URLClassLoader
                 return loadedClass;
             }
 
-            if (name.startsWith("java.") || name.startsWith("sun.") || name.startsWith("jdk.") || name.startsWith("com.tonic.")) {
+            if (!name.startsWith("net.runelite.")) {
                 return super.loadClass(name);
             }
 

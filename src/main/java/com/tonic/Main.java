@@ -1,6 +1,8 @@
 package com.tonic;
 
+import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
+import com.tonic.hijack.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Artifact;
@@ -12,25 +14,29 @@ import com.tonic.util.optionsparser.OptionsParser;
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.jar.JarFile;
 
 public class Main {
     private static final String RUNELITE_REPOSITORY_PATH = System.getProperty("user.home") + File.separator + ".runelite" + File.separator + "repository2";
+    public static final Path RUNELITE_DIR = Path.of(System.getProperty("user.home"), ".runelite");
     public static final OptionsParser optionsParser = new OptionsParser();
     private static URL[] URLS = null;
     public static Libs LIBS;
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
-    public static Class<?> RLMAIN;
+    public static RuneLite RUNELITE;
 
     public static void main(String[] args) throws Exception
     {
+        RLUpdater.run();
         optionsParser.parse(args);
+        args = optionsParser.filter(args);
         loadArtifacts();
         loadClassLoader();
         Injector.patch();
         RLInjector.patch();
-        RLMAIN = CLASSLOADER.launch(args);
+        RUNELITE = new RuneLite(CLASSLOADER.launch(args));
     }
 
     public static void loadArtifacts()

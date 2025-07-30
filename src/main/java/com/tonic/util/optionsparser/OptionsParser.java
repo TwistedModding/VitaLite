@@ -4,7 +4,9 @@ import com.tonic.util.optionsparser.annotations.CLIArgument;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -13,7 +15,7 @@ public class OptionsParser {
             name = "rsdump",
             description = "[Optional] Path to dump the gamepack to"
     )
-    private String rsDumpPath = null;
+    private String rsdump = null;
 
     /**
      * Parses the command line arguments and sets the fields of this class accordingly.
@@ -45,19 +47,28 @@ public class OptionsParser {
 
             if (arg.startsWith("-"))
             {
-                String argName = arg.substring(1);
-                Field field = annotatedFields.get(argName);
-                if (field != null)
+                if ((i + 1) < args.length && !args[i + 1].startsWith("-"))
                 {
-                    if ((i + 1) < args.length && !args[i + 1].startsWith("-"))
+                    String argName = arg.substring(2);
+                    Field field = annotatedFields.get(argName);
+                    if(field == null)
                     {
-                        String value = args[++i];
-                        setFieldValue(field, value);
+                        System.err.println("Unknown argument: " + argName);
+                        continue;
                     }
-                    else
+                    String value = args[++i];
+                    setFieldValue(field, value);
+                }
+                else
+                {
+                    String argName = arg.substring(1);
+                    Field field = annotatedFields.get(argName);
+                    if (field == null)
                     {
-                        setFieldValue(field, "true");
+                        System.err.println("Unknown argument: " + argName);
+                        continue;
                     }
+                    setFieldValue(field, "true");
                 }
             }
         }
@@ -102,5 +113,63 @@ public class OptionsParser {
         {
             e.printStackTrace();
         }
+    }
+
+    public String[] filter(String[] args)
+    {
+        Map<String, Field> annotatedFields = new HashMap<>();
+        List<String> newArgs = new ArrayList<>();
+        for (Field field : this.getClass().getDeclaredFields())
+        {
+            CLIArgument annotation = field.getAnnotation(CLIArgument.class);
+            if(annotation == null)
+                continue;
+        }
+
+        Field field;
+        for(int i = 0; i < args.length; i++)
+        {
+            String name = args[i];
+            if(!name.startsWith("-") && !name.startsWith("--") && name.equals("-help"))
+            {
+                newArgs.add(name);
+                continue;
+            }
+            name = name.startsWith("--") ? name.substring(2) : name.substring(1);
+            field = findField(name);
+            if(field == null)
+            {
+                newArgs.add(name);
+                continue;
+            }
+
+            CLIArgument annotation = field.getAnnotation(CLIArgument.class);
+            if(annotation == null)
+            {
+                newArgs.add(name);
+                continue;
+            }
+
+            if(field.getType() != boolean.class)
+            {
+                i++;
+            }
+        }
+
+        return newArgs.toArray(new String[0]);
+    }
+
+    private Field findField(String name)
+    {
+        Field[] fields = this.getClass().getDeclaredFields();
+        for (Field field : fields)
+        {
+            CLIArgument annotation = field.getAnnotation(CLIArgument.class);
+            if (annotation != null && annotation.name().equals(name))
+            {
+                return field;
+            }
+        }
+        return null;
     }
 }
