@@ -7,7 +7,10 @@ import com.tonic.runelite.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
+import com.tonic.util.ReflectUtil;
 import com.tonic.util.optionsparser.OptionsParser;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.swing.*;
 import java.io.File;
@@ -22,7 +25,17 @@ public class Main {
     public static Libs LIBS;
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
-    public static RuneLite RUNELITE;
+
+    private static RuneLite RUNELITE;
+
+    public static void setRunelite(RuneLite runelite) {
+        System.out.println("Setting RuneLite instance: " + runelite);
+        RUNELITE = runelite;
+    }
+
+    public static RuneLite getRunelite() {
+        return RUNELITE;
+    }
 
     public static void main(String[] args) throws Exception
     {
@@ -33,8 +46,7 @@ public class Main {
         loadClassLoader();
         Injector.patch();
         RLInjector.patch();
-        RUNELITE = new RuneLite(CLASSLOADER.launch(args));
-        Install.install(RUNELITE);
+        CLASSLOADER.launch(args);
     }
 
     public static void loadArtifacts()

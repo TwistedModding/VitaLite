@@ -2,11 +2,14 @@ package com.tonic.injector;
 
 import com.tonic.Main;
 import com.tonic.injector.pipeline.StripAnnotationsTransformer;
+import com.tonic.injector.rlpipeline.InjectSideLoadCallTransformer;
 import com.tonic.injector.rlpipeline.ScheduleWithFixedDelayTransformer;
 import com.tonic.model.Artifact;
+import com.tonic.util.ClassFileUtil;
 import com.tonic.util.ClassNodeUtil;
 import org.objectweb.asm.tree.ClassNode;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public class RLInjector
@@ -23,13 +26,23 @@ public class RLInjector
         for(ClassNode node : runelite.values())
         {
             ScheduleWithFixedDelayTransformer.patch(node);
+            InjectSideLoadCallTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {
+            byte[] bytes = ClassNodeUtil.toBytes(entry.getValue());
             Main.LIBS.getRunelite().classes.put(
                     entry.getKey(),
-                    ClassNodeUtil.toBytes(entry.getValue())
+                    bytes
             );
+            if(entry.getKey().equals("net.runelite.client.RuneLite"))
+            {
+                ClassFileUtil.writeClass(
+                        "net.runelite.client.RuneLite",
+                        bytes,
+                        Path.of("C:\\test\\dumper\\")
+                );
+            }
         }
     }
 }

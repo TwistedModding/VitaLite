@@ -23,15 +23,19 @@ public class RLClassLoader extends URLClassLoader
         super(urls, TClient.class.getClassLoader());
     }
 
+    public Class<?> getMain() throws ClassNotFoundException {
+        return loadClass("net.runelite.client.RuneLite");
+    }
+
     public Class<?> launch(String[] args) throws Exception {
         String[] newArgs = new String[args.length + 1];
         System.arraycopy(args, 0, newArgs, 0, args.length);
         newArgs[args.length] = "--disable-telemetry";
         Class<?> mainClass = loadClass("net.runelite.client.RuneLite");
         Method main = mainClass.getMethod("main", String[].class);
-        String out = "RuneLite started with arguments: ";
+        StringBuilder out = new StringBuilder("RuneLite started with arguments: ");
         for (String arg : newArgs) {
-            out += arg + " ";
+            out.append(arg).append(" ");
         }
         System.out.println(out);
         main.invoke(null, (Object) newArgs);

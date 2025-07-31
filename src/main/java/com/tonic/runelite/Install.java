@@ -10,77 +10,68 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Install
 {
-    public static void install(RuneLite runeLite)
-    {
-        new Thread(() ->
-        {
-            try
-            {
+    public static void start(RuneLite runeLite) {
+        Runnable task = () -> {
+            try {
                 PluginManager pluginManager = runeLite.getPluginManager();
-                List<Path> jarPaths = findJars();
-                List<Class<?>> toLoad = new ArrayList<>();
-                List<ClassByte> classes = new ArrayList<>();
-                for (Path jarPath : jarPaths)
-                {
-                    classes.addAll(listFilesInJar(jarPath));
+
+                /* ---------- gather classes from every plugin jar ---------- */
+                List<ClassByte> pending = findJars().stream()       // locate jars
+                        .flatMap(jar -> listFilesInJar(jar).stream())// read classes/resources
+                        .collect(Collectors.toCollection(ArrayList::new));
+
+                List<Class<?>> plugins = new ArrayList<>();
+
+                /* ---------- resolve classes until nothing new loads ---------- */
+                // -----------------------------------------------------------------------------
+// 2.  Resolve & load classes that depend on one-another
+// -----------------------------------------------------------------------------
+                while (!pending.isEmpty()) {
+                    int loadedThisPass = 0;
+
+                    for (Iterator<ClassByte> it = pending.iterator(); it.hasNext(); ) {
+                        ClassByte cb  = it.next();
+                        Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
+                        if (cls == null) continue;
+                        it.remove();
+                        loadedThisPass++;
+                        Class<?> parent = cls.getSuperclass();
+                        if (parent != null && parent.getName().endsWith(".Plugin")) {
+                            System.out.println("Loaded: " + cls.getName());
+                            plugins.add(cls);
+                        }
+                    }
+                    if (loadedThisPass == 0) {
+                        break;
+                    }
                 }
 
-                int numLoaded;
-                do {
-                    numLoaded = 0;
-                    for (int i1 = classes.size() - 1; i1 >= 0; i1--)
-                    {
-                        Class<?> loaded = Main.CLASSLOADER.loadClass(classes.get(i1).name, classes.get(i1).bytes);
-                        if (loaded != null)
-                        {
-                            numLoaded++;
-                            classes.remove(i1);
-                        }
-                        if(loaded == null)
-                            continue;
-                        if (loaded.getSuperclass() != null && loaded.getSuperclass().getName().endsWith(".Plugin"))
-                        {
-                            System.out.println("Loaded: " + loaded.getName());
-                            toLoad.add(loaded);
-                        }
-                    }
-                }while(numLoaded != 0);
+                List<?> instances = pluginManager.loadPlugins(plugins).stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
 
-                List<?> loaded = (List<?>) pluginManager.loadPlugins(toLoad);
-                loaded = loaded.stream().filter(Objects::nonNull).collect(Collectors.toList());
-                List<?> finalLoaded = loaded;
-                SwingUtilities.invokeAndWait(() ->
-                {
-                    try
-                    {
-                        for (var plugin : finalLoaded)
-                        {
-                            pluginManager.loadDefaultPluginConfiguration(Collections.singleton(plugin));
-                            pluginManager.startPlugin(plugin);
-                        }
+                SwingUtilities.invokeAndWait(() -> instances.forEach(p -> {
+                    try {
+                        pluginManager.loadDefaultPluginConfiguration(Collections.singleton(p));
+                        pluginManager.startPlugin(p);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                });
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
+                }));
+            } catch (Exception ex) {
+                ex.printStackTrace();
                 System.exit(0);
             }
-        }).start();
+        };
+
+        new Thread(task, "plugin-installer").start();
     }
 
     public static List<Path> findJars() {

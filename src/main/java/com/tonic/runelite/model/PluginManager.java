@@ -18,9 +18,9 @@ public class PluginManager
     }
 
     @SneakyThrows
-    public Object loadPlugins(List<Class<?>> plugins)
+    public List<?> loadPlugins(List<Class<?>> plugins)
     {
-        return ReflectUtil.getMethod(
+        return (List<?>) ReflectUtil.getMethod(
                 instance,
                 "loadPlugins",
                 new Class<?>[]{ List.class, BiConsumer.class },

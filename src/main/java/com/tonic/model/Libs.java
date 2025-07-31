@@ -32,7 +32,9 @@ public class Libs
     public byte[] classByName(String className) {
         byte[] classBytes = runelite.classes.get(className);
         if (classBytes != null)
+        {
             return classBytes;
+        }
         return other.classes.get(className);
     }
 }

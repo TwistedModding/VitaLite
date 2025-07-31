@@ -3,6 +3,7 @@ package com.tonic.util;
 import com.tonic.model.ConditionType;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;
@@ -894,6 +895,13 @@ public class BytecodeBuilder {
     public BytecodeBuilder ifNull(LabelNode labelNode)
     {
         insnList.add(new JumpInsnNode(IFNULL, labelNode));
+        return this;
+    }
+
+    public BytecodeBuilder pushClass(String internalName) {
+        insnList.add(new LdcInsnNode(
+                Type.getObjectType(internalName)
+        ));
         return this;
     }
 }
