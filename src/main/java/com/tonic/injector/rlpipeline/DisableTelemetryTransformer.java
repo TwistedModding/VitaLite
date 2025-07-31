@@ -30,6 +30,6 @@ public class DisableTelemetryTransformer {
         provideTelemetry.maxStack = 1;
         provideTelemetry.maxLocals = 0;
 
-        System.out.println("Patched RuneLiteModule.provideTelemetry to be a no-op");
+        System.out.println("Patched RuneLiteModule.provideTelemetry to always return null");
     }
 }

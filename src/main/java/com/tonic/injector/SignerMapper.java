@@ -40,6 +40,15 @@ public class SignerMapper
                 scan(node, mn);
             }
         }
+
+        for(var entry : Main.LIBS.getOther().classes.entrySet())
+        {
+            ClassNode node = ClassNodeUtil.toNode(entry.getValue());
+            for(MethodNode mn : node.methods)
+            {
+                scan(node, mn);
+            }
+        }
     }
     private static void scan(ClassNode cn, MethodNode mn)
     {
@@ -58,7 +67,6 @@ public class SignerMapper
                     FieldInsnNode fin = (FieldInsnNode) target;
                     String clazz = fin.desc.replace("L", "").replace(";", "").replace("/", ".");
                     blacklist.add(clazz);
-                    System.out.println("Found signer mapping: " + cn.name + "." + mn.name + mn.desc + " -> " + clazz);
                 }
             }
         }

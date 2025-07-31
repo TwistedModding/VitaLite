@@ -35,7 +35,7 @@ public class RLInjector
             String name = entry.getKey();
             if(SignerMapper.shouldIgnore(name))
             {
-                System.out.println("Skipping class: " + name);
+                System.out.println("Skipping cert-checked class: " + name);
                 continue;
             }
 
