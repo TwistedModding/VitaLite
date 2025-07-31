@@ -112,12 +112,7 @@ public class RLClassLoader extends URLClassLoader
 
     public Class<?> lookupClass(String name, byte[] bytes)
     {
-        Permissions perms = new Permissions();
-        perms.add(new AllPermission());
-        final ProtectionDomain protDomain =
-                new ProtectionDomain(getClass().getProtectionDomain().getCodeSource(), perms,
-                        this,
-                        getClass().getProtectionDomain().getPrincipals());
+        final ProtectionDomain protDomain = makeProtectionDomainFor(name);
 
         try
         {
