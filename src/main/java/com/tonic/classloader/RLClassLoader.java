@@ -27,11 +27,11 @@ public class RLClassLoader extends URLClassLoader
         return loadClass("net.runelite.client.RuneLite");
     }
 
-    public Class<?> launch(String[] args) throws Exception {
+    public void launch(String[] args) throws Exception {
         String[] newArgs = new String[args.length + 1];
         System.arraycopy(args, 0, newArgs, 0, args.length);
         newArgs[args.length] = "--disable-telemetry";
-        Class<?> mainClass = loadClass("net.runelite.client.RuneLite");
+        Class<?> mainClass = getMain();
         Method main = mainClass.getMethod("main", String[].class);
         StringBuilder out = new StringBuilder("RuneLite started with arguments: ");
         for (String arg : newArgs) {
@@ -39,7 +39,6 @@ public class RLClassLoader extends URLClassLoader
         }
         System.out.println(out);
         main.invoke(null, (Object) newArgs);
-        return mainClass;
     }
 
     public void addResource(String name, InputStream resource)
