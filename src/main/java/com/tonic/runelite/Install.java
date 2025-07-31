@@ -17,6 +17,10 @@ import java.util.stream.Stream;
 
 public class Install
 {
+    /**
+     * Don't remove, call is injected see @{InjectSideLoadCallTransformer}
+     * @param runeLite the RuneLite wrapper instance
+     */
     public void start(RuneLite runeLite) {
         Runnable task = () -> {
             try {

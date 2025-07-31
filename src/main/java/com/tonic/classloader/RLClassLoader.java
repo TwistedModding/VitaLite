@@ -7,9 +7,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.security.AllPermission;
 import java.security.CodeSource;
-import java.security.Permissions;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.HashMap;
@@ -142,8 +140,6 @@ public class RLClassLoader extends URLClassLoader
                 ? new CodeSource(jarUrl, certs)
                 : new CodeSource(getClass().getProtectionDomain().getCodeSource().getLocation(), (Certificate[]) null);
 
-//        Permissions perms = new Permissions();
-//        perms.add(new AllPermission());
         return new ProtectionDomain(cs, null, this, null);
     }
 }

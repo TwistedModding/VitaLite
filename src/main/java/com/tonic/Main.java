@@ -2,17 +2,13 @@ package com.tonic;
 
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
-import com.tonic.runelite.Install;
+import com.tonic.injector.SignerMapper;
 import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.runelite.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
-import com.tonic.util.ReflectUtil;
 import com.tonic.util.optionsparser.OptionsParser;
-import lombok.Getter;
-import lombok.Setter;
-
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
@@ -29,21 +25,13 @@ public class Main {
 
     private static RuneLite RUNELITE;
 
-    public static void setRunelite(RuneLite runelite) {
-        System.out.println("Setting RuneLite instance: " + runelite);
-        RUNELITE = runelite;
-    }
-
-    public static RuneLite getRunelite() {
-        return RUNELITE;
-    }
-
     public static void main(String[] args) throws Exception
     {
+        args = optionsParser.parse(args);
         JvmParams.set();
         RLUpdater.run();
-        args = optionsParser.parse(args);
         loadArtifacts();
+        SignerMapper.map();
         loadClassLoader();
         Injector.patch();
         RLInjector.patch();
@@ -73,5 +61,13 @@ public class Main {
         CLASSLOADER = new RLClassLoader(URLS);
         CTX_CLASSLOADER = new RLClassLoader(URLS);
         UIManager.put("ClassLoader", CLASSLOADER);
+    }
+
+    public static void setRunelite(RuneLite runelite) {
+        RUNELITE = runelite;
+    }
+
+    public static RuneLite getRunelite() {
+        return RUNELITE;
     }
 }

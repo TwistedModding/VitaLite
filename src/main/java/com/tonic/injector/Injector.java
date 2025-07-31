@@ -32,6 +32,12 @@ public class Injector {
             String name = entry.getKey();
             ClassNode classNode = entry.getValue();
 
+            if(SignerMapper.shouldIgnore(name))
+            {
+                System.out.println("Skipping class: " + name);
+                continue;
+            }
+
             Main.LIBS.getGamepack().classes.put(name, ClassNodeUtil.toBytes(classNode));
 
             StripAnnotationsTransformer.stripAnnotations(classNode);
@@ -77,7 +83,7 @@ public class Injector {
                 }
                 if(AnnotationUtil.hasAnnotation(method, Shadow.class))
                 {
-
+                    //TODO: implement
                 }
             }
         }

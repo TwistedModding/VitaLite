@@ -32,6 +32,13 @@ public class RLInjector
         }
 
         for (var entry : runelite.entrySet()) {
+            String name = entry.getKey();
+            if(SignerMapper.shouldIgnore(name))
+            {
+                System.out.println("Skipping class: " + name);
+                continue;
+            }
+
             byte[] bytes = ClassNodeUtil.toBytes(entry.getValue());
             Main.LIBS.getRunelite().classes.put(
                     entry.getKey(),
@@ -43,10 +50,10 @@ public class RLInjector
                     "net.runelite.client.RuneLiteModule",
                     "net.runelite.client.plugins.PluginManager"
             );
-            if(toDump.contains(entry.getKey()))
+            if(toDump.contains(name))
             {
                 ClassFileUtil.writeClass(
-                        entry.getKey(),
+                        name,
                         bytes,
                         Path.of("C:/test/dumper/")
                 );
