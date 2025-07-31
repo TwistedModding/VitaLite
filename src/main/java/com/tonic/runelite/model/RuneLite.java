@@ -17,6 +17,5 @@ public class RuneLite
         this.injector = new Guice((Injector) ReflectUtil.getStaticField(runeLiteMain, "injector"));
         this.pluginManager = new PluginManager(injector);
         this.USER_AGENT = (String) ReflectUtil.getStaticField(runeLiteMain, "USER_AGENT");
-        System.out.println("USER_AGENT: " + USER_AGENT);
     }
 }

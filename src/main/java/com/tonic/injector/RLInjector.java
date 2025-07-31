@@ -1,16 +1,14 @@
 package com.tonic.injector;
 
 import com.tonic.Main;
-import com.tonic.injector.rlpipeline.InjectSideLoadCallTransformer;
-import com.tonic.injector.rlpipeline.NoOpLoadSideLoadPluginsTransformer;
-import com.tonic.injector.rlpipeline.PatchDevToolsLauncherCheck;
-import com.tonic.injector.rlpipeline.ScheduleWithFixedDelayTransformer;
+import com.tonic.injector.rlpipeline.*;
 import com.tonic.util.ClassFileUtil;
 import com.tonic.util.ClassNodeUtil;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 
 public class RLInjector
 {
@@ -29,6 +27,7 @@ public class RLInjector
             InjectSideLoadCallTransformer.patch(node);
             NoOpLoadSideLoadPluginsTransformer.patch(node);
             PatchDevToolsLauncherCheck.patch(node);
+            DisableTelemetryTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {
@@ -37,12 +36,18 @@ public class RLInjector
                     entry.getKey(),
                     bytes
             );
-            if(entry.getKey().equals("net.runelite.client.RuneLite"))
+
+            List<String> toDump = List.of(
+                    "net.runelite.client.RuneLite",
+                    "net.runelite.client.RuneLiteModule",
+                    "net.runelite.client.plugins.PluginManager"
+            );
+            if(toDump.contains(entry.getKey()))
             {
                 ClassFileUtil.writeClass(
-                        "net.runelite.client.RuneLite",
+                        entry.getKey(),
                         bytes,
-                        Path.of("C:\\test\\dumper\\")
+                        Path.of("C:/test/dumper/")
                 );
             }
         }
