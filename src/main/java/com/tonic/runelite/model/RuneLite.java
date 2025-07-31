@@ -15,6 +15,5 @@ public class RuneLite
         this.runeLiteMain = Main.CLASSLOADER.getMain();
         this.injector = new Guice((Injector) ReflectUtil.getStaticField(runeLiteMain, "injector"));
         this.pluginManager = new PluginManager(injector);
-        System.out.println(runeLiteMain.getName());
     }
 }

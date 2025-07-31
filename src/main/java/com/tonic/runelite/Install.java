@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public class Install
 {
-    public static void start(RuneLite runeLite) {
+    public void start(RuneLite runeLite) {
         Runnable task = () -> {
             try {
                 PluginManager pluginManager = runeLite.getPluginManager();
@@ -74,7 +74,7 @@ public class Install
         new Thread(task, "plugin-installer").start();
     }
 
-    public static List<Path> findJars() {
+    public List<Path> findJars() {
         Path external   = Main.RUNELITE_DIR.resolve("externalplugins");
         Path sideloaded = Main.RUNELITE_DIR.resolve("sideloaded-plugins");
 
@@ -97,7 +97,7 @@ public class Install
                 .collect(Collectors.toList());
     }
 
-    public static List<ClassByte> listFilesInJar(Path jarPath) {
+    public List<ClassByte> listFilesInJar(Path jarPath) {
         List<ClassByte> classes = new ArrayList<>();
 
         try (JarFile jar = new JarFile(jarPath.toFile())) {
