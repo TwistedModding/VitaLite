@@ -16,11 +16,7 @@ public class CallStackFilter
 
     public static void processName(String name)
     {
-        String pckg = extractPackage(name);
-        if(ignored.add(pckg))
-        {
-            //System.out.println("Processed package to stack-trace ignores: " + pckg);
-        }
+        ignored.add(extractPackage(name));
     }
 
     private static String extractPackage(String fullName) {
