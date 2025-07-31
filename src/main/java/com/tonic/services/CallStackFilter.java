@@ -9,6 +9,7 @@ public class CallStackFilter
     @Getter
     private static Set<String> ignored = Set.of(
             "com.tonic",
-            "com.example" //ethans api
+            "com.example", //ethans api
+            "com.piggyplugins" //piggyplugins
     );
 }

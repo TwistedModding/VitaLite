@@ -11,11 +11,6 @@ public enum HardwareAccelerationMode
     OPENGL,
     METAL;
 
-    /**
-     * Gets list of JVM properties to enable Hardware Acceleration for this mode.
-     * See https://docs.oracle.com/javase/8/docs/technotes/guides/2d/flags.html for reference
-     * @return list of params
-     */
     public Map<String, String> toParams(OS.OSType os)
     {
         final Map<String, String> params = new LinkedHashMap<>();

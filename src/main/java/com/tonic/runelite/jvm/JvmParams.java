@@ -7,10 +7,9 @@ public class JvmParams
 {
     public static void set()
     {
-        final Map<String, String> jvmProps = new LinkedHashMap<>();
 
         final var hardwareAccelMode = HardwareAccelerationMode.defaultMode(OS.getOs());
-        jvmProps.putAll(hardwareAccelMode.toParams(OS.getOs()));
+        final Map<String, String> jvmProps = new LinkedHashMap<>(hardwareAccelMode.toParams(OS.getOs()));
 
         if (OS.getOs() == OS.OSType.MacOS)
         {
