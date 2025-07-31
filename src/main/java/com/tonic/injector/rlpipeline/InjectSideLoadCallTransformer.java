@@ -17,7 +17,7 @@ public class InjectSideLoadCallTransformer
 
         if(main == null)
         {
-            System.out.println("Failed to find RuneLite main method");
+            System.out.println("Failed to find RuneLite start method");
             return;
         }
 

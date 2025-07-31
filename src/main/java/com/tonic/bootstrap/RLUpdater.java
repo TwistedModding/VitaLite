@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.tonic.bootstrap.beans.Artifact;
 import com.tonic.bootstrap.beans.Bootstrap;
 import com.tonic.bootstrap.beans.Diff;
+import com.tonic.runelite.jvm.JvmParams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,8 @@ public class RLUpdater
     public static void run() throws IOException, InterruptedException, NoSuchAlgorithmException
     {
         properties = Properties.fetch();
+
+        JvmParams.set(properties);
 
         httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
