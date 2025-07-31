@@ -3,6 +3,7 @@ package com.tonic;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.runelite.Install;
+import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.runelite.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
@@ -39,6 +40,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception
     {
+        JvmParams.set();
         RLUpdater.run();
         args = optionsParser.parse(args);
         loadArtifacts();
@@ -68,7 +70,6 @@ public class Main {
     }
 
     private static void loadClassLoader() {
-        System.setProperty("sun.awt.noerasebackground", "true");
         CLASSLOADER = new RLClassLoader(URLS);
         CTX_CLASSLOADER = new RLClassLoader(URLS);
         UIManager.put("ClassLoader", CLASSLOADER);

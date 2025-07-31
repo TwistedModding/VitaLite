@@ -31,8 +31,6 @@ public class RLUpdater
     {
         properties = Properties.fetch();
 
-        JvmParams.set(properties);
-
         httpClient = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.ALWAYS)
                 .build();

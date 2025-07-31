@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class JvmParams
 {
-    public static void set(Map<String, String> properties)
+    public static void set()
     {
         final Map<String, String> jvmProps = new LinkedHashMap<>();
 
