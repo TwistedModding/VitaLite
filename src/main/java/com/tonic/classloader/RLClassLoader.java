@@ -59,11 +59,11 @@ public class RLClassLoader extends URLClassLoader
                 return loadedClass;
             }
 
-            if (!name.startsWith("net.runelite.")) {
+            byte[] bytes = Main.LIBS.gamepackByName(name);
+            if (!name.startsWith("net.runelite.") && bytes == null) {
                 return super.loadClass(name);
             }
 
-            byte[] bytes = Main.LIBS.gamepackByName(name);
             if(bytes == null)
                 bytes = Main.LIBS.classByName(name);
 
