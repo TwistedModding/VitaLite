@@ -4,6 +4,8 @@ import com.google.common.io.ByteStreams;
 import com.tonic.Main;
 import com.tonic.runelite.model.PluginManager;
 import com.tonic.runelite.model.RuneLite;
+import com.tonic.services.CallStackFilter;
+
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +42,7 @@ public class Install
                         ClassByte cb  = it.next();
                         Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
                         if (cls == null) continue;
+                        CallStackFilter.processName(cls.getName());
                         it.remove();
                         loadedThisPass++;
                         Class<?> parent = cls.getSuperclass();
