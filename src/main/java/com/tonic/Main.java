@@ -40,8 +40,7 @@ public class Main {
     public static void main(String[] args) throws Exception
     {
         RLUpdater.run();
-        optionsParser.parse(args);
-        args = optionsParser.filter(args);
+        args = optionsParser.parse(args);
         loadArtifacts();
         loadClassLoader();
         Injector.patch();

@@ -22,8 +22,9 @@ public class OptionsParser {
      * @param args
      * the command line arguments
      */
-    public void parse(String[] args) {
+    public String[] parse(String[] args) {
         Map<String, Field> annotatedFields = new HashMap<>();
+        List<String> passThruArgs = new ArrayList<>();
 
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields)
@@ -53,7 +54,7 @@ public class OptionsParser {
                     Field field = annotatedFields.get(argName);
                     if(field == null)
                     {
-                        System.err.println("Unknown argument: " + argName);
+                        passThruArgs.add(args[i]);
                         continue;
                     }
                     String value = args[++i];
@@ -65,13 +66,18 @@ public class OptionsParser {
                     Field field = annotatedFields.get(argName);
                     if (field == null)
                     {
-                        System.err.println("Unknown argument: " + argName);
+                        passThruArgs.add(args[i]);
                         continue;
                     }
                     setFieldValue(field, "true");
                 }
             }
         }
+        for (String arg : passThruArgs)
+        {
+            System.out.println("Passing to RL: " + arg);
+        }
+        return passThruArgs.toArray(new String[0]);
     }
 
     private void help()

@@ -23,16 +23,12 @@ public class Install
                 PluginManager pluginManager = runeLite.getPluginManager();
 
                 /* ---------- gather classes from every plugin jar ---------- */
-                List<ClassByte> pending = findJars().stream()       // locate jars
-                        .flatMap(jar -> listFilesInJar(jar).stream())// read classes/resources
+                List<ClassByte> pending = findJars().stream()
+                        .flatMap(jar -> listFilesInJar(jar).stream())
                         .collect(Collectors.toCollection(ArrayList::new));
 
                 List<Class<?>> plugins = new ArrayList<>();
 
-                /* ---------- resolve classes until nothing new loads ---------- */
-                // -----------------------------------------------------------------------------
-// 2.  Resolve & load classes that depend on one-another
-// -----------------------------------------------------------------------------
                 while (!pending.isEmpty()) {
                     int loadedThisPass = 0;
 
