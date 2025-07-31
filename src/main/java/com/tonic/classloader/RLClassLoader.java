@@ -2,8 +2,7 @@ package com.tonic.classloader;
 
 import com.tonic.Main;
 import com.tonic.api.TClient;
-import com.tonic.injector.RLInjector;
-
+import com.tonic.model.Libs;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -12,11 +11,12 @@ import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.Permissions;
 import java.security.ProtectionDomain;
+import java.security.cert.Certificate;
 import java.util.HashMap;
 
 public class RLClassLoader extends URLClassLoader
 {
-    private HashMap<String, InputStream> resources = new HashMap<>();
+    private final HashMap<String, InputStream> resources = new HashMap<>();
 
     public RLClassLoader(URL[] urls)
     {
@@ -82,7 +82,8 @@ public class RLClassLoader extends URLClassLoader
         {
             try {
                 if (bytes.length > 0) {
-                    loadedClass = defineClass(name, bytes, 0, bytes.length);
+                    ProtectionDomain pd = makeProtectionDomainFor(name);
+                    loadedClass = defineClass(name, bytes, 0, bytes.length, pd);
                     if (loadedClass != null) {
                         return loadedClass;
                     }
@@ -122,10 +123,6 @@ public class RLClassLoader extends URLClassLoader
         {
             return defineClass(name, bytes, 0, bytes.length, protDomain);
         }
-        catch (ClassFormatError | NoClassDefFoundError | VerifyError ex)
-        {
-            return null;
-        }
         catch (LinkageError ex)
         {
             return null;
@@ -139,5 +136,19 @@ public class RLClassLoader extends URLClassLoader
             return resources.get(name);
         }
         return super.getResourceAsStream(name);
+    }
+
+    private ProtectionDomain makeProtectionDomainFor(String className) {
+        Libs libs = Main.LIBS;
+        Certificate[] certs = libs.getClassCerts().get(className);
+        URL jarUrl = libs.getUrls().get(className);
+
+        CodeSource cs = (jarUrl != null)
+                ? new CodeSource(jarUrl, certs)
+                : new CodeSource(getClass().getProtectionDomain().getCodeSource().getLocation(), (Certificate[]) null);
+
+//        Permissions perms = new Permissions();
+//        perms.add(new AllPermission());
+        return new ProtectionDomain(cs, null, this, null);
     }
 }

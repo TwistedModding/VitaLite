@@ -2,9 +2,11 @@ package com.tonic.util;
 
 import com.tonic.model.Libs;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.security.cert.Certificate;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -28,7 +30,44 @@ public class ArtifactReader {
         readGamepack(libs);
     }
 
-    private static void readJarFromUrl(Libs libs, URL url) throws IOException {
+    private static void readJarFromUrl(Libs libs, URL url) throws Exception {
+        File file = new File(url.toURI());
+        try (JarFile jarFile = new JarFile(file, true)) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                JarEntry entry = entries.nextElement();
+                String entryName = entry.getName();
+                if (entry.isDirectory()) continue;
+
+                // Read entry fully to trigger signature verification (for signed jars)
+                byte[] entryBytes;
+                try (InputStream is = jarFile.getInputStream(entry)) {
+                    entryBytes = readAllBytes(is);
+                }
+
+                if (entryName.endsWith(".class")) {
+                    String className = entryName.replace('/', '.')
+                            .substring(0, entryName.length() - 6);
+                    Certificate[] certs = entry.getCertificates(); // might be null for unsigned
+                    if (className.startsWith("net.runelite")) {
+                        libs.getRunelite().classes.put(className, entryBytes);
+                        if (certs != null) {
+                            libs.getClassCerts().put(className, certs);
+                            libs.getUrls().put(className, url);
+                        }
+                    } else {
+                        libs.getOther().classes.put(className, entryBytes);
+                        if (certs != null) {
+                            libs.getClassCerts().put(className, certs);
+                            libs.getUrls().put(className, url);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void readJarFromUrl2(Libs libs, URL url) throws IOException {
         try (JarInputStream jarIn = new JarInputStream(url.openStream())) {
             JarEntry entry;
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URL;
+import java.security.cert.Certificate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -19,6 +21,8 @@ public class Libs
     private final Artifact runelite = new Artifact();
     private final Artifact gamepack = new Artifact();
     private final Artifact gamepackClean = new Artifact();
+    private final Map<String, Certificate[]> classCerts = new HashMap<>();
+    private final Map<String, URL> urls = new HashMap<>();
 
     public Libs(URL[] urls) throws Exception {
         ArtifactReader.read(this, urls);
