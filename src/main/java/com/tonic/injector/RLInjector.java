@@ -28,6 +28,7 @@ public class RLInjector
             NoOpLoadSideLoadPluginsTransformer.patch(node);
             PatchDevToolsLauncherCheck.patch(node);
             DisableTelemetryTransformer.patch(node);
+            PatchDevToolsPluginManagerTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {
