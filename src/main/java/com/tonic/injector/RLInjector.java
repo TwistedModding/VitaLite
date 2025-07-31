@@ -1,10 +1,9 @@
 package com.tonic.injector;
 
 import com.tonic.Main;
-import com.tonic.injector.pipeline.StripAnnotationsTransformer;
 import com.tonic.injector.rlpipeline.InjectSideLoadCallTransformer;
+import com.tonic.injector.rlpipeline.NoOpLoadSideLoadPluginsTransformer;
 import com.tonic.injector.rlpipeline.ScheduleWithFixedDelayTransformer;
-import com.tonic.model.Artifact;
 import com.tonic.util.ClassFileUtil;
 import com.tonic.util.ClassNodeUtil;
 import org.objectweb.asm.tree.ClassNode;
@@ -27,6 +26,7 @@ public class RLInjector
         {
             ScheduleWithFixedDelayTransformer.patch(node);
             InjectSideLoadCallTransformer.patch(node);
+            NoOpLoadSideLoadPluginsTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {

@@ -26,10 +26,10 @@ public class InjectSideLoadCallTransformer
         for (AbstractInsnNode insn : main.instructions) {
             if (insn.getOpcode() == Opcodes.INVOKEVIRTUAL) {
                 MethodInsnNode m = (MethodInsnNode) insn;
-                if (m.owner.equals("net/runelite/client/ui/ClientUI")
-                        && m.name.equals("init")
+                if (m.owner.equals("net/runelite/client/plugins/PluginManager")
+                        && m.name.equals("loadSideLoadPlugins")
                         && m.desc.equals("()V")) {
-                    insertionPoint = insn;
+                    insertionPoint = insn.getNext();
                     break;
                 }
             }
@@ -70,6 +70,24 @@ public class InjectSideLoadCallTransformer
                 .invokeVirtual("com/tonic/runelite/Install",
                         "start",
                         "(Lcom/tonic/runelite/model/RuneLite;)V")
+
+                // RuneLite.injector.getInstance(net.runelite.client.eventbus.EventBus.class)
+                //      .post(new net.runelite.client.events.ExternalPluginsChanged());
+                .pushThis()
+                .getField("net/runelite/client/RuneLite",
+                        "eventBus",
+                        "Lnet/runelite/client/eventbus/EventBus;")
+                .newInstance("net/runelite/client/events/ExternalPluginsChanged")
+                .dup()
+                .invokeSpecial(
+                        "net/runelite/client/events/ExternalPluginsChanged",
+                        "<init>",
+                        "()V"
+                )
+                .castToType("java/lang/Object")
+                .invokeVirtual("net/runelite/client/eventbus/EventBus",
+                        "post",
+                        "(Ljava/lang/Object;)V")
                 .build();
 
 
