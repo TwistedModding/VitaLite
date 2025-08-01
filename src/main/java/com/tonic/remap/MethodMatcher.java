@@ -57,6 +57,126 @@ public class MethodMatcher {
     }
 
     /**
+     * Class-aware entrypoint. If you have class matches, supply them along with a classWeight in [0,1]
+     * to bias score when method owners align.
+     */
+    public static List<Match> matchAll(
+            Map<MethodKey, NormalizedMethod> oldMethods,
+            Map<MethodKey, NormalizedMethod> newMethods,
+            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            int topKPerOld,
+            double classWeight
+    ) {
+        return matchAllWithClassContext(oldMethods, newMethods, classMatchByOldOwner, topKPerOld,
+                Runtime.getRuntime().availableProcessors(), classWeight);
+    }
+
+    public static List<Match> matchAllWithClassContext(
+            Map<MethodKey, NormalizedMethod> oldMethods,
+            Map<MethodKey, NormalizedMethod> newMethods,
+            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            int topKPerOld,
+            int threads,
+            double classWeight // in [0,1], how much to boost when class owners align
+    ) {
+        if (oldMethods.isEmpty() || newMethods.isEmpty() || topKPerOld <= 0) {
+            return Collections.emptyList();
+        }
+
+        List<NormalizedMethod> corpus = new ArrayList<>(oldMethods.values());
+        corpus.addAll(newMethods.values());
+        CorpusStats stats = buildCorpusStats(corpus);
+
+        long totalPairs = (long) oldMethods.size() * (long) newMethods.size();
+        ProgressBar progressBar = new ProgressBar(totalPairs, 40);
+        AtomicLong processed = new AtomicLong(0);
+        ConcurrentLinkedQueue<Match> collected = new ConcurrentLinkedQueue<>();
+
+        ExecutorService exec = Executors.newFixedThreadPool(Math.max(1, threads));
+        try {
+            List<Future<?>> futures = new ArrayList<>();
+            for (Map.Entry<MethodKey, NormalizedMethod> oEntry : oldMethods.entrySet()) {
+                futures.add(exec.submit(() -> {
+                    MethodKey oldKey = oEntry.getKey();
+                    NormalizedMethod oldNorm = oEntry.getValue();
+
+                    PriorityQueue<Match> topK =
+                            new PriorityQueue<>(topKPerOld, Comparator.comparingDouble(m -> m.score));
+
+                    ClassMatcher.ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
+                    String expectedNewOwner = classMatch != null ? classMatch.newFp.internalName : null;
+
+                    for (Map.Entry<MethodKey, NormalizedMethod> nEntry : newMethods.entrySet()) {
+                        MethodKey newKey = nEntry.getKey();
+                        NormalizedMethod newNorm = nEntry.getValue();
+
+                        long curr = processed.incrementAndGet(); // always count the pair
+
+                        // existing structural filters
+                        if ((oldKey.name.length() == 2) != (newKey.name.length() == 2)) {
+                            if (shouldUpdateProgress(curr, totalPairs)) {
+                                synchronized (progressBar) { progressBar.update(curr); }
+                            }
+                            continue;
+                        }
+                        if (!compatibleObjPrimPattern(oldKey.desc, newKey.desc)) {
+                            if (shouldUpdateProgress(curr, totalPairs)) {
+                                synchronized (progressBar) { progressBar.update(curr); }
+                            }
+                            continue;
+                        }
+
+                        double baseScore = score(oldNorm, newNorm, stats);
+                        double finalScore = baseScore;
+
+                        // soft boost only when class owners align; do not penalize otherwise
+                        if (expectedNewOwner != null && newKey.owner.equals(expectedNewOwner)) {
+                            finalScore = baseScore * (1.0 - classWeight) + classWeight;
+                        }
+
+                        Match m = new Match(oldKey, newKey, finalScore);
+
+                        if (topK.size() < topKPerOld) {
+                            topK.offer(m);
+                        } else if (finalScore > Objects.requireNonNull(topK.peek()).score) {
+                            topK.poll();
+                            topK.offer(m);
+                        }
+
+                        if (shouldUpdateProgress(curr, totalPairs)) {
+                            synchronized (progressBar) { progressBar.update(curr); }
+                        }
+                    }
+
+                    while (!topK.isEmpty()) {
+                        collected.add(topK.poll());
+                    }
+                }));
+            }
+
+            for (Future<?> f : futures) {
+                try { f.get(); } catch (ExecutionException | InterruptedException ignored) { }
+            }
+        } finally {
+            exec.shutdownNow();
+        }
+
+        List<Match> result = new ArrayList<>(collected);
+        result.sort(Comparator.comparingDouble((Match m) -> -m.score));
+        synchronized (progressBar) { progressBar.update(totalPairs); }
+        return result;
+    }
+
+    /**
+     * Helper to centralize progress update condition (mirrors prior logic).
+     */
+    private static boolean shouldUpdateProgress(long curr, long totalPairs) {
+        return curr % Math.max(1, totalPairs / 100) == 0 ||
+                curr % 1000 == 0 ||
+                curr == totalPairs;
+    }
+
+    /**
      * Parallelized top-K matcher with corpus-level stats.
      */
     public static List<Match> matchAllConcurrent(

@@ -199,6 +199,9 @@ public class UsedMethodScannerAsm {
      */
     @SuppressWarnings("deprecation")
     private static boolean fromSuper(MethodNode method) {
+        if(isStackCheck(method)) {
+            return true;
+        }
         String name = method.name;
         try {
             if (Arrays.stream(Applet.class.getDeclaredMethods()).anyMatch(m -> m.getName().equals(name))) return true;
@@ -229,6 +232,25 @@ public class UsedMethodScannerAsm {
             if (Arrays.stream(Annotation.class.getDeclaredMethods()).anyMatch(m -> m.getName().equals(name))) return true;
             if (Arrays.stream(TlsClient.class.getDeclaredMethods()).anyMatch(m -> m.getName().equals(name))) return true;
         } catch (Throwable ignored) {
+        }
+        return false;
+    }
+
+    private static boolean isStackCheck(MethodNode method)
+    {
+        if(!method.desc.endsWith("Ljava/lang/String;"))
+            return false;
+
+        for(AbstractInsnNode insn : method.instructions)
+        {
+            if(insn.getOpcode() != Opcodes.INVOKEVIRTUAL)
+                continue;
+
+            MethodInsnNode min = (MethodInsnNode) insn;
+            if(!min.desc.contains("[Ljava/lang/StackTraceElement;"))
+                continue;
+
+            return true;
         }
         return false;
     }

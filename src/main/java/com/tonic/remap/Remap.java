@@ -13,15 +13,23 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 public class Remap { //todo: write propper used method filter
-
+    private static final List<ClassNode> oldClasses = new ArrayList<>();
+    private static final List<ClassNode> newClasses = new ArrayList<>();
     public static void main(String[] args) throws Exception
     {
         // 1. Load all methods from both jars
         System.out.println("Loading methods from jars...");
         Path oldJar = Paths.get("C:/test/remap/230.jar");
         Path newJar = Paths.get("C:/test/remap/231.jar");
-        Map<MethodKey, MethodNode> newMethods = loadMethodsFromJar(newJar);
-        Map<MethodKey, MethodNode> oldMethods = loadMethodsFromJar(oldJar);
+        Map<MethodKey, MethodNode> newMethods = loadMethodsFromJar(newJar, newClasses);
+        Map<MethodKey, MethodNode> oldMethods = loadMethodsFromJar(oldJar, oldClasses);
+
+        List<ClassMatcher.ClassMatch> topMatches = ClassMatcher.matchClassesTopK(oldClasses, newClasses, 1, 0.3);
+        Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner = topMatches.stream()
+                .collect(Collectors.toMap(
+                        cm -> cm.oldFp.internalName, // or .oldClass() / whatever accessor
+                        cm -> cm
+                ));
 
         // 2. Normalize
         System.out.println("Normalizing methods...");
@@ -36,7 +44,7 @@ public class Remap { //todo: write propper used method filter
 
         // 3. Initial matching: top 5 candidates per old method
         System.out.println("Matching methods...");
-        List<MethodMatcher.Match> candidates = MethodMatcher.matchAll(oldNorm, newNorm, 50);
+        List<MethodMatcher.Match> candidates = MethodMatcher.matchAll(oldNorm, newNorm, classMatchByOldOwner, 50, 0.5);
 
         // 4. Seed best mapping (best score per old method)
         System.out.println("Building initial mapping...");
@@ -198,9 +206,8 @@ public class Remap { //todo: write propper used method filter
     /**
      * Loads all MethodNodes from a jar, returning a map from MethodKey to MethodNode.
      */
-    public static Map<MethodKey, MethodNode> loadMethodsFromJar(Path jarPath) throws Exception {
+    public static Map<MethodKey, MethodNode> loadMethodsFromJar(Path jarPath, List<ClassNode> classes) throws Exception {
         Map<MethodKey, MethodNode> methods = new HashMap<>();
-        List<ClassNode> all = new ArrayList<>();
 
         try (JarFile jarFile = new JarFile(jarPath.toFile())) {
             Enumeration<JarEntry> entries = jarFile.entries();
@@ -215,7 +222,7 @@ public class Remap { //todo: write propper used method filter
                     ClassReader cr = new ClassReader(is);
                     ClassNode cn = new ClassNode();
                     cr.accept(cn, 0);
-                    all.add(cn);
+                    classes.add(cn);
 
                     for(MethodNode mn : cn.methods) {
                         MethodKey key = new MethodKey(cn.name, mn.name, mn.desc);
@@ -225,7 +232,7 @@ public class Remap { //todo: write propper used method filter
             }
         }
 
-        var used = UsedMethodScannerAsm.findUsedMethods(all);
+        var used = UsedMethodScannerAsm.findUsedMethods(classes);
         // Filter methods to only those that are used
         methods.entrySet().removeIf(entry -> !used.contains(entry.getKey()));
         return methods;

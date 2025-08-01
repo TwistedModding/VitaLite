@@ -43,9 +43,8 @@ public class NormalizedMethod {
         }
 
         // Detect opaque predicate params (including trailing unused ones)
-        Set<Integer> opaqueParams = false
-                ? detectOpaquePredicateParams(working)
-                : Collections.emptySet();
+        //Set<Integer> opaqueParams = detectOpaquePredicateParams(working);
+        Set<Integer> opaqueParams = Collections.emptySet();
 
         // Normalize descriptor (drops opaque / unused trailing params)
         this.normalizedDescriptor = normalizeDescriptor(original.desc, opaqueParams);
