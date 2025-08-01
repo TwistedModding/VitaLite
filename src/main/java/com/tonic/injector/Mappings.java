@@ -10,7 +10,7 @@ public class Mappings
     public static final String isaacCipherFieldName = "ai";
     public static final String addNodeMethodName = "an";
     public static final String clientPacketClassName = "mg";
-    public static final String packetWriterClassName = "dn";
+    public static final String packetWriterClassName = "dn"; //mq.aw Lmq; -> client.cs Ldn; (score=0.550)
     public static final String classContainingGetPacketBufferNodeName = "ff";
     public static final String packetBufferNodeClassName = "mk";
     public static final String packetBufferFieldName = "am";
