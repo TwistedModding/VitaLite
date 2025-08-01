@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadFactory;
+
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -22,6 +23,7 @@ public class UsedMethodScannerAsm {
     // queue / working set
     private static final Queue<MethodKey> preloadQueue = new LinkedList<>();
     private static final Set<MethodKey> used = new HashSet<>();
+    private static final boolean VERBOSE = false; // flip to true for seed/resolve diagnostics
 
     /**
      * Replicates the Javassist findUsedElements logic using ASM structures.
@@ -49,17 +51,24 @@ public class UsedMethodScannerAsm {
 
         // initial seeding: mirror Javassist filter
         for (ClassNode cn : classNodes) {
-            if (cn.name.length() > 2 && !cn.name.equals("client"))
+            if (cn.name.length() > 2 && !cn.name.equals("client")) {
+                if (VERBOSE) System.out.printf("SEED SKIP class %s (name length >2 and not client)%n", cn.name);
                 continue; // same gate as the Javassist version
+            }
 
             for (MethodNode mn : cn.methods) {
-                if ((mn.access & Opcodes.ACC_ABSTRACT) != 0)
-                    continue;
-                if (!fromSuper(mn))
-                    continue;
                 MethodKey key = new MethodKey(cn.name, mn.name, mn.desc);
+                if ((mn.access & Opcodes.ACC_ABSTRACT) != 0) {
+                    if (VERBOSE) System.out.printf("SEED SKIP %s (abstract)%n", key);
+                    continue;
+                }
+                if (!fromSuper(mn)) {
+                    if (VERBOSE) System.out.printf("SEED SKIP %s (fromSuper false)%n", key);
+                    continue;
+                }
                 if (!preloadQueue.contains(key)) {
                     preloadQueue.add(key);
+                    if (VERBOSE) System.out.printf("SEED ADD %s%n", key);
                 }
             }
         }
@@ -102,14 +111,25 @@ public class UsedMethodScannerAsm {
             if (callee == null) continue;
 
             if ((callee.access & Opcodes.ACC_ABSTRACT) != 0) {
-                // try to find concrete implementor/override
                 ClassNode mystery = classMap.get(owner);
-                if (mystery == null) continue;
-                ClassNode extender = findExtenderOf(mystery, classMap.values());
-                if (extender == null) continue;
+                if (mystery == null) {
+                    if (VERBOSE) System.out.printf("ABSTRACT RESOLVE: no class node for owner %s%n", owner);
+                    continue;
+                }
+                ClassNode extender = findExtenderOf(mystery, classMap.values(), classMap);
+                if (extender == null) {
+                    if (VERBOSE) System.out.printf("ABSTRACT RESOLVE: no extender found for abstract class/interface %s%n", mystery.name);
+                    continue;
+                }
                 MethodNode override = findMethodInClass(extender, min.name, min.desc);
-                if (override == null) continue;
-                if ((override.access & Opcodes.ACC_ABSTRACT) != 0) continue;
+                if (override == null) {
+                    if (VERBOSE) System.out.printf("ABSTRACT RESOLVE: extender %s has no override for %s %s%n", extender.name, min.name, min.desc);
+                    continue;
+                }
+                if ((override.access & Opcodes.ACC_ABSTRACT) != 0) {
+                    if (VERBOSE) System.out.printf("ABSTRACT RESOLVE: override in %s is still abstract for %s%n", extender.name, new MethodKey(extender.name, override.name, override.desc));
+                    continue;
+                }
                 MethodKey overrideKey = new MethodKey(extender.name, override.name, override.desc);
                 queue.add(overrideKey);
             } else {
@@ -119,6 +139,7 @@ public class UsedMethodScannerAsm {
     }
 
     private static MethodNode findMethodInClass(ClassNode cn, String name, String desc) {
+        if (cn == null || cn.methods == null) return null;
         for (MethodNode mn : cn.methods) {
             if (mn.name.equals(name) && mn.desc.equals(desc)) {
                 return mn;
@@ -130,9 +151,9 @@ public class UsedMethodScannerAsm {
     /**
      * Finds a class that extends or implements the supplied class (non-strict: excludes identity).
      */
-    private static ClassNode findExtenderOf(ClassNode clazz, Collection<ClassNode> allClasses) {
+    private static ClassNode findExtenderOf(ClassNode clazz, Collection<ClassNode> allClasses, Map<String, ClassNode> classMap) {
         for (ClassNode candidate : allClasses) {
-            if (extendsOrImplements(candidate, clazz)) {
+            if (extendsOrImplements(candidate, clazz, classMap)) {
                 return candidate;
             }
         }
@@ -142,38 +163,34 @@ public class UsedMethodScannerAsm {
     /**
      * Checks if classToCheck extends or implements classOrInterface.
      */
-    private static boolean extendsOrImplements(ClassNode classToCheck, ClassNode classOrInterface) {
+    private static boolean extendsOrImplements(ClassNode classToCheck, ClassNode classOrInterface, Map<String, ClassNode> classMap) {
         if (classToCheck == null || classOrInterface == null) return false;
         if (classToCheck.name.equals(classOrInterface.name)) return false;
 
-        // walk superclass chain
-        ClassNode current = classToCheck;
-        while (current != null) {
-            if (current.name.equals(classOrInterface.name)) {
+        // BFS over inheritance / interfaces
+        Deque<String> work = new ArrayDeque<>();
+        Set<String> seen = new HashSet<>();
+        work.add(classToCheck.name);
+
+        while (!work.isEmpty()) {
+            String currentName = work.removeFirst();
+            if (!seen.add(currentName)) continue;
+            if (currentName.equals(classOrInterface.name)) {
                 return true;
             }
-            if (current.superName == null) break;
-            current = getClassNode(current.superName, classToCheck);
-        }
-
-        // direct interfaces
-        if (classToCheck.interfaces != null) {
-            for (String iface : classToCheck.interfaces) {
-                if (iface.equals(classOrInterface.name)) {
-                    return true;
+            ClassNode current = classMap.get(currentName);
+            if (current == null) continue;
+            if (current.superName != null) {
+                work.addLast(current.superName);
+            }
+            if (current.interfaces != null) {
+                for (String iface : current.interfaces) {
+                    work.addLast(iface);
                 }
             }
         }
 
         return false;
-    }
-
-    // Helper to avoid needing a global map inside extendsOrImplements; here we fall back to null so chain stops.
-    private static ClassNode getClassNode(String internalName, ClassNode context) {
-        // This minimal helper just returns null; the calling code only uses it for superclass
-        // traversal in this simplified version. If you want full deep traversal you can inject
-        // a shared classMap and use that instead.
-        return null;
     }
 
     /**

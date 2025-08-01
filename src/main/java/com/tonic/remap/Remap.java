@@ -38,7 +38,6 @@ public class Remap { //todo: write propper used method filter
         System.out.println("Matching methods...");
         List<MethodMatcher.Match> candidates = MethodMatcher.matchAll(oldNorm, newNorm, 50);
 
-
         // 4. Seed best mapping (best score per old method)
         System.out.println("Building initial mapping...");
         Map<MethodKey, MethodKey> seedMap = new HashMap<>();
