@@ -9,13 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Getter
 public class OptionsParser {
-    @CLIArgument(
-            name = "rsdump",
-            description = "[Optional] Path to dump the gamepack to"
-    )
-    private String rsdump = null;
 
     /**
      * Parses the command line arguments and sets the fields of this class accordingly.
@@ -80,7 +74,7 @@ public class OptionsParser {
         return passThruArgs.toArray(new String[0]);
     }
 
-    private void help()
+    public void help()
     {
         System.out.println("Usage: java -jar deobber.jar [options]");
         System.out.println("Options:");

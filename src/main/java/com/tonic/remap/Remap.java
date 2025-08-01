@@ -1,5 +1,7 @@
 package com.tonic.remap;
 
+import com.tonic.util.optionsparser.OptionsParser;
+import com.tonic.util.optionsparser.RemapperOptions;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -17,17 +19,22 @@ public class Remap { //todo: write propper used method filter
     private static final List<ClassNode> newClasses = new ArrayList<>();
     public static void main(String[] args) throws Exception
     {
+        RemapperOptions parser = new RemapperOptions();
+        parser.parse(args);
+        if(parser.getOldJar() == null || parser.getNewJar() == null) {
+            parser.help();
+            System.exit(0);
+        }
         // 1. Load all methods from both jars
-        System.out.println("Loading methods from jars...");
-        Path oldJar = Paths.get("C:/test/remap/230.jar");
-        Path newJar = Paths.get("C:/test/remap/231.jar");
+        Path oldJar = Paths.get(parser.getOldJar());
+        Path newJar = Paths.get(parser.getNewJar());
         Map<MethodKey, MethodNode> newMethods = loadMethodsFromJar(newJar, newClasses);
         Map<MethodKey, MethodNode> oldMethods = loadMethodsFromJar(oldJar, oldClasses);
 
         List<ClassMatcher.ClassMatch> topMatches = ClassMatcher.matchClassesTopK(oldClasses, newClasses, 1, 0.3);
         Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner = topMatches.stream()
                 .collect(Collectors.toMap(
-                        cm -> cm.oldFp.internalName, // or .oldClass() / whatever accessor
+                        cm -> cm.oldFp.internalName,
                         cm -> cm
                 ));
 
@@ -74,7 +81,7 @@ public class Remap { //todo: write propper used method filter
                 oldCG,
                 newCG,
                 10, // max iterations
-                0.3, // neighbor weight (tune: e.g., 0.3 means 30% neighborhood influence)
+                0.3, // neighbor weight
                 seedMap
         );
 
@@ -89,7 +96,6 @@ public class Remap { //todo: write propper used method filter
             MethodKey newKey = e.getValue();
             Integer opaque = opaquePredicates.get(newKey);
             double score = 0.0;
-            // find the original match score if present
             for (MethodMatcher.Match m : candidates) {
                 if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
                     score = m.score;
