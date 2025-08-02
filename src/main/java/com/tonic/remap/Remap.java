@@ -1,6 +1,5 @@
 package com.tonic.remap;
 
-import com.tonic.util.optionsparser.OptionsParser;
 import com.tonic.util.optionsparser.RemapperOptions;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -14,7 +13,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-public class Remap { //todo: write propper used method filter
+public class Remap {
     private static final List<ClassNode> oldClasses = new ArrayList<>();
     private static final List<ClassNode> newClasses = new ArrayList<>();
     public static void main(String[] args) throws Exception
@@ -242,32 +241,5 @@ public class Remap { //todo: write propper used method filter
         // Filter methods to only those that are used
         methods.entrySet().removeIf(entry -> !used.contains(entry.getKey()));
         return methods;
-    }
-
-    private static double jaccard(Set<String> a, Set<String> b) {
-        if (a.isEmpty() && b.isEmpty()) return 1.0;
-        Set<String> intersect = new HashSet<>(a);
-        intersect.retainAll(b);
-        Set<String> union = new HashSet<>(a);
-        union.addAll(b);
-        return union.isEmpty() ? 0.0 : (double) intersect.size() / union.size();
-    }
-
-    private static double overlapCoefficient(Set<?> a, Set<?> b) {
-        if (a.isEmpty() || b.isEmpty()) return 0.0;
-        Set<Object> smaller = a.size() < b.size() ? new HashSet<>(a) : new HashSet<>(b);
-        Set<Object> larger = a.size() < b.size() ? new HashSet<>(b) : new HashSet<>(a);
-        smaller.retainAll(larger);
-        return (double) smaller.size() / Math.min(a.size(), b.size());
-    }
-
-    private static void dumpNormalized(String tag, MethodKey key, NormalizedMethod nm) {
-        System.out.println("=== " + tag + " ===");
-        System.out.println("Method: " + key);
-        System.out.println("  normalizedDescriptor: " + nm.normalizedDescriptor);
-        System.out.println("  invoked signatures: " + nm.invokedSignatures);
-        System.out.println("  string constants: " + nm.stringConstants);
-        System.out.println("  opcode histogram keys: " + nm.opcodeHistogram.keySet());
-        System.out.println("====================");
     }
 }

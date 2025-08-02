@@ -107,9 +107,9 @@ public class FieldMatcher {
      * Maps old method set through methodMap and compares to newMethodSet.
      * Returns overlap coefficient (intersection / min(sizeMappedOld, sizeNew)) unless both empty -> 1.
      */
-    private static double neighborhoodAgreement(Set<MethodKey> oldSet,
-                                                Set<MethodKey> newSet,
-                                                Map<MethodKey, MethodKey> methodMap) {
+    static double neighborhoodAgreement(Set<MethodKey> oldSet,
+                                        Set<MethodKey> newSet,
+                                        Map<MethodKey, MethodKey> methodMap) {
         if ((oldSet == null || oldSet.isEmpty()) && (newSet == null || newSet.isEmpty())) {
             return 1.0; // no info, treat as neutral positive
         }

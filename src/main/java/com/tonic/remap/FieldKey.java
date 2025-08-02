@@ -2,7 +2,7 @@ package com.tonic.remap;
 
 import java.util.Objects;
 
-public class FieldKey {
+public final class FieldKey {
     public final String owner; // internal name
     public final String name;
     public final String desc;
