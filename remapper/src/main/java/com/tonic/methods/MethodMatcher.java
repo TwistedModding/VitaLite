@@ -121,6 +121,16 @@ public class MethodMatcher {
                             }
                             continue;
                         }
+                        if(oldKey.name.length() > 2)
+                        {
+                            if(!oldKey.name.equals(newKey.name))
+                            {
+                                if (shouldUpdateProgress(curr, totalPairs)) {
+                                    synchronized (progressBar) { progressBar.update(curr); }
+                                }
+                                continue;
+                            }
+                        }
                         if (!compatibleObjPrimPattern(oldKey.desc, newKey.desc)) {
                             if (shouldUpdateProgress(curr, totalPairs)) {
                                 synchronized (progressBar) { progressBar.update(curr); }
@@ -132,7 +142,7 @@ public class MethodMatcher {
                         double finalScore = baseScore;
 
                         // soft boost only when class owners align; do not penalize otherwise
-                        if (expectedNewOwner != null && newKey.owner.equals(expectedNewOwner)) {
+                        if (newKey.owner.equals(expectedNewOwner)) {
                             finalScore = baseScore * (1.0 - classWeight) + classWeight;
                         }
 
