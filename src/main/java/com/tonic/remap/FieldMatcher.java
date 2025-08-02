@@ -1,140 +1,135 @@
 package com.tonic.remap;
 
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.FieldNode;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Lightweight, single-file field matcher.
+ *  • descriptor / primitive-vs-object compatibility
+ *  • static / instance flag
+ *  • owner-class mapping boost
+ *  • method-usage alignment (via your *refined* method map)
+ */
 public class FieldMatcher {
-    public static class Match {
-        public final FieldKey oldKey;
-        public final FieldKey newKey;
-        public final double score;
 
-        public Match(FieldKey oldKey, FieldKey newKey, double score) {
-            this.oldKey = oldKey;
-            this.newKey = newKey;
-            this.score = score;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s -> %s : %.3f", oldKey, newKey, score);
-        }
+    static final class Match {
+        final FieldKey oldKey;
+        final FieldKey newKey;
+        final double   score;
+        Match(FieldKey o, FieldKey n, double s) { oldKey=o; newKey=n; score=s; }
+        @Override public String toString() { return oldKey + " -> " + newKey + " : " + score; }
     }
 
-    /**
-     * Match all old fields to new fields keeping topKPerOld, using method mapping to compute neighborhood agreement.
-     *
-     * @param oldFields       normalized old fields
-     * @param newFields       normalized new fields
-     * @param methodMapping   current method map (oldMethod -> newMethod)
-     * @param topKPerOld      how many candidates to keep per old field
-     * @param neighborWeight  weight of neighborhood agreement (0..1)
-     */
     public static List<Match> matchAll(
-            Map<FieldKey, NormalizedField> oldFields,
-            Map<FieldKey, NormalizedField> newFields,
-            Map<MethodKey, MethodKey> methodMapping,
-            int topKPerOld,
-            double neighborWeight
+            Map<FieldKey, FieldNode> oldFields,
+            Map<FieldKey, FieldNode> newFields,
+            Map<FieldKey, Set<MethodKey>> oldUses,
+            Map<FieldKey, Set<MethodKey>> newUses,
+            Map<MethodKey, MethodKey>      methodMap,
+            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            int topKPerOld
     ) {
-        if (oldFields.isEmpty() || newFields.isEmpty() || topKPerOld <= 0) {
-            return Collections.emptyList();
-        }
+        if (oldFields.isEmpty() || newFields.isEmpty()) return List.of();
 
-        long totalPairs = (long) oldFields.size() * (long) newFields.size();
-        ProgressBar progressBar = new ProgressBar(totalPairs, 40);
-        long processed = 0;
+        List<Match> collected = new ArrayList<>();
 
-        Map<FieldKey, PriorityQueue<Match>> topKPerOldMap = new LinkedHashMap<>();
-        for (Map.Entry<FieldKey, NormalizedField> oEntry : oldFields.entrySet()) {
-            FieldKey oldKey = oEntry.getKey();
-            PriorityQueue<Match> pq = new PriorityQueue<>(topKPerOld, Comparator.comparingDouble(m -> m.score)); // min-heap
-            topKPerOldMap.put(oldKey, pq);
+        oldFields.forEach((oldKey, oldFn) -> {
+            boolean oldStatic = (oldFn.access & Opcodes.ACC_STATIC) != 0;
 
-            for (Map.Entry<FieldKey, NormalizedField> nEntry : newFields.entrySet()) {
-                FieldKey newKey = nEntry.getKey();
-                double s = score(oEntry.getValue(), nEntry.getValue(), methodMapping, neighborWeight);
-                Match m = new Match(oldKey, newKey, s);
+            /* top-K reservoir */
+            PriorityQueue<Match> topK = new PriorityQueue<>(topKPerOld, Comparator.comparingDouble(m -> m.score));
 
-                if (pq.size() < topKPerOld) {
-                    pq.offer(m);
-                } else if (s > Objects.requireNonNull(pq.peek()).score) {
-                    pq.poll();
-                    pq.offer(m);
+            for (Map.Entry<FieldKey, FieldNode> en : newFields.entrySet()) {
+                FieldKey newKey   = en.getKey();
+                FieldNode newFn   = en.getValue();
+                boolean   newStatic = (newFn.access & Opcodes.ACC_STATIC) != 0;
+
+                double s = 0.0;
+
+                // -----------------------------------------------------------------
+                // 1)  descriptor compatibility  (exact 1.0, loose 0.5, incompatible → skip)
+                // -----------------------------------------------------------------
+                Double descScore = descriptorCompatibility(oldKey.desc, newKey.desc);
+                if (descScore == null) continue;           // incompatible
+                s += descScore * 0.4;
+
+                // -----------------------------------------------------------------
+                // 2)  static / instance agreement
+                // -----------------------------------------------------------------
+                s += (oldStatic == newStatic ? 1.0 : 0.0) * 0.1;
+
+                // -----------------------------------------------------------------
+                // 3)  owner-class mapping boost
+                // -----------------------------------------------------------------
+                ClassMatcher.ClassMatch cm = classMatchByOldOwner.get(oldKey.owner);
+                if (cm != null && cm.newFp.internalName.equals(newKey.owner)) {
+                    s += 0.3;
                 }
 
-                processed++;
-                if (processed % Math.max(1, totalPairs / 100) == 0 || processed % 1000 == 0 || processed == totalPairs) {
-                    progressBar.update(processed);
+                // -----------------------------------------------------------------
+                // 4)  method-usage overlap  (only counts methods we *already* mapped)
+                // -----------------------------------------------------------------
+                Set<MethodKey> oldU = oldUses.getOrDefault(oldKey, Set.of());
+                Set<MethodKey> newU = newUses.getOrDefault(newKey, Set.of());
+
+                // translate old-method keys to their mapped new counterparts
+                Set<MethodKey> translatedOldU = oldU.stream()
+                        .map(methodMap::get)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+                double usageScore = jaccard(translatedOldU, newU);
+                s += usageScore * 0.5;   // strongest signal
+
+                // reservoir logic
+                Match m = new Match(oldKey, newKey, s);
+                if (topK.size() < topKPerOld) {
+                    topK.offer(m);
+                } else if (s > Objects.requireNonNull(topK.peek()).score) {
+                    topK.poll();
+                    topK.offer(m);
                 }
             }
-        }
 
-        List<Match> result = new ArrayList<>();
-        for (PriorityQueue<Match> pq : topKPerOldMap.values()) {
-            result.addAll(pq);
-        }
+            collected.addAll(topK);
+        });
 
-        result.sort(Comparator.comparingDouble((Match m) -> -m.score));
-        progressBar.update(totalPairs); // ensure full bar
-        return result;
+        collected.sort(Comparator.comparingDouble(m -> -m.score));
+        return collected;
     }
 
-    private static double score(NormalizedField a,
-                                NormalizedField b,
-                                Map<MethodKey, MethodKey> methodMap,
-                                double neighborWeight) {
-        double typeScore = a.typeDescriptor.equals(b.typeDescriptor) ? 1.0 : 0.0; // strong signal
-        double modifierScore = 0.0;
-        if (a.isStatic == b.isStatic) modifierScore += 0.5;
-        if (a.isFinal == b.isFinal) modifierScore += 0.5; // max 1.0 here
+    // ---------- helpers ----------
 
-        // Neighborhood agreement: readers and writers via method mapping
-        double readerAgreement = neighborhoodAgreement(a.readers, b.readers, methodMap);
-        double writerAgreement = neighborhoodAgreement(a.writers, b.writers, methodMap);
-        double neighborhoodScore = (readerAgreement + writerAgreement) / 2.0; // 0..1
+    private static Double descriptorCompatibility(String a, String b) {
+        if (a.equals(b)) return 1.0;
 
-        // Combine: weights can be tuned
-        double score = 0.0;
-        score += typeScore * 0.5; // type strong
-        score += (modifierScore / 2.0) * 0.1; // normalize modifierScore (0..1) then small weight
-        score += neighborhoodScore * neighborWeight; // influence from method context
+        // primitive ↔ primitive (same sort?)  -> 0.8
+        Type ta = Type.getType(a), tb = Type.getType(b);
+        if (ta.getSort() == tb.getSort() && ta.getSort() != Type.OBJECT && ta.getSort() != Type.ARRAY) {
+            return 0.8;
+        }
 
-        return score;
+        // both *object* or both array-of-object -> 0.6 (names may differ)
+        boolean objA = isObjectLike(ta);
+        boolean objB = isObjectLike(tb);
+        if (objA && objB) return 0.6;
+
+        return null;           // incompatible
     }
 
-    /**
-     * Maps old method set through methodMap and compares to newMethodSet.
-     * Returns overlap coefficient (intersection / min(sizeMappedOld, sizeNew)) unless both empty -> 1.
-     */
-    static double neighborhoodAgreement(Set<MethodKey> oldSet,
-                                        Set<MethodKey> newSet,
-                                        Map<MethodKey, MethodKey> methodMap) {
-        if ((oldSet == null || oldSet.isEmpty()) && (newSet == null || newSet.isEmpty())) {
-            return 1.0; // no info, treat as neutral positive
-        }
-        if (oldSet == null || oldSet.isEmpty() || newSet == null || newSet.isEmpty()) {
-            return 0.0;
-        }
+    private static boolean isObjectLike(Type t) {
+        return t.getSort() == Type.OBJECT ||
+                (t.getSort() == Type.ARRAY && t.getElementType().getSort() == Type.OBJECT);
+    }
 
-        Set<MethodKey> mappedOld = oldSet.stream()
-                .map(methodMap::get)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-        if (mappedOld.isEmpty()) {
-            return 0.0;
-        }
-
-        Set<MethodKey> intersection = new HashSet<>(mappedOld);
-        intersection.retainAll(newSet);
-        if (intersection.isEmpty()) {
-            return 0.0;
-        }
-
-        int denom = Math.min(mappedOld.size(), newSet.size());
-        if (denom == 0) {
-            return 0.0;
-        }
-        return (double) intersection.size() / denom;
+    private static <T> double jaccard(Set<T> x, Set<T> y) {
+        if (x.isEmpty() && y.isEmpty()) return 1.0;
+        Set<T> inter = new HashSet<>(x); inter.retainAll(y);
+        Set<T> union = new HashSet<>(x); union.addAll(y);
+        return union.isEmpty() ? 0.0 : (double) inter.size() / union.size();
     }
 }

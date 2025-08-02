@@ -112,67 +112,53 @@ public class Remap {
         Map<FieldKey, FieldNode> oldFieldNodesAll = loadFieldsFromJar(oldJar);
         Map<FieldKey, FieldNode> newFieldNodesAll = loadFieldsFromJar(newJar);
 
-        // Extract field usage (readers/writers) from the filtered method sets
-        FieldUsageExtractor.FieldUsage oldFieldUsage = FieldUsageExtractor.extractFieldUsage(oldMethods);
-        FieldUsageExtractor.FieldUsage newFieldUsage = FieldUsageExtractor.extractFieldUsage(newMethods);
+        // -----------------------------------------------------------------------------
+// 8.  Build field-usage maps (which methods touch which fields)
+// -----------------------------------------------------------------------------
+        System.out.println("Building field-usage maps…");
+        Map<FieldKey, Set<MethodKey>> oldFieldUses = FieldUsage.build(oldClasses);
+        Map<FieldKey, Set<MethodKey>> newFieldUses = FieldUsage.build(newClasses);
 
-        // Build normalized fields limited to those actually used (read or written)
-        Map<FieldKey, NormalizedField> oldFields = buildNormalizedFields(oldFieldUsage, oldFieldNodesAll);
-        Map<FieldKey, NormalizedField> newFields = buildNormalizedFields(newFieldUsage, newFieldNodesAll);
+// -----------------------------------------------------------------------------
+// 9.  Match fields (type-aware, class-aware, method-usage-aware)
+// -----------------------------------------------------------------------------
+        System.out.println("Matching fields…");
+        List<FieldMatcher.Match> fieldMatches =
+                FieldMatcher.matchAll(
+                        oldFieldNodesAll,
+                        newFieldNodesAll,
+                        oldFieldUses,
+                        newFieldUses,
+                        refined,
+                        classMatchByOldOwner,
+                        10
+                );
 
-        // Match fields using the refined method mapping as neighborhood context
-        System.out.println("Matching fields...");
-        List<FieldMatcher.Match> fieldCandidates = FieldMatcher.matchAll(
-                oldFields,
-                newFields,
-                refined, // method mapping
-                5,       // topK per old field
-                0.5      // neighbor weight
-        );
-
-        // Seed best field mapping
-        Map<FieldKey, FieldKey> seedFieldMap = new HashMap<>();
-        Map<FieldKey, Double> bestFieldScore = new HashMap<>();
-        double FIELD_SCORE_THRESHOLD = 0.1;
-        for (FieldMatcher.Match m : fieldCandidates) {
-            if (m.score < FIELD_SCORE_THRESHOLD) continue;
+// -----------------------------------------------------------------------------
+// 10.  Pick the best candidate per old field
+// -----------------------------------------------------------------------------
+        Map<FieldKey, FieldKey> bestFieldMap = new HashMap<>();
+        Map<FieldKey, Double>   bestFieldScore = new HashMap<>();
+        double FIELD_THRESHOLD = 0.25;           // tweak
+        for (FieldMatcher.Match m : fieldMatches) {
+            if (m.score < FIELD_THRESHOLD) continue;
             Double prev = bestFieldScore.get(m.oldKey);
             if (prev == null || m.score > prev) {
-                seedFieldMap.put(m.oldKey, m.newKey);
+                bestFieldMap.put(m.oldKey, m.newKey);
                 bestFieldScore.put(m.oldKey, m.score);
             }
         }
 
-        // Output field mappings
+// -----------------------------------------------------------------------------
+// 11.  Show the result
+// -----------------------------------------------------------------------------
+        System.out.println("Field mapping complete.  Found " + bestFieldMap.size() + " mappings.");
         System.out.println("Field mapping results (old -> new) with scores:");
-        for (Map.Entry<FieldKey, FieldKey> e : seedFieldMap.entrySet()) {
-            FieldKey oldKey = e.getKey();
-            FieldKey newKey = e.getValue();
-            double score = bestFieldScore.getOrDefault(oldKey, 0.0);
-            System.out.printf("%s -> %s (score=%.3f)%n", oldKey, newKey, score);
-        }
-    }
-
-    /**
-     * Builds normalized fields from usage + raw field nodes.
-     */
-    private static Map<FieldKey, NormalizedField> buildNormalizedFields(
-            FieldUsageExtractor.FieldUsage usage,
-            Map<FieldKey, FieldNode> fieldNodeMap
-    ) {
-        Map<FieldKey, NormalizedField> normalized = new HashMap<>();
-        Set<FieldKey> usedFields = new HashSet<>();
-        usedFields.addAll(usage.readers.keySet());
-        usedFields.addAll(usage.writers.keySet());
-
-        for (FieldKey fk : usedFields) {
-            FieldNode fn = fieldNodeMap.get(fk);
-            if (fn == null) continue; // missing definition
-            Set<MethodKey> readers = usage.readers.getOrDefault(fk, Collections.emptySet());
-            Set<MethodKey> writers = usage.writers.getOrDefault(fk, Collections.emptySet());
-            normalized.put(fk, new NormalizedField(fk.owner, fn, readers, writers));
-        }
-        return normalized;
+        bestFieldMap.entrySet()
+                .stream()
+                .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
+                .forEach(e -> System.out.printf("%s -> %s (score=%.3f)%n",
+                        e.getKey(), e.getValue(), bestFieldScore.get(e.getKey())));
     }
 
     /**
