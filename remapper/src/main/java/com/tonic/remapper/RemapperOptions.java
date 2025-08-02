@@ -1,5 +1,6 @@
-package com.tonic.optionsparser;
+package com.tonic.remapper;
 
+import com.tonic.optionsparser.OptionsParser;
 import com.tonic.optionsparser.annotations.CLIArgument;
 import lombok.Getter;
 

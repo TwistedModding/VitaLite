@@ -2,7 +2,6 @@ package com.tonic.remapper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.tonic.optionsparser.RemapperOptions;
 import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
