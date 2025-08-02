@@ -1,13 +1,13 @@
-package com.tonic.ui;
+package com.tonic.remapper.ui;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.tonic.dto.JClass;
-import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
-import com.tonic.methods.MethodKey;
-import com.tonic.methods.UsedMethodScanner;
+import com.tonic.remapper.dto.JClass;
+import com.tonic.remapper.dto.JField;
+import com.tonic.remapper.dto.JMethod;
+import com.tonic.remapper.methods.MethodKey;
+import com.tonic.remapper.methods.UsedMethodScanner;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;

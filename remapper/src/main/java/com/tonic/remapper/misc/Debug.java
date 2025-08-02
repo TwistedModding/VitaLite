@@ -1,7 +1,7 @@
-package com.tonic.util;
+package com.tonic.remapper.misc;
 
-import com.tonic.methods.MethodKey;
-import com.tonic.methods.NormalizedMethod;
+import com.tonic.remapper.methods.MethodKey;
+import com.tonic.remapper.methods.NormalizedMethod;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;

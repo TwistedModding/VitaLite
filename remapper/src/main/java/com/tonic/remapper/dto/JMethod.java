@@ -1,13 +1,13 @@
-package com.tonic.dto;
+package com.tonic.remapper.dto;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;
 
 @Data
-public class JField
+public class JMethod
 {
     @Expose
-    private String name;  //mapped name
+    private String name; //mapped name
     @Expose
     private String obfuscatedName;
     @Expose
@@ -17,15 +17,13 @@ public class JField
     @Expose
     private String descriptor;
     @Expose
-    private Number getter; //ignore for now
+    private Number garbageValue; //ignore for now
     @Expose
     private boolean isStatic;
-
-    private boolean fieldHookAfter = false;
 
     @Override
     public String toString()
     {
-        return name + " [" + ownerObfuscatedName + "." + obfuscatedName + " : " + owner + "." + name + "] " + descriptor;
+        return name + " [" + ownerObfuscatedName + "." + obfuscatedName + "] " + descriptor;
     }
 }

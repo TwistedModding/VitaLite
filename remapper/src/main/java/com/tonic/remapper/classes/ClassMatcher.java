@@ -1,4 +1,4 @@
-package com.tonic.classes;
+package com.tonic.remapper.classes;
 
 import org.objectweb.asm.tree.ClassNode;
 

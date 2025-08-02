@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.remapper.misc;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

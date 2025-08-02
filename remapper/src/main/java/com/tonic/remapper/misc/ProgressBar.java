@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.remapper.misc;
 
 /**
  * Simple CLI progress bar with long total support.

@@ -1,6 +1,6 @@
-package com.tonic.fields;
+package com.tonic.remapper.fields;
 
-import com.tonic.methods.MethodKey;
+import com.tonic.remapper.methods.MethodKey;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.FieldNode;
 

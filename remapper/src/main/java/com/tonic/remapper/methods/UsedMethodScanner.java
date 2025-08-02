@@ -1,4 +1,4 @@
-package com.tonic.methods;
+package com.tonic.remapper.methods;
 
 import org.bouncycastle.tls.DefaultTlsClient;
 import org.bouncycastle.tls.TlsAuthentication;

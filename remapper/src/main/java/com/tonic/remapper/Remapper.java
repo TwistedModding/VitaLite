@@ -1,24 +1,24 @@
-package com.tonic;
+package com.tonic.remapper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.tonic.classes.ClassMatcher;
-import com.tonic.dto.JClass;
-import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
-import com.tonic.fields.FieldKey;
-import com.tonic.fields.FieldMatcher;
-import com.tonic.fields.FieldUsage;
-import com.tonic.garbage.OpaquePredicateValueCollector;
-import com.tonic.ui.MappingEditor;
-import com.tonic.util.RemapperOptions;
+import com.tonic.remapper.classes.ClassMatcher;
+import com.tonic.remapper.dto.JClass;
+import com.tonic.remapper.dto.JField;
+import com.tonic.remapper.dto.JMethod;
+import com.tonic.remapper.fields.FieldKey;
+import com.tonic.remapper.fields.FieldMatcher;
+import com.tonic.remapper.fields.FieldUsage;
+import com.tonic.remapper.garbage.OpaquePredicateValueCollector;
+import com.tonic.remapper.ui.MappingEditor;
+import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-import com.tonic.methods.*;
+import com.tonic.remapper.methods.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +29,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
-public class Remap {
+public class Remapper {
     private static final List<ClassNode> oldClasses = new ArrayList<>();
     private static final List<ClassNode> newClasses = new ArrayList<>();
     public static void main(String[] args) throws Exception

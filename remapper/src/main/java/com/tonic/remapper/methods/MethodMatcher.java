@@ -1,7 +1,7 @@
-package com.tonic.methods;
+package com.tonic.remapper.methods;
 
-import com.tonic.util.ProgressBar;
-import com.tonic.classes.ClassMatcher;
+import com.tonic.remapper.misc.ProgressBar;
+import com.tonic.remapper.classes.ClassMatcher;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;

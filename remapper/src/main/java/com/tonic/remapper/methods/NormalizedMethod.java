@@ -1,4 +1,4 @@
-package com.tonic.methods;
+package com.tonic.remapper.methods;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

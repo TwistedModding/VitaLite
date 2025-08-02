@@ -1,4 +1,4 @@
-package com.tonic.methods;
+package com.tonic.remapper.methods;
 
 public final class MethodKey {
     public final String owner;

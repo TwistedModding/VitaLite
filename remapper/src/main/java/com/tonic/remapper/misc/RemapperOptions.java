@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.remapper.misc;
 
 import lombok.Getter;
 
