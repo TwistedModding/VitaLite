@@ -119,21 +119,19 @@ public final class DecompilerUtil {
      * purposely ignore lines whose indent is 0 when computing the minimum.
      */
     public static String stripExtraIndent(String code) {
-        String[] lines = code.split("\\R", -1);      // keep trailing blank line
+        String[] lines = code.split("\\R", -1);
         int common = Integer.MAX_VALUE;
 
-        // 1) find the smallest indent that is *positive* on any non-blank line
         for (String ln : lines) {
-            if (ln.trim().isEmpty()) continue;       // skip blank
+            if (ln.trim().isEmpty()) continue;
             int i = 0;
             while (i < ln.length() && Character.isWhitespace(ln.charAt(i))) i++;
-            if (i == 0) continue;                    // ignore flush-left lines
+            if (i == 0) continue;
             common = Math.min(common, i);
         }
-        if (common == Integer.MAX_VALUE)            // every line was flush-left
+        if (common == Integer.MAX_VALUE)
             return code;
 
-        // 2) strip that indent from every line that is long enough
         StringBuilder out = new StringBuilder(code.length());
         for (String ln : lines) {
             out.append(ln.length() >= common ? ln.substring(common) : ln)
