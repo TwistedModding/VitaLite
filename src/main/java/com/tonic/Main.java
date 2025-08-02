@@ -3,14 +3,12 @@ package com.tonic;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
+import com.tonic.optionsparser.VitaLiteOptions;
 import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.runelite.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
-import com.tonic.util.optionsparser.OptionsParser;
-import com.tonic.util.optionsparser.VitaLiteOptions;
-
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;

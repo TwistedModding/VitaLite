@@ -1,4 +1,4 @@
-package com.tonic.remapper.misc;
+package com.tonic.optionsparser.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

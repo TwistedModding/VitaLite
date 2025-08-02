@@ -29,6 +29,7 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 
     implementation("com.formdev:flatlaf:2.4")
+    implementation(project(":utilities"))
 }
 
 tasks.test {

@@ -2,6 +2,7 @@ package com.tonic.remapper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.tonic.optionsparser.RemapperOptions;
 import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
@@ -11,7 +12,6 @@ import com.tonic.remapper.fields.FieldMatcher;
 import com.tonic.remapper.fields.FieldUsage;
 import com.tonic.remapper.garbage.OpaquePredicateValueCollector;
 import com.tonic.remapper.ui.MappingEditor;
-import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -256,10 +256,11 @@ public class Remapper {
             }
         }
 
-        //turn that map into a JClass[]
+        // 13.  Write remapped dto to file
         List<JClass> remapped = new ArrayList<>(remappedClasses.values());
         try (Writer w = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
             gson.toJson(remapped, w);
+            System.out.println("Remapped dto written to " + outFile);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
