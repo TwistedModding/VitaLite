@@ -1,7 +1,4 @@
-package com.tonic.util.optionsparser;
-
-import com.tonic.util.optionsparser.annotations.CLIArgument;
-import lombok.Getter;
+package com.tonic.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

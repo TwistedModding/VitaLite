@@ -30,10 +30,6 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.google.inject:guice:5.1.0")
-
-    implementation("org.bouncycastle:bctls-jdk18on:1.81")
-    implementation("org.bouncycastle:bcutil-jdk18on:1.81")
-    implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 }
 
 tasks.test {
