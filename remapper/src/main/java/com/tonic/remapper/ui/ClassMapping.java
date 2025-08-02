@@ -8,14 +8,14 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.*;
 
 public class ClassMapping {
-    final String originalName; // internal name from class node
-    String newName; // user-assigned
-    final List<MethodRecord> methods = new ArrayList<>();
-    final List<FieldRecord> fields = new ArrayList<>();
-    final Map<String, String> methodMap = new LinkedHashMap<>(); // sig -> friendly
-    final Map<String, String> fieldMap = new LinkedHashMap<>(); // sig -> friendly
+    public final String originalName; // internal name from class node
+    public String newName; // user-assigned
+    public final List<MethodRecord> methods = new ArrayList<>();
+    public final List<FieldRecord> fields = new ArrayList<>();
+    public final Map<String, String> methodMap = new LinkedHashMap<>(); // sig -> friendly
+    public final Map<String, String> fieldMap = new LinkedHashMap<>(); // sig -> friendly
 
-    ClassMapping(ClassNode cn, Set<MethodKey> usedMethods) {
+    public ClassMapping(ClassNode cn, Set<MethodKey> usedMethods) {
         this.originalName = cn.name;
         for (MethodNode mn : cn.methods) {
             MethodKey mk = new MethodKey(cn.name, mn.name, mn.desc);

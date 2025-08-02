@@ -1,4 +1,4 @@
-package com.tonic.remapper.ui;
+package com.tonic.remapper;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
@@ -8,8 +8,11 @@ import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
 import com.tonic.remapper.methods.MethodKey;
 import com.tonic.remapper.methods.UsedMethodScanner;
+import com.tonic.remapper.ui.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -19,6 +22,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -47,6 +51,7 @@ public class MappingEditor extends JFrame {
 
     public MappingEditor() {
         super("Remap Name Editor");
+        setIconImage(loadImageResource(MappingEditor.class, "icon.png"));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1100, 700);
         buildMenuBar();
@@ -400,5 +405,21 @@ public class MappingEditor extends JFrame {
             });
             popup.show(classTree, e.getX(), e.getY());
         }
+    }
+
+    public static BufferedImage loadImageResource(final Class<?> c, final String path)
+    {
+        try (InputStream in = c.getResourceAsStream(path))
+        {
+            assert in != null;
+            synchronized (ImageIO.class)
+            {
+                return ImageIO.read(in);
+            }
+        }
+        catch (Exception ignored)
+        {
+        }
+        return null;
     }
 }

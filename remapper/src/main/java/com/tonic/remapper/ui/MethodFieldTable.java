@@ -11,15 +11,15 @@ public class MethodFieldTable extends AbstractTableModel {
     private String filter = "";
     private List<Integer> filteredRows = new ArrayList<>();
 
-    MethodFieldTable(Kind k) { this.kind = k; }
+    public MethodFieldTable(Kind k) { this.kind = k; }
 
-    void setClass(ClassMapping cm) {
+    public void setClass(ClassMapping cm) {
         current = cm;
         updateFilteredRows();
         fireTableDataChanged();
     }
 
-    void setFilter(String f) {
+    public void setFilter(String f) {
         if (f == null) f = "";
         filter = f.trim().toLowerCase(Locale.ROOT);
         updateFilteredRows();
