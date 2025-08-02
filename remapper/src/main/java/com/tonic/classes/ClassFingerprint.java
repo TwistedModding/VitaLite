@@ -201,7 +201,7 @@ public final class ClassFingerprint {
      * Computes a weighted similarity score in [0,1] between two class fingerprints.
      */
     public double similarity(ClassFingerprint other) {
-        // weights - tweak as needed
+        // weights
         double wClassType = 1.0;
         double wHierarchy = 1.0;
         double wMethodDesc = 2.0;
@@ -214,7 +214,7 @@ public final class ClassFingerprint {
 
         double scoreClassType = this.classType == other.classType ? 1.0 : 0.0;
 
-        // Hierarchy: super + interfaces (as set similarity)
+        // Hierarchy: super + interfaces
         Set<String> thisHierarchy = new HashSet<>();
         if (this.superName != null) thisHierarchy.add(this.superName);
         thisHierarchy.addAll(this.interfaces);
@@ -227,7 +227,7 @@ public final class ClassFingerprint {
         double scoreOpcode = cosineHistogram(this.opcodeHistogram, other.opcodeHistogram);
         double scoreStrings = jaccard(this.stringConstants, other.stringConstants);
 
-        // Static methods signature overlap (set-based)
+        // Static methods signature overlap
         double scoreStaticMethods = jaccard(this.staticMethodSignatures, other.staticMethodSignatures);
 
         // Fields: combine static + instance via multiset Jaccard and average
