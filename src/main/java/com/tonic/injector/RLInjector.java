@@ -26,7 +26,7 @@ public class RLInjector
             ScheduleWithFixedDelayTransformer.patch(node);
             InjectSideLoadCallTransformer.patch(node);
             NoOpLoadSideLoadPluginsTransformer.patch(node);
-            PatchDevToolsLauncherCheck.patch(node);
+            //PatchDevToolsLauncherCheck.patch(node);
             DisableTelemetryTransformer.patch(node);
             PatchDevToolsPluginManagerTransformer.patch(node);
         }

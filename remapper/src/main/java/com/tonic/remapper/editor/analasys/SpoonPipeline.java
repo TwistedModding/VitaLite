@@ -69,9 +69,9 @@ public class SpoonPipeline
             t.transform(executable);
         }
 
-        return ctClass.prettyprint()
+        return ParenCleaner.clean(ctClass.prettyprint()
                 .replace("\r\n", "\n")
-                .replaceAll("(?m)^\\s*\\n", "");
+                .replaceAll("(?m)^\\s*\\n", ""));
     }
 
     private SpoonPipeline()
@@ -211,5 +211,6 @@ public class SpoonPipeline
             exec.removeParameter(lastParam);
         }
     }
+
 
 }
