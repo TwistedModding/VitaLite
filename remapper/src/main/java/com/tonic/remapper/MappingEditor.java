@@ -184,14 +184,7 @@ public class MappingEditor extends JFrame {
 
                         ClassNode  cn = mr.owner.classNode;
                         MethodNode mn = mr.node;
-                        String sb = "Class  : " + cn.name + '\n' +
-                                "Method : " + mn.name + mn.desc + '\n' +
-                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
-                                "MaxLocals  = " + mn.maxLocals +
-                                ",  MaxStack = " + mn.maxStack + "\n\n" +
-                                "Source: \n" +
-                                "----------------------------------------\n" +
-                                AsmUtil.prettyPrint(mn);
+                        String sb = generateHeader(cn, mn) + AsmUtil.prettyPrint(mn);
 
                         notesArea.setText(sb);
                         notesArea.setCaretPosition(0);
@@ -210,14 +203,7 @@ public class MappingEditor extends JFrame {
                         MethodNode mn = mr.node;
                         mn.invisibleAnnotations.clear();
                         String src = DecompilerUtil.decompile(cn, mn, false);
-                        String sb = "Class  : " + cn.name + '\n' +
-                                "Method : " + mn.name + mn.desc + '\n' +
-                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
-                                "MaxLocals  = " + mn.maxLocals +
-                                ",  MaxStack = " + mn.maxStack + "\n\n" +
-                                "Source: \n" +
-                                "----------------------------------------\n" +
-                                src;
+                        String sb = generateHeader(cn, mn) + src;
 
                         notesArea.setText(sb);
                         notesArea.setCaretPosition(0);
@@ -236,14 +222,7 @@ public class MappingEditor extends JFrame {
                         MethodNode mn = mr.node;
                         mn.invisibleAnnotations.clear();
                         String src = DecompilerUtil.decompile(cn, mn, true);
-                        String sb = "Class  : " + cn.name + '\n' +
-                                "Method : " + mn.name + mn.desc + '\n' +
-                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
-                                "MaxLocals  = " + mn.maxLocals +
-                                ",  MaxStack = " + mn.maxStack + "\n\n" +
-                                "Source: \n" +
-                                "----------------------------------------\n" +
-                                src;
+                        String sb = generateHeader(cn, mn) + src;
 
                         notesArea.setText(sb);
                         notesArea.setCaretPosition(0);
@@ -262,6 +241,16 @@ public class MappingEditor extends JFrame {
             @Override public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
         });
 
+    }
+
+    private String generateHeader(ClassNode cn, MethodNode mn)
+    {
+        return "/* \n * Class  : " + cn.name + '\n' +
+                " * Method : " + mn.name + mn.desc + '\n' +
+                " * Access : 0x" + Integer.toHexString(mn.access) + '\n' +
+                " * MaxLocals  = " + mn.maxLocals +
+                ",  MaxStack = " + mn.maxStack + "\n" +
+                " */\n";
     }
 
     private void buildMenuBar() {

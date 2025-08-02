@@ -1,4 +1,4 @@
-package com.tonic.remapper.editor.analasys.transformers;
+package com.tonic.remapper.editor.analasys;
 
 import com.tonic.remapper.editor.analasys.DeobPipeline;
 import org.objectweb.asm.Opcodes;

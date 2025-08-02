@@ -1,4 +1,4 @@
-package com.tonic.remapper;
+package com.tonic.remapper.misc;
 
 import com.tonic.optionsparser.OptionsParser;
 import com.tonic.optionsparser.annotations.CLIArgument;

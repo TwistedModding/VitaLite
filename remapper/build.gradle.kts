@@ -32,6 +32,8 @@ dependencies {
     implementation(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
     implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
 
+    implementation("fr.inria.gforge.spoon:spoon-core:10.4.2")
+
     implementation(project(":utilities"))
 }
 

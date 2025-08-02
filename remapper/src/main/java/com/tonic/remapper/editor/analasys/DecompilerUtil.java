@@ -1,9 +1,9 @@
 package com.tonic.remapper.editor.analasys;
 
+import static com.tonic.remapper.editor.analasys.SpoonPipeline.*;
 import com.strobel.assembler.InputTypeLoader;
 import com.strobel.assembler.metadata.*;
 import com.strobel.decompiler.*;
-import com.tonic.remapper.editor.analasys.transformers.BytecodeTransformers;
 import org.objectweb.asm.*;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.tree.*;
@@ -20,8 +20,6 @@ public final class DecompilerUtil {
      * @return pretty-printed Java source of that method (as a String)
      */
     public static String decompile(ClassNode owner, MethodNode target, boolean deobfuscate) {
-
-        // 1) build a brand-new ClassNode
         ClassNode stub = new ClassNode(Opcodes.ASM9);
 
         stub.version    = owner.version;
@@ -79,25 +77,19 @@ public final class DecompilerUtil {
         StringWriter out = new StringWriter();
         Decompiler.decompile(internalName, new PlainTextOutput(out), settings);
 
-        String fullSrc = out.toString();
+        String fullSrc = out.toString().replace(owner.name + "$DecompilerStub", owner.name);
 
-        String sigRegex  = "\\b" + java.util.regex.Pattern.quote(target.name) + "\\s*\\(";
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(sigRegex);
-        java.util.regex.Matcher  m = p.matcher(fullSrc);
-        if (!m.find()) return fullSrc.replace(owner.name + "$DecompilerStub", owner.name);
-
-        int start = fullSrc.lastIndexOf('\n', m.start()) + 1;
-        int depth = 0;
-        int i = m.start();
-        for (; i < fullSrc.length(); i++) {
-            char c = fullSrc.charAt(i);
-            if (c == '{') depth++;
-            else if (c == '}') {
-                depth--;
-                if (depth == 0) { i++; break; }
+        if(deobfuscate) {
+            try {
+                fullSrc = SpoonPipeline.create()
+                        .add(new OpaquePredicateCleaner())
+                        .run(owner.name, fullSrc);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
-        return stripExtraIndent(fullSrc.substring(start, i).trim()) + '\n';
+
+        return fullSrc + '\n';
     }
 
     private static MethodNode cloneMethod(MethodNode original) {
@@ -111,32 +103,5 @@ public final class DecompilerUtil {
         );
         original.accept(clone);
         return clone;
-    }
-
-    /**
-     * Removes the smallest common leading indentation that is > 0.
-     * The very first line of many decompilers is already flush-left, so we
-     * purposely ignore lines whose indent is 0 when computing the minimum.
-     */
-    public static String stripExtraIndent(String code) {
-        String[] lines = code.split("\\R", -1);
-        int common = Integer.MAX_VALUE;
-
-        for (String ln : lines) {
-            if (ln.trim().isEmpty()) continue;
-            int i = 0;
-            while (i < ln.length() && Character.isWhitespace(ln.charAt(i))) i++;
-            if (i == 0) continue;
-            common = Math.min(common, i);
-        }
-        if (common == Integer.MAX_VALUE)
-            return code;
-
-        StringBuilder out = new StringBuilder(code.length());
-        for (String ln : lines) {
-            out.append(ln.length() >= common ? ln.substring(common) : ln)
-                    .append('\n');
-        }
-        return out.toString();
     }
 }

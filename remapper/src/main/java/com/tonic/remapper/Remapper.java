@@ -10,6 +10,7 @@ import com.tonic.remapper.fields.FieldKey;
 import com.tonic.remapper.fields.FieldMatcher;
 import com.tonic.remapper.fields.FieldUsage;
 import com.tonic.remapper.garbage.OpaquePredicateValueCollector;
+import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
