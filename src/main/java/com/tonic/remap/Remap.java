@@ -112,16 +112,12 @@ public class Remap {
         Map<FieldKey, FieldNode> oldFieldNodesAll = loadFieldsFromJar(oldJar);
         Map<FieldKey, FieldNode> newFieldNodesAll = loadFieldsFromJar(newJar);
 
-        // -----------------------------------------------------------------------------
-// 8.  Build field-usage maps (which methods touch which fields)
-// -----------------------------------------------------------------------------
+        // 8.  Build field-usage maps (which methods touch which fields)
         System.out.println("Building field-usage maps…");
         Map<FieldKey, Set<MethodKey>> oldFieldUses = FieldUsage.build(oldClasses);
         Map<FieldKey, Set<MethodKey>> newFieldUses = FieldUsage.build(newClasses);
 
-// -----------------------------------------------------------------------------
-// 9.  Match fields (type-aware, class-aware, method-usage-aware)
-// -----------------------------------------------------------------------------
+        // 9.  Match fields (type-aware, class-aware, method-usage-aware)
         System.out.println("Matching fields…");
         List<FieldMatcher.Match> fieldMatches =
                 FieldMatcher.matchAll(
@@ -134,9 +130,7 @@ public class Remap {
                         10
                 );
 
-// -----------------------------------------------------------------------------
-// 10.  Pick the best candidate per old field
-// -----------------------------------------------------------------------------
+        // 10.  Pick the best candidate per old field
         Map<FieldKey, FieldKey> bestFieldMap = new HashMap<>();
         Map<FieldKey, Double>   bestFieldScore = new HashMap<>();
         double FIELD_THRESHOLD = 0.25;           // tweak
@@ -149,9 +143,7 @@ public class Remap {
             }
         }
 
-// -----------------------------------------------------------------------------
-// 11.  Show the result
-// -----------------------------------------------------------------------------
+        // 11.  Show the result
         System.out.println("Field mapping complete.  Found " + bestFieldMap.size() + " mappings.");
         System.out.println("Field mapping results (old -> new) with scores:");
         bestFieldMap.entrySet()
