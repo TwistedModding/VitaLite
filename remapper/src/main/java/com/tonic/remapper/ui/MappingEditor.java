@@ -169,14 +169,6 @@ public class MappingEditor extends JFrame {
 
         Set<MethodKey> used = UsedMethodScanner.findUsedMethods(classNodes);
 
-//        for(MethodKey mk : used) {
-//            if(mk.owner.equals("eb"))
-//            {
-//                System.out.println("Found used method: " + mk.owner + "." + mk.name + mk.desc);
-//            }
-//        }
-//        System.exit(0);
-
         for (ClassNode cn : classNodes) {
             ClassMapping cm = new ClassMapping(cn, used);
             classMappings.put(cn.name, cm);
