@@ -1,4 +1,4 @@
-package com.tonic.remapper.ui;
+package com.tonic.remapper.editor;
 
 import com.tonic.remapper.methods.MethodKey;
 import org.objectweb.asm.tree.ClassNode;
@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.MethodNode;
 import java.util.*;
 
 public class ClassMapping {
+    public final ClassNode classNode;
     public final String originalName; // internal name from class node
     public String newName; // user-assigned
     public final List<MethodRecord> methods = new ArrayList<>();
@@ -16,6 +17,7 @@ public class ClassMapping {
     public final Map<String, String> fieldMap = new LinkedHashMap<>(); // sig -> friendly
 
     public ClassMapping(ClassNode cn, Set<MethodKey> usedMethods) {
+        this.classNode = cn;
         this.originalName = cn.name;
         for (MethodNode mn : cn.methods) {
             MethodKey mk = new MethodKey(cn.name, mn.name, mn.desc);

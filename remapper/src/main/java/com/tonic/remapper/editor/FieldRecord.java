@@ -1,4 +1,4 @@
-package com.tonic.remapper.ui;
+package com.tonic.remapper.editor;
 
 import org.objectweb.asm.tree.FieldNode;
 

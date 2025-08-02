@@ -1,4 +1,4 @@
-package com.tonic.remapper.ui;
+package com.tonic.remapper.editor;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -10,11 +10,18 @@ public class MethodFieldTable extends AbstractTableModel {
     private ClassMapping current;
     private String filter = "";
     private List<Integer> filteredRows = new ArrayList<>();
+    private boolean showOnlyMapped = false;
 
     public MethodFieldTable(Kind k) { this.kind = k; }
 
     public void setClass(ClassMapping cm) {
         current = cm;
+        updateFilteredRows();
+        fireTableDataChanged();
+    }
+
+    public void setShowOnlyMapped(boolean b) {           // NEW
+        showOnlyMapped = b;
         updateFilteredRows();
         fireTableDataChanged();
     }
@@ -29,28 +36,34 @@ public class MethodFieldTable extends AbstractTableModel {
     private void updateFilteredRows() {
         filteredRows.clear();
         if (current == null) return;
-        if (filter.isEmpty()) {
-            int size = kind == Kind.METHOD ? current.methods.size() : current.fields.size();
-            for (int i = 0; i < size; i++) filteredRows.add(i);
-            return;
-        }
+
+        /* decide upfront whether a record passes the "mapped" test */
+        java.util.function.Predicate<String> notBlank =
+                s -> s != null && !s.isBlank();
+
         if (kind == Kind.METHOD) {
             for (int i = 0; i < current.methods.size(); i++) {
                 MethodRecord mr = current.methods.get(i);
-                String obf = (mr.node.name + mr.node.desc).toLowerCase(Locale.ROOT);
+
+                if (showOnlyMapped && !notBlank.test(mr.newName)) continue; // NEW
+
+                String obf    = (mr.node.name + mr.node.desc).toLowerCase(Locale.ROOT);
                 String mapped = mr.newName != null ? mr.newName.toLowerCase(Locale.ROOT) : "";
-                if (obf.contains(filter) || mapped.contains(filter)) {
+
+                if (filter.isEmpty() || obf.contains(filter) || mapped.contains(filter))
                     filteredRows.add(i);
-                }
             }
         } else {
             for (int i = 0; i < current.fields.size(); i++) {
                 FieldRecord fr = current.fields.get(i);
-                String obf = (fr.node.name + " " + fr.node.desc).toLowerCase(Locale.ROOT);
+
+                if (showOnlyMapped && !notBlank.test(fr.newName)) continue; // NEW
+
+                String obf    = (fr.node.name + " " + fr.node.desc).toLowerCase(Locale.ROOT);
                 String mapped = fr.newName != null ? fr.newName.toLowerCase(Locale.ROOT) : "";
-                if (obf.contains(filter) || mapped.contains(filter)) {
+
+                if (filter.isEmpty() || obf.contains(filter) || mapped.contains(filter))
                     filteredRows.add(i);
-                }
             }
         }
     }
@@ -101,5 +114,11 @@ public class MethodFieldTable extends AbstractTableModel {
             else current.fieldMap.put(key, v);
         }
         fireTableRowsUpdated(row, row);
+    }
+
+    public MethodRecord getMethodRecordAt(int viewRow) {
+        if (kind != Kind.METHOD || current == null) return null;
+        int modelRow = filteredRows.get(viewRow);        // convert via our own mapping
+        return current.methods.get(modelRow);
     }
 }

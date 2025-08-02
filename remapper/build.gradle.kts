@@ -29,6 +29,9 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk18on:1.81")
 
     implementation("com.formdev:flatlaf:2.4")
+    implementation(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
+    implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
+
     implementation(project(":utilities"))
 }
 

@@ -199,7 +199,7 @@ public class UsedMethodScanner {
      */
     @SuppressWarnings("deprecation")
     private static boolean fromSuper(MethodNode method) {
-        if(isStackCheck(method)) {
+        if(isStackCheck(method) || method.name.startsWith("<")) {
             return true;
         }
         String name = method.name;

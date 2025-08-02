@@ -6,11 +6,14 @@ import com.google.gson.GsonBuilder;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
+import com.tonic.remapper.editor.analasys.AsmUtil;
+import com.tonic.remapper.editor.analasys.DecompilerUtil;
 import com.tonic.remapper.methods.MethodKey;
 import com.tonic.remapper.methods.UsedMethodScanner;
-import com.tonic.remapper.ui.*;
+import com.tonic.remapper.editor.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -41,6 +44,9 @@ public class MappingEditor extends JFrame {
     private final JTree classTree = new JTree();
     private final MethodFieldTable methodTable = new MethodFieldTable(Kind.METHOD);
     private final MethodFieldTable fieldTable = new MethodFieldTable(Kind.FIELD);
+    private final JTextArea notesArea = new CodeArea(10, 80);
+    private final JTextField classFilterField = new JTextField(20);   // NEW
+    private String classFilter = "";
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -64,6 +70,7 @@ public class MappingEditor extends JFrame {
         JTable methodTableView = new JTable(methodTable);
         JTable fieldTableView = new JTable(fieldTable);
         methodTableView.setFillsViewportHeight(true);
+        addContextMenu(methodTableView);
         fieldTableView.setFillsViewportHeight(true);
 
         // search bar to filter methods/fields
@@ -73,14 +80,26 @@ public class MappingEditor extends JFrame {
         JTextField searchField = new JTextField(30);
         JButton clearBtn = new JButton("Clear");
         clearBtn.setToolTipText("Clear search");
+        JCheckBox mappedOnly = new JCheckBox("Mapped only");
         searchPanel.add(searchLabel);
         searchPanel.add(searchField);
+        searchPanel.add(mappedOnly);
         searchPanel.add(clearBtn);
+
+        mappedOnly.addActionListener(e -> {
+            boolean sel = mappedOnly.isSelected();
+            methodTable.setShowOnlyMapped(sel);
+            fieldTable.setShowOnlyMapped(sel);
+        });
+
+        notesArea.setEditable(false);
+        JScrollPane notesScroll = new JScrollPane(notesArea);
 
         JScrollPane methodScroll = new JScrollPane(methodTableView);
         JScrollPane fieldScroll = new JScrollPane(fieldTableView);
         tabs.addTab("Methods", methodScroll);
         tabs.addTab("Fields", fieldScroll);
+        tabs.addTab("Analysis"  , notesScroll);
 
         rightPanel.add(searchPanel, BorderLayout.NORTH);
         rightPanel.add(tabs, BorderLayout.CENTER);
@@ -102,11 +121,147 @@ public class MappingEditor extends JFrame {
             fieldTable.setFilter("");
         });
 
+        /* ---------- class filter bar (left side) ---------- */
+        JPanel classSearchBar = new JPanel(new BorderLayout());
+        classSearchBar.add(new JLabel("Classes:"));
+        classSearchBar.add(classFilterField, BorderLayout.CENTER);
+        JButton clrClass = new JButton("Clear");
+        classSearchBar.add(clrClass, BorderLayout.EAST);
+        int h = classFilterField.getPreferredSize().height;
+        classSearchBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, h));
+
+        clrClass.addActionListener(ev -> classFilterField.setText(""));
+
+        classFilterField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void update() {
+                classFilter = classFilterField.getText().trim().toLowerCase(Locale.ROOT);
+                rebuildTree();                          // rebuild with new filter
+            }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { update(); }
+        });
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setLeftComponent(new JScrollPane(classTree));
+        Box left = Box.createVerticalBox();
+        left.add(classSearchBar);
+        left.add(new JScrollPane(classTree));
+        splitPane.setLeftComponent(left);
         splitPane.setRightComponent(rightPanel);
         splitPane.setDividerLocation(300);
         getContentPane().add(splitPane, BorderLayout.CENTER);
+    }
+
+    private void addContextMenu(JTable methodTableView)
+    {
+        methodTableView.addMouseListener(new MouseAdapter() {
+            private void maybeShowPopup(MouseEvent e) {
+                if (!e.isPopupTrigger()) return;
+
+                int viewRow = methodTableView.rowAtPoint(e.getPoint());
+                if (viewRow < 0) return;                // clicked on empty area
+
+                // select the row so it’s obvious which one we’re acting on
+                methodTableView.setRowSelectionInterval(viewRow, viewRow);
+
+                MethodRecord mr = methodTable.getMethodRecordAt(viewRow);
+                if (mr == null) return;                 // should never happen, but be safe
+
+                JPopupMenu menu = new JPopupMenu();
+
+                /* ---- Copy signature to clipboard ---- */
+                menu.addSeparator();
+                menu.add(new AbstractAction("Copy Signature") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+                        String sig = mr.node.name + mr.node.desc;
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                                new java.awt.datatransfer.StringSelection(sig), null);
+                    }
+                });
+
+                menu.add(new AbstractAction("Show ASM info (Bytecode)") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+
+                        ClassNode  cn = mr.owner.classNode;
+                        MethodNode mn = mr.node;
+                        String sb = "Class  : " + cn.name + '\n' +
+                                "Method : " + mn.name + mn.desc + '\n' +
+                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
+                                "MaxLocals  = " + mn.maxLocals +
+                                ",  MaxStack = " + mn.maxStack + "\n\n" +
+                                "Source: \n" +
+                                "----------------------------------------\n" +
+                                AsmUtil.prettyPrint(mn);
+
+                        notesArea.setText(sb);
+                        notesArea.setCaretPosition(0);
+                        SwingUtilities.invokeLater(() -> {
+                            ((JTabbedPane)((BorderLayout)((JPanel)((JSplitPane)
+                                    getContentPane().getComponent(0)).getRightComponent()).getLayout())
+                                    .getLayoutComponent(BorderLayout.CENTER)).setSelectedIndex(2);
+                        });
+                    }
+                });
+
+                menu.add(new AbstractAction("Show ASM info (Source)") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+
+                        ClassNode  cn = mr.owner.classNode;
+                        MethodNode mn = mr.node;
+                        mn.invisibleAnnotations.clear();
+                        String src = DecompilerUtil.decompile(cn, mn, false);
+                        String sb = "Class  : " + cn.name + '\n' +
+                                "Method : " + mn.name + mn.desc + '\n' +
+                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
+                                "MaxLocals  = " + mn.maxLocals +
+                                ",  MaxStack = " + mn.maxStack + "\n\n" +
+                                "Source: \n" +
+                                "----------------------------------------\n" +
+                                src;
+
+                        notesArea.setText(sb);
+                        notesArea.setCaretPosition(0);
+                        SwingUtilities.invokeLater(() -> {
+                            ((JTabbedPane)((BorderLayout)((JPanel)((JSplitPane)
+                                    getContentPane().getComponent(0)).getRightComponent()).getLayout())
+                                    .getLayoutComponent(BorderLayout.CENTER)).setSelectedIndex(2);
+                        });
+                    }
+                });
+
+                menu.add(new AbstractAction("Show ASM info (Deob Src)") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+
+                        ClassNode  cn = mr.owner.classNode;
+                        MethodNode mn = mr.node;
+                        mn.invisibleAnnotations.clear();
+                        String src = DecompilerUtil.decompile(cn, mn, true);
+                        String sb = "Class  : " + cn.name + '\n' +
+                                "Method : " + mn.name + mn.desc + '\n' +
+                                "Access : 0x" + Integer.toHexString(mn.access) + '\n' +
+                                "MaxLocals  = " + mn.maxLocals +
+                                ",  MaxStack = " + mn.maxStack + "\n\n" +
+                                "Source: \n" +
+                                "----------------------------------------\n" +
+                                src;
+
+                        notesArea.setText(sb);
+                        notesArea.setCaretPosition(0);
+                        SwingUtilities.invokeLater(() -> {
+                            ((JTabbedPane)((BorderLayout)((JPanel)((JSplitPane)
+                                    getContentPane().getComponent(0)).getRightComponent()).getLayout())
+                                    .getLayoutComponent(BorderLayout.CENTER)).setSelectedIndex(2);
+                        });
+                    }
+                });
+
+                menu.show(methodTableView, e.getX(), e.getY());
+            }
+
+            @Override public void mousePressed (MouseEvent e) { maybeShowPopup(e); }
+            @Override public void mouseReleased(MouseEvent e) { maybeShowPopup(e); }
+        });
+
     }
 
     private void buildMenuBar() {
@@ -175,9 +330,18 @@ public class MappingEditor extends JFrame {
 
     private void rebuildTree() {
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("classes");
+        String filter = classFilter.trim().toLowerCase(Locale.ROOT);
         List<ClassMapping> sorted = new ArrayList<>(classMappings.values());
         sorted.sort(Comparator.comparing(cm -> cm.originalName));
         for (ClassMapping cm : sorted) {
+            if (!filter.isEmpty()) {
+                String obf   = cm.originalName.toLowerCase(Locale.ROOT);
+                String mapped = cm.newName == null ? "" : cm.newName.toLowerCase(Locale.ROOT);
+
+                if (!obf.contains(filter) && !mapped.contains(filter)) {
+                    continue;
+                }
+            }
             root.add(new DefaultMutableTreeNode(cm));
         }
         classTree.setModel(new DefaultTreeModel(root));
