@@ -1,5 +1,6 @@
-package com.tonic.remap;
+package com.tonic.remap.fields;
 
+import com.tonic.remap.methods.MethodKey;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
@@ -12,7 +13,7 @@ import java.util.*;
  * field.  This lets us correlate fields through the *methods that already map*.
  */
 public class FieldUsage {
-    static Map<FieldKey, Set<MethodKey>> build(List<ClassNode> classes) {
+    public static Map<FieldKey, Set<MethodKey>> build(List<ClassNode> classes) {
         Map<FieldKey, Set<MethodKey>> out = new HashMap<>();
 
         for (ClassNode cn : classes) {

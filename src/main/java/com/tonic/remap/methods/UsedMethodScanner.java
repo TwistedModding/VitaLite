@@ -1,4 +1,4 @@
-package com.tonic.remap;
+package com.tonic.remap.methods;
 
 import org.bouncycastle.tls.DefaultTlsClient;
 import org.bouncycastle.tls.TlsAuthentication;
@@ -19,7 +19,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
-public class UsedMethodScannerAsm {
+public class UsedMethodScanner {
     // queue / working set
     private static final Queue<MethodKey> preloadQueue = new LinkedList<>();
     private static final Set<MethodKey> used = new HashSet<>();

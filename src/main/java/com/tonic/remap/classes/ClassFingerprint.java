@@ -1,4 +1,4 @@
-package com.tonic.remap;
+package com.tonic.remap.classes;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;

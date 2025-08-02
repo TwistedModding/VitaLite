@@ -1,4 +1,4 @@
-package com.tonic.remap;
+package com.tonic.remap.fields;
 
 import java.util.Objects;
 

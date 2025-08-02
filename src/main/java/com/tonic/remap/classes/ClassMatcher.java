@@ -1,5 +1,6 @@
-package com.tonic.remap;
+package com.tonic.remap.classes;
 
+import com.tonic.remap.classes.ClassFingerprint;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.util.*;

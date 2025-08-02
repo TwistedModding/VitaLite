@@ -1,5 +1,6 @@
-package com.tonic.remap;
+package com.tonic.remap.garbage;
 
+import com.tonic.remap.methods.MethodKey;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;

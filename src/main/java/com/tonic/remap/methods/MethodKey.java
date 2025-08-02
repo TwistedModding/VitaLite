@@ -1,10 +1,4 @@
-package com.tonic.remap;
-
-import org.objectweb.asm.tree.ClassNode;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+package com.tonic.remap.methods;
 
 public final class MethodKey {
     public final String owner;
@@ -31,7 +25,7 @@ public final class MethodKey {
 
     @Override
     public int hashCode() {
-        return Objects.hash(owner, name, desc);
+        return getLongName().hashCode();
     }
 
     @Override

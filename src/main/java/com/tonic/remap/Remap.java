@@ -1,5 +1,11 @@
 package com.tonic.remap;
 
+import com.tonic.remap.classes.ClassMatcher;
+import com.tonic.remap.fields.FieldKey;
+import com.tonic.remap.fields.FieldMatcher;
+import com.tonic.remap.fields.FieldUsage;
+import com.tonic.remap.garbage.OpaquePredicateValueCollector;
+import com.tonic.remap.methods.*;
 import com.tonic.util.optionsparser.RemapperOptions;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -215,7 +221,7 @@ public class Remap {
             }
         }
 
-        var used = UsedMethodScannerAsm.findUsedMethods(classes);
+        var used = UsedMethodScanner.findUsedMethods(classes);
         // Filter methods to only those that are used
         methods.entrySet().removeIf(entry -> !used.contains(entry.getKey()));
         return methods;

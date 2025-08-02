@@ -1,5 +1,7 @@
-package com.tonic.remap;
+package com.tonic.remap.fields;
 
+import com.tonic.remap.methods.MethodKey;
+import com.tonic.remap.classes.ClassMatcher;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.FieldNode;
@@ -16,10 +18,10 @@ import java.util.stream.Collectors;
  */
 public class FieldMatcher {
 
-    static final class Match {
-        final FieldKey oldKey;
-        final FieldKey newKey;
-        final double   score;
+    public static final class Match {
+        public final FieldKey oldKey;
+        public final FieldKey newKey;
+        public final double   score;
         Match(FieldKey o, FieldKey n, double s) { oldKey=o; newKey=n; score=s; }
         @Override public String toString() { return oldKey + " -> " + newKey + " : " + score; }
     }
