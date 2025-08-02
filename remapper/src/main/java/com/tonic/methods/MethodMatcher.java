@@ -288,7 +288,7 @@ public class MethodMatcher {
      * Core scoring combining descriptor, invoked signatures (IDF-weighted), string constants, opcode overlap,
      * field-operation structural similarity, and complexity/boilerplate adjustments.
      */
-    public static double score(NormalizedMethod a, NormalizedMethod b, CorpusStats stats) {
+    private static double score(NormalizedMethod a, NormalizedMethod b, CorpusStats stats) {
         double score = 0.0;
 
         // Descriptor exact match
@@ -540,7 +540,7 @@ public class MethodMatcher {
                         AbstractInsnNode prev = insns.get(i - 1);
                         if (prev.getOpcode() == Opcodes.ALOAD && prev instanceof VarInsnNode) {
                             VarInsnNode v = (VarInsnNode) prev;
-                            if (v.var == 1 && insn instanceof FieldInsnNode) {
+                            if (v.var == 1) {
                                 FieldInsnNode fin = (FieldInsnNode) insn;
                                 tokens.add("ARG_GETFIELD:" + fin.owner + "." + fin.name);
                             }
@@ -686,11 +686,6 @@ public class MethodMatcher {
             return nameA.length() == nameB.length();
         }
 
-        if (objA != objB) {
-            return false; // one is object, other is primitive
-        }
-
-        // both primitives
-        return true;
+        return objA == objB; // both must be objects or both primitives
     }
 }

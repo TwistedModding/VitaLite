@@ -73,8 +73,6 @@ public class Remap {
 
         // 3. Initial matching: top 5 candidates per old method
         System.out.println("Matching methods...");
-        //Todo: match long names or 2 char names prefference etc
-        // long names should match same name
         List<MethodMatcher.Match> candidates = MethodMatcher.matchAll(oldNorm, newNorm, classMatchByOldOwner, 50, 0.5);
 
         // 4. Seed best mapping (best score per old method)
