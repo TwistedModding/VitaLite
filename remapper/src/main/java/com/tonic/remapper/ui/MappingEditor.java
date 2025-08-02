@@ -41,7 +41,13 @@ public class MappingEditor extends JFrame {
     private final JTree classTree = new JTree();
     private final MethodFieldTable methodTable = new MethodFieldTable(Kind.METHOD);
     private final MethodFieldTable fieldTable = new MethodFieldTable(Kind.FIELD);
-    private final JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            FlatDarkLaf.setup();
+            new MappingEditor().setVisible(true);
+        });
+    }
 
     public MappingEditor() {
         super("Remap Name Editor");
@@ -95,6 +101,7 @@ public class MappingEditor extends JFrame {
             fieldTable.setFilter("");
         });
 
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setLeftComponent(new JScrollPane(classTree));
         splitPane.setRightComponent(rightPanel);
         splitPane.setDividerLocation(300);
@@ -254,13 +261,6 @@ public class MappingEditor extends JFrame {
             out.add(jc);
         }
         return out;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            FlatDarkLaf.setup();
-            new MappingEditor().setVisible(true);
-        });
     }
 
     // ---------------- internal models ----------------
