@@ -9,6 +9,7 @@ import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
 import com.tonic.remapper.editor.analasys.AsmUtil;
 import com.tonic.remapper.editor.analasys.DecompilerUtil;
+import com.tonic.remapper.editor.analasys.DeobDump;
 import com.tonic.remapper.methods.MethodKey;
 import com.tonic.remapper.methods.UsedMethodScanner;
 import org.objectweb.asm.ClassReader;
@@ -290,12 +291,35 @@ public class MappingEditor extends JFrame {
             public void actionPerformed(ActionEvent e) { saveMapping(); }
         });
         file.addSeparator();
+        file.add(new AbstractAction("Dump Deob") {
+            @Override
+            public void actionPerformed(ActionEvent e) { dumpDeob(); }
+        });
         file.add(new AbstractAction("Quit") {
             @Override
             public void actionPerformed(ActionEvent e) { dispose(); }
         });
         bar.add(file);
         setJMenuBar(bar);
+    }
+
+    private void dumpDeob()
+    {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select Directory");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false); // hide "All files" option
+        chooser.setApproveButtonText("Choose");
+        chooser.setCurrentDirectory(new File("C:/test/remap/"));
+
+        int result = chooser.showOpenDialog(this);
+        File selectedDir;
+        if (result == JFileChooser.APPROVE_OPTION) {
+            selectedDir = chooser.getSelectedFile();
+        } else {
+            return;
+        }
+        DeobDump.dump(classMappings, selectedDir.toPath().toString());
     }
 
     private void openJar() {

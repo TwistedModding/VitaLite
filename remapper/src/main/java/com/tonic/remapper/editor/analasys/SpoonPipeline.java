@@ -2,10 +2,7 @@ package com.tonic.remapper.editor.analasys;
 
 import spoon.Launcher;
 import spoon.reflect.code.*;
-import spoon.reflect.declaration.CtClass;
-import spoon.reflect.declaration.CtExecutable;
-import spoon.reflect.declaration.CtMethod;
-import spoon.reflect.declaration.CtParameter;
+import spoon.reflect.declaration.*;
 import spoon.reflect.reference.CtParameterReference;
 import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.AbstractFilter;
@@ -16,19 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class SpoonPipeline
 {
     private static final Set<String> JAVA_KEYWORDS = Set.of(
-            "abstract","assert","boolean","break","byte","case","catch","char",
-            "class","const","continue","default","do","double","else","enum",
-            "extends","final","finally","float","for","goto","if","implements",
-            "import","instanceof","int","interface","long","native","new",
-            "package","private","protected","public","return","short","static",
-            "strictfp","super","switch","synchronized","this","throw","throws",
-            "transient","try","void","volatile","while","yield"
+            "do","if"
     );
-
+    private static final Pattern BAD_MNEMONICS = Pattern.compile("\\bmonitorenter\\s*\\([^)]*\\);?|\\bmonitorexit\\s*\\([^)]*\\);?");
     private final List<SpoonTransformer> chain = new ArrayList<>();
     public static SpoonPipeline create() {
         return new SpoonPipeline();
@@ -43,40 +35,54 @@ public class SpoonPipeline
         src = sanitise(src);
         Launcher launcher = generateLauncher(name, src);
 
+        if(name.equals("do") || name.equals("if"))
+        {
+            name = "_" + name;
+        }
+
         CtClass<?> ctClass = launcher.getFactory().Class().get(name);
-        if (ctClass == null)
+        if(ctClass != null)
         {
-            System.out.println(src);
-            throw new RuntimeException("Class " + name + " not found in the provided source.");
+            process(ctClass.getMethods());
+            process(ctClass.getConstructors());
+            return ParenCleaner.clean(ctClass.prettyprint()
+                    .replace("\r\n", "\n")
+                    .replaceAll("(?m)^\\s*\\n", ""));
         }
 
-        CtExecutable<?> executable = null;
-        if(!ctClass.getMethods().isEmpty())
+        CtInterface<?> ctInterface = launcher.getFactory().Interface().get(name);
+        if(ctInterface != null)
         {
-            executable = ctClass.getMethods().iterator().next();
+            process(ctInterface.getMethods());
+            return ParenCleaner.clean(ctInterface.prettyprint()
+                    .replace("\r\n", "\n")
+                    .replaceAll("(?m)^\\s*\\n", ""));
         }
 
-        if(executable == null && !ctClass.getConstructors().isEmpty())
+        CtEnum<?> ctEnum = launcher.getFactory().Enum().get(name);
+        if(ctEnum != null)
         {
-            executable = ctClass.getConstructors().iterator().next();
+            process(ctEnum.getConstructors());
+            process(ctEnum.getMethods());
+            return ParenCleaner.clean(ctEnum.prettyprint()
+                    .replace("\r\n", "\n")
+                    .replaceAll("(?m)^\\s*\\n", ""));
         }
 
-        if (executable == null)
-        {
-            throw new RuntimeException("Method not found in class " + name + ".");
-        }
-
-        for (SpoonTransformer t : chain) {
-            t.transform(executable);
-        }
-
-        return ParenCleaner.clean(ctClass.prettyprint()
-                .replace("\r\n", "\n")
-                .replaceAll("(?m)^\\s*\\n", ""));
+        System.err.println("Class " + name + " not found in the provided source.");
+        return src;
     }
 
     private SpoonPipeline()
     {
+    }
+
+    private void process(Set<? extends CtExecutable<?>> executables) {
+        for (CtExecutable<?> executable : executables) {
+            for (SpoonTransformer t : chain) {
+                t.transform(executable);
+            }
+        }
     }
 
     public static Number calculateOpaquePredicate(String name, String src)
@@ -91,7 +97,7 @@ public class SpoonPipeline
 
     private static Launcher generateLauncher(String name, String src) {
         Launcher launcher = new Launcher();
-        launcher.addInputResource(new VirtualFile(src, "demo/" + name + ".java"));
+        launcher.addInputResource(new VirtualFile(src, name + ".java"));
         launcher.getEnvironment().setEncoding(StandardCharsets.ISO_8859_1);
         launcher.getEnvironment().setCommentEnabled(false);
         launcher.getEnvironment().setPreserveLineNumbers(true);
@@ -103,9 +109,55 @@ public class SpoonPipeline
     }
 
     private static String sanitise(String src) {
+        //match and remove labels like Label_0228:
+        src = src.replaceAll("(?m)^[ \t]*Label_[A-Za-z_][A-Za-z0-9_]*:\\s*", "if(true /* stripped label */ )");
+        // Fix inverted null checks FIRST
+        src = src.replaceAll(
+                "if\\s*\\(([a-zA-Z0-9_]+)\\s*==\\s*null\\)\\s*\\{\\s*\\1\\.",
+                "if ($1 != null) { $1."
+        );
+        src = src.replaceAll(
+                "if\\s*\\(([a-zA-Z0-9_]+)\\s*==\\s*null\\)\\s*\\{\\s*return\\s+\\1\\.",
+                "if ($1 != null) { return $1."
+        );
+
+        // Remove goto statements and their labels
+        src = src.replaceAll("goto\\s+[A-Za-z_][A-Za-z0-9_]*\\s*;", "// goto removed");
+        // Use (?m) for multiline mode
+        src = src.replaceAll("(?m)^\\s*[A-Za-z_][A-Za-z0-9_]*:\\s*$", "");
+
+        // Fix bare semicolons (from stripped synchronized blocks)
+        src = src.replaceAll(";\\s*/\\*\\s*stripped\\s*\\*/", "// synchronization removed");
+
+        // Wrap wait() and notify() calls in synchronized blocks
+        src = src.replaceAll(
+                "([a-zA-Z0-9_]+\\.wait\\(\\))",
+                "synchronized(this) { $1; }"
+        );
+        src = src.replaceAll(
+                "([a-zA-Z0-9_]+\\.notify\\(\\))",
+                "synchronized(this) { $1; }"
+        );
+        src = src.replaceAll(
+                "(this\\.wait\\(\\))",
+                "synchronized(this) { $1; }"
+        );
+        src = src.replaceAll(
+                "(this\\.notify\\(\\))",
+                "synchronized(this) { $1; }"
+        );
+
         for (String kw : JAVA_KEYWORDS) {
-            src = src.replaceAll("\\b" + kw + "(?=\\s*[\\.:])", "_" + kw);
+            src = src.replaceAll(
+                    "(?<![\\w$])" + kw + "(?![\\w$])(?!\\s*[\\({])",
+                    "_" + kw);
         }
+        src = src.replace("class do", "class _do");
+        src = src.replace(".do(", "._do(");
+        src = src.replace(".if(", "._if(");
+        src = src.replace(" do(", " _do(");
+        src = src.replace(" if(", " _if(");
+        src = BAD_MNEMONICS.matcher(src).replaceAll("; /* stripped */");
         return src;
     }
 

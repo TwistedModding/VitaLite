@@ -38,26 +38,7 @@ public final class DecompilerUtil {
             }
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        stub.accept(cw);
-        byte[] bytes = cw.toByteArray();
-
-        InMemoryTypeLoader memLoader = new InMemoryTypeLoader();
-        String internalName = stub.name;
-        memLoader.addType(internalName, bytes);
-
-        ITypeLoader ctx = new CompositeTypeLoader(
-                memLoader,
-                new InputTypeLoader()
-        );
-
-        DecompilerSettings settings = DecompilerSettings.javaDefaults();
-        settings.setTypeLoader(ctx);
-
-        StringWriter out = new StringWriter();
-        Decompiler.decompile(internalName, new PlainTextOutput(out), settings);
-
-        String fullSrc = out.toString().replace(owner.name + "$DecompilerStub", owner.name);
+        String fullSrc = decompile(stub, owner);
 
         if(deobfuscate) {
             try {
@@ -90,26 +71,72 @@ public final class DecompilerUtil {
             ex.printStackTrace();
         }
 
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        stub.accept(cw);
-        byte[] bytes = cw.toByteArray();
+        return decompile(stub, owner);
+    }
+
+    public static String decompile(ClassNode stub, ClassNode owner)
+    {
+        return decompile(stub).replace(owner.name + "$DecompilerStub", owner.name);
+    }
+
+    public static String decompile(ClassNode classNode)
+    {
+        byte[] bytes;
+        try {
+            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS) {
+                @Override
+                protected String getCommonSuperClass(String type1, String type2) {
+                    // If we can't determine the common superclass, just return Object
+                    try {
+                        return super.getCommonSuperClass(type1, type2);
+                    } catch (Exception e) {
+                        // Can't find one of the types, assume Object is the common superclass
+                        return "java/lang/Object";
+                    }
+                }
+            };
+            classNode.accept(cw);
+            bytes = cw.toByteArray();
+        }
+        catch (Exception e)
+        {
+            System.out.println("Failed to write class: " + classNode.name);
+            e.printStackTrace();
+            System.exit(0);
+            return null;
+        }
 
         InMemoryTypeLoader memLoader = new InMemoryTypeLoader();
-        String internalName = stub.name;
+        String internalName = classNode.name;
         memLoader.addType(internalName, bytes);
 
-        ITypeLoader ctx = new CompositeTypeLoader(
-                memLoader,
-                new InputTypeLoader()
-        );
+        // Create a fault-tolerant type loader that won't crash on missing types
+        ITypeLoader ctx = new FaultTolerantTypeLoader(memLoader);
 
         DecompilerSettings settings = DecompilerSettings.javaDefaults();
         settings.setTypeLoader(ctx);
 
-        StringWriter out = new StringWriter();
-        Decompiler.decompile(internalName, new PlainTextOutput(out), settings);
+        // Additional settings to handle missing types more gracefully
+        settings.setShowSyntheticMembers(false);
+        settings.setForceExplicitImports(true);
 
-        return out.toString().replace(owner.name + "$DecompilerStub", owner.name);
+        StringWriter out = new StringWriter();
+
+        try {
+            Decompiler.decompile(
+                    internalName,
+                    new PlainTextOutput(out),
+                    settings);
+        } catch (Exception e) {
+            // If decompilation still fails, return a minimal representation
+            out.append("// Decompilation failed for class: ").append(internalName).append("\n");
+            out.append("// Error: ").append(e.getMessage()).append("\n");
+            out.append("public class ").append(internalName.replace('/', '_')).append(" {\n");
+            out.append("    // Unable to decompile class body\n");
+            out.append("}\n");
+        }
+
+        return out.toString();
     }
 
     public static ClassNode isolateMethod(ClassNode owner, MethodNode target) {
