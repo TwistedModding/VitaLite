@@ -72,48 +72,119 @@ public class MethodFieldTable extends AbstractTableModel {
     public int getRowCount() { return current == null ? 0 : filteredRows.size(); }
 
     @Override
-    public int getColumnCount() { return 2; }
+    public int getColumnCount() {
+        return kind == Kind.METHOD ? 3  /* Obf / Mapped / Garbage */
+                : 4; /* Obf / Mapped / Setter / Getter */
+    }
 
     @Override
-    public String getColumnName(int col) { if (col == 0) return "Obf"; if (col == 1) return "Mapped"; return ""; }
-
-    @Override
-    public Object getValueAt(int row, int col) {
-        if (current == null) return null;
-        int underlying = filteredRows.get(row);
+    public String getColumnName(int c) {
         if (kind == Kind.METHOD) {
-            MethodRecord mr = current.methods.get(underlying);
-            if (col == 0) return mr.node.name + mr.node.desc;
-            return mr.newName;
+            switch (c) {
+                case 1:
+                    return "Mapped";
+                case 2:
+                    return "Garbage";
+                default:
+                    return "Obf";
+            }
         } else {
-            FieldRecord fr = current.fields.get(underlying);
-            if (col == 0) return fr.node.name + " " + fr.node.desc;
-            return fr.newName;
+            switch (c) {
+                case 1:
+                    return "Mapped";
+                case 2:
+                    return "Setter";
+                case 3:
+                    return "Getter";
+                default:
+                    return "Obf";
+            }
         }
     }
 
     @Override
-    public boolean isCellEditable(int row, int col) { return col == 1; }
+    public Object getValueAt(int row,int col) {
+        if (current == null) return null;
+        int idx = filteredRows.get(row);
+
+        if (kind == Kind.METHOD) {
+            MethodRecord mr = current.methods.get(idx);
+            switch (col) {
+                case 0:
+                    return mr.node.name + mr.node.desc;
+                case 1:
+                    return mr.newName;
+                case 2:
+                    return mr.garbage;
+                default:
+                    return null;
+            }
+        } else {
+            FieldRecord fr = current.fields.get(idx);
+            switch (col) {
+                case 0:
+                    return fr.node.name + " " + fr.node.desc;
+                case 1:
+                    return fr.newName;
+                case 2:
+                    return fr.setter;
+                case 3:
+                    return fr.getter;
+                default:
+                    return null;
+            }
+        }
+    }
 
     @Override
-    public void setValueAt(Object aValue, int row, int col) {
-        if (current == null || col != 1) return;
-        int underlying = filteredRows.get(row);
-        String v = aValue == null ? null : aValue.toString();
+    public boolean isCellEditable(int row, int col) {
+        return col != 0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setValueAt(Object v,int row,int col) {
+        if (current == null || col == 0) return;
+        int idx = filteredRows.get(row);
+
         if (kind == Kind.METHOD) {
-            MethodRecord mr = current.methods.get(underlying);
-            mr.newName = v;
-            String key = mr.node.name + mr.node.desc;
-            if (v == null || v.isBlank()) current.methodMap.remove(key);
-            else current.methodMap.put(key, v);
+            MethodRecord mr = current.methods.get(idx);
+            if (col == 1) {                               // mapped name
+                mr.newName = (v == null ? null : v.toString());
+                String key = mr.node.name + mr.node.desc;
+                if (mr.newName == null || mr.newName.isBlank())
+                    current.methodMap.remove(key);
+                else
+                    current.methodMap.put(key, mr.newName);
+            } else {                                      // garbage value
+                mr.garbage = parseNumber(v);
+            }
         } else {
-            FieldRecord fr = current.fields.get(underlying);
-            fr.newName = v;
-            String key = fr.node.name + " " + fr.node.desc;
-            if (v == null || v.isBlank()) current.fieldMap.remove(key);
-            else current.fieldMap.put(key, v);
+            FieldRecord fr = current.fields.get(idx);
+            switch (col) {
+                case 1:
+                    fr.newName = (v == null ? null : v.toString());
+                    String key = fr.node.name + " " + fr.node.desc;
+                    if (fr.newName == null || fr.newName.isBlank())
+                        current.fieldMap.remove(key);
+                    else
+                        current.fieldMap.put(key, fr.newName);
+                    break;
+                case 2:
+                    fr.setter = parseNumber(v);
+                    break;
+                case 3:
+                    fr.getter = parseNumber(v);
+            }
         }
-        fireTableRowsUpdated(row, row);
+        fireTableRowsUpdated(row,row);
+    }
+
+    private static Number parseNumber(Object v) {
+        if (v == null) return null;
+        if (v instanceof Number) {
+            return (Number) v;
+        }
+        try { return Long.decode(v.toString()); } catch (NumberFormatException nfe) { return null; }
     }
 
     public MethodRecord getMethodRecordAt(int viewRow) {

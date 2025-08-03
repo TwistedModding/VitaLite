@@ -17,9 +17,9 @@ public class JField
     @Expose
     private String descriptor;
     @Expose
-    private Number getter; //ignore for now
+    private Number getter;
     @Expose
-    private Number setter; //ignore for now
+    private Number setter;
     @Expose
     private boolean isStatic;
 

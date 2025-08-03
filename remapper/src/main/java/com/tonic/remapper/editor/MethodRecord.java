@@ -5,6 +5,7 @@ import org.objectweb.asm.tree.MethodNode;
 public class MethodRecord {
     public final MethodNode node;
     public String newName;
+    public Number  garbage;
     public final ClassMapping owner;
 
     MethodRecord(MethodNode mn, ClassMapping o)

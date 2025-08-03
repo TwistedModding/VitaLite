@@ -405,6 +405,7 @@ public class MappingEditor extends JFrame {
                 jm.setOwner(jc.getName());
                 jm.setName(mr.newName);
                 jm.setStatic((mr.node.access & org.objectweb.asm.Opcodes.ACC_STATIC) != 0);
+                jm.setGarbageValue(mr.garbage);
                 jc.getMethods().add(jm);
             }
 
@@ -417,7 +418,10 @@ public class MappingEditor extends JFrame {
                 jf.setOwner(jc.getName());
                 jf.setName(fr.newName != null && !fr.newName.isBlank() ? fr.newName : "");
                 jf.setStatic((fr.node.access & org.objectweb.asm.Opcodes.ACC_STATIC) != 0);
+                jf.setSetter(fr.setter);
+                jf.setGetter(fr.getter);
                 jc.getFields().add(jf);
+
             }
 
             out.add(jc);
@@ -475,6 +479,7 @@ public class MappingEditor extends JFrame {
                     for (MethodRecord mr : cm.methods) {
                         if (mr.node.name.equals(jm.getObfuscatedName()) && mr.node.desc.equals(jm.getDescriptor())) {
                             mr.newName = jm.getName();
+                            mr.garbage = jm.getGarbageValue();
                             if (jm.getName() != null && !jm.getName().isBlank()) {
                                 cm.methodMap.put(key, jm.getName());
                             } else {
@@ -491,6 +496,8 @@ public class MappingEditor extends JFrame {
                     for (FieldRecord fr : cm.fields) {
                         if (fr.node.name.equals(jf.getObfuscatedName()) && fr.node.desc.equals(jf.getDescriptor())) {
                             fr.newName = jf.getName();
+                            fr.setter = jf.getSetter();
+                            fr.getter = jf.getGetter();
                             if (jf.getName() != null && !jf.getName().isBlank()) {
                                 cm.fieldMap.put(key, jf.getName());
                             } else {
