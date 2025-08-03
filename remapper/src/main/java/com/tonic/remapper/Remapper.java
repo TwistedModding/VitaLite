@@ -100,19 +100,22 @@ public class Remapper {
 
         // 7. Output results
         System.out.println("Mapping complete. Found " + refined.size() + " method mappings.");
-        System.out.println("Final mapping (old -> new) with initial scores:");
-        for (Map.Entry<MethodKey, MethodKey> e : refined.entrySet()) {
-            MethodKey oldKey = e.getKey();
-            MethodKey newKey = e.getValue();
-            Number opaque = opaquePredicates.get(newKey);
-            double score = 0.0;
-            for (MethodMatcher.Match m : candidates) {
-                if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
-                    score = m.score;
-                    break;
+        if(parser.isVerbose())
+        {
+            System.out.println("Final mapping (old -> new) with initial scores:");
+            for (Map.Entry<MethodKey, MethodKey> e : refined.entrySet()) {
+                MethodKey oldKey = e.getKey();
+                MethodKey newKey = e.getValue();
+                Number opaque = opaquePredicates.get(newKey);
+                double score = 0.0;
+                for (MethodMatcher.Match m : candidates) {
+                    if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
+                        score = m.score;
+                        break;
+                    }
                 }
+                System.out.printf("%s -> %s [%s] (score=%.3f)%n", oldKey, newKey, opaque, score);
             }
-            System.out.printf("%s -> %s [%s] (score=%.3f)%n", oldKey, newKey, opaque, score);
         }
 
         // ---------------- Field remapping integration ----------------
@@ -157,33 +160,39 @@ public class Remapper {
         // 11.  Show the result
         var multiplierMap = FieldMultiplierScanner.scan(newClasses, newFieldNodesAll);
         System.out.println("Field mapping complete.  Found " + bestFieldMap.size() + " mappings.");
-        System.out.println("Field mapping results (old -> new) with scores:");
-        bestFieldMap.entrySet()
-                .stream()
-                .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
-                .forEach(e -> {
-                    FieldMultiplierScanner.Pair multi = multiplierMap.get(e.getKey());
-                    if(multi != null)
-                    {
-                        System.out.printf("%s -> %s set=%s, get=%s(score=%.3f)%n",
-                                e.getKey(), e.getValue(), multi.encode, multi.decode, bestFieldScore.get(e.getKey()));
-                    }
-                    else
-                    {
-                        System.out.printf("%s -> %s (score=%.3f)%n",
-                                e.getKey(), e.getValue(), bestFieldScore.get(e.getKey()));
-                    }
-                });
+        if(parser.isVerbose())
+        {
+            System.out.println("Field mapping results (old -> new) with scores:");
+            bestFieldMap.entrySet()
+                    .stream()
+                    .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
+                    .forEach(e -> {
+                        FieldMultiplierScanner.Pair multi = multiplierMap.get(e.getKey());
+                        if(multi != null)
+                        {
+                            System.out.printf("%s -> %s set=%s, get=%s(score=%.3f)%n",
+                                    e.getKey(), e.getValue(), multi.encode, multi.decode, bestFieldScore.get(e.getKey()));
+                        }
+                        else
+                        {
+                            System.out.printf("%s -> %s (score=%.3f)%n",
+                                    e.getKey(), e.getValue(), bestFieldScore.get(e.getKey()));
+                        }
+                    });
+        }
 
         String oldMappings = parser.getOldMappings();
-        String outFile = parser.getNewMapping();
+        String outFile = parser.getNewMappings();
         if(oldMappings == null && outFile == null) {
-            System.out.println("No output file specified, skipping remapping.");
+            System.out.println("No mappings specified, skipping remapping.");
             return;
         }
 
         if(oldMappings == null || outFile == null) {
-            System.out.println("Either old mappings or new mapping output file is not specified, cannot remap.");
+            if(oldMappings == null)
+                System.out.println("Old mappings file is not specified, cannot remap.");
+            if(outFile == null)
+                System.out.println("New mapping output file is not specified, cannot remap.");
             parser.help();
             return;
         }

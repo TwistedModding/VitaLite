@@ -3,6 +3,7 @@ package com.tonic.remapper.editor;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
@@ -457,7 +458,7 @@ public class MappingEditor extends JFrame {
 
         int unmatchedClasses = 0;
         try (Reader r = new InputStreamReader(new FileInputStream(inFile), StandardCharsets.UTF_8)) {
-            JClass[] dtoClasses = gson.fromJson(r, JClass[].class);
+            List<JClass> dtoClasses = gson.fromJson(r, new TypeToken<List<JClass>>() {}.getType());
             if (dtoClasses == null) {
                 JOptionPane.showMessageDialog(this, "Mapping file appears empty or malformed.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;

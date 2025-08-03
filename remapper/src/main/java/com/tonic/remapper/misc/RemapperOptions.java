@@ -26,10 +26,16 @@ public class RemapperOptions extends OptionsParser
     private String oldMappings = null;
 
     @CLIArgument(
-            name = "newMapping",
+            name = "newMappings",
             description = "[Optional] Path to save the new mappings"
     )
-    private String newMapping = null;
+    private String newMappings = null;
+
+    @CLIArgument(
+            name = "verbose",
+            description = "[Optional] Path to save the new mappings"
+    )
+    private boolean verbose = false;
 
     @CLIArgument(
             name = "editor",
