@@ -6,11 +6,13 @@ public final class FieldKey {
     public final String owner; // internal name
     public final String name;
     public final String desc;
+    public final boolean hasGarbage;
 
     public FieldKey(String owner, String name, String desc) {
         this.owner = owner;
         this.name = name;
         this.desc = desc;
+        hasGarbage = desc.equals("I") || desc.equals("J");
     }
 
     @Override

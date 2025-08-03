@@ -10,6 +10,7 @@ import com.tonic.remapper.editor.MappingEditor;
 import com.tonic.remapper.fields.FieldKey;
 import com.tonic.remapper.fields.FieldMatcher;
 import com.tonic.remapper.fields.FieldUsage;
+import com.tonic.remapper.garbage.FieldMultiplierScanner;
 import com.tonic.remapper.garbage.OpaquePredicateScanner;
 import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
@@ -154,13 +155,25 @@ public class Remapper {
         }
 
         // 11.  Show the result
+        var multiplierMap = FieldMultiplierScanner.scan(newClasses, newFieldNodesAll);
         System.out.println("Field mapping complete.  Found " + bestFieldMap.size() + " mappings.");
         System.out.println("Field mapping results (old -> new) with scores:");
         bestFieldMap.entrySet()
                 .stream()
                 .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
-                .forEach(e -> System.out.printf("%s -> %s (score=%.3f)%n",
-                        e.getKey(), e.getValue(), bestFieldScore.get(e.getKey())));
+                .forEach(e -> {
+                    FieldMultiplierScanner.Pair multi = multiplierMap.get(e.getKey());
+                    if(multi != null)
+                    {
+                        System.out.printf("%s -> %s set=%s, get=%s(score=%.3f)%n",
+                                e.getKey(), e.getValue(), multi.encode, multi.decode, bestFieldScore.get(e.getKey()));
+                    }
+                    else
+                    {
+                        System.out.printf("%s -> %s (score=%.3f)%n",
+                                e.getKey(), e.getValue(), bestFieldScore.get(e.getKey()));
+                    }
+                });
 
         String oldMappings = parser.getOldMappings();
         String outFile = parser.getNewMapping();
@@ -252,6 +265,14 @@ public class Remapper {
 
                     target.setName(oldF.getName());
                     target.setOwner(newClsDto.getName());
+
+                    FieldMultiplierScanner.Pair multi = multiplierMap.get(newFKey);
+                    if(multi != null)
+                    {
+                        target.setGetter(multi.decode);
+                        target.setSetter(multi.encode);
+                    }
+
                 }
             }
         }

@@ -19,6 +19,8 @@ public class JField
     @Expose
     private Number getter; //ignore for now
     @Expose
+    private Number setter; //ignore for now
+    @Expose
     private boolean isStatic;
 
     private boolean fieldHookAfter = false;
