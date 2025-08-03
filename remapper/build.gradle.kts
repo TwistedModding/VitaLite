@@ -7,6 +7,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
 }
 
 dependencies {
@@ -32,7 +33,9 @@ dependencies {
     implementation(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
     implementation("org.bitbucket.mstrobel:procyon-compilertools:0.6.0")
 
-    implementation("fr.inria.gforge.spoon:spoon-core:10.4.2")
+    implementation("fr.inria.gforge.spoon:spoon-core:10.4.2") //needed because later versions are not java 11 compatible
+
+    implementation("com.github.jgraph:jgraphx:4.0.6")
 
     implementation(project(":utilities"))
 }

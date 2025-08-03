@@ -4,6 +4,7 @@ import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtExecutable;
+import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.declaration.CtParameter;
 import spoon.reflect.reference.CtParameterReference;
 import spoon.reflect.visitor.Filter;
@@ -76,8 +77,18 @@ public class SpoonPipeline
 
     private SpoonPipeline()
     {
-
     }
+
+    public static Number calculateOpaquePredicate(String name, String src)
+    {
+        src = sanitise(src);
+        Launcher launcher = generateLauncher(name, src);
+        CtClass<?> ctClass = launcher.getFactory().Class().get(name);
+        CtMethod<?> method = ctClass.getMethods().iterator().next();
+
+        return null;
+    }
+
     private static Launcher generateLauncher(String name, String src) {
         Launcher launcher = new Launcher();
         launcher.addInputResource(new VirtualFile(src, "demo/" + name + ".java"));

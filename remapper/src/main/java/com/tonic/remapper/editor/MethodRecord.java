@@ -6,5 +6,10 @@ public class MethodRecord {
     public final MethodNode node;
     public String newName;
     public final ClassMapping owner;
-    MethodRecord(MethodNode mn, ClassMapping o) { node = mn; owner = o; }
+
+    MethodRecord(MethodNode mn, ClassMapping o)
+    {
+        node = mn;
+        owner = o;
+    }
 }

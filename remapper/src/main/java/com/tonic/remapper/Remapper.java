@@ -6,10 +6,11 @@ import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
+import com.tonic.remapper.editor.MappingEditor;
 import com.tonic.remapper.fields.FieldKey;
 import com.tonic.remapper.fields.FieldMatcher;
 import com.tonic.remapper.fields.FieldUsage;
-import com.tonic.remapper.garbage.OpaquePredicateValueCollector;
+import com.tonic.remapper.garbage.OpaquePredicateScanner;
 import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
@@ -94,8 +95,7 @@ public class Remapper {
                 seedMap
         );
 
-        // Fetch opaques
-        var opaquePredicates = OpaquePredicateValueCollector.collectMostFrequent(newMethods);
+        var opaquePredicates = OpaquePredicateScanner.scan(newMethods);
 
         // 7. Output results
         System.out.println("Mapping complete. Found " + refined.size() + " method mappings.");
@@ -103,7 +103,7 @@ public class Remapper {
         for (Map.Entry<MethodKey, MethodKey> e : refined.entrySet()) {
             MethodKey oldKey = e.getKey();
             MethodKey newKey = e.getValue();
-            Integer opaque = opaquePredicates.get(newKey);
+            Number opaque = opaquePredicates.get(newKey);
             double score = 0.0;
             for (MethodMatcher.Match m : candidates) {
                 if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
@@ -224,7 +224,7 @@ public class Remapper {
                             oldM.getObfuscatedName(),
                             oldM.getDescriptor());
 
-                    MethodKey newKey = refined.get(oldKey);                    // match produced earlier
+                    MethodKey newKey = refined.get(oldKey);
                     if (newKey == null) continue;
 
                     JMethod target = newMethodsBySig.get(newKey.name + newKey.desc);
@@ -232,6 +232,7 @@ public class Remapper {
 
                     target.setName(oldM.getName());
                     target.setOwner(newClsDto.getName());
+                    target.setGarbageValue(opaquePredicates.get(newKey));
                 }
 
                 /* ---------- fields ---------- */

@@ -4,6 +4,7 @@ public final class MethodKey {
     public final String owner;
     public final String name;
     public final String desc;
+    public boolean hasGarbage = false;
 
     public MethodKey(String owner, String name, String desc) {
         this.owner = owner;
@@ -21,6 +22,11 @@ public final class MethodKey {
         if (!(o instanceof MethodKey)) return false;
         MethodKey that = (MethodKey) o;
         return getLongName().equals(that.getLongName());
+    }
+
+    public boolean equals(String owner, String name, String desc) {
+        return this.owner.equals(owner) && this.name.equals(name) && this.desc.equals(desc);
+
     }
 
     @Override

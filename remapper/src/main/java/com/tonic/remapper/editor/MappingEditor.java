@@ -1,4 +1,4 @@
-package com.tonic.remapper;
+package com.tonic.remapper.editor;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
@@ -10,7 +10,6 @@ import com.tonic.remapper.editor.analasys.AsmUtil;
 import com.tonic.remapper.editor.analasys.DecompilerUtil;
 import com.tonic.remapper.methods.MethodKey;
 import com.tonic.remapper.methods.UsedMethodScanner;
-import com.tonic.remapper.editor.*;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -47,6 +46,9 @@ public class MappingEditor extends JFrame {
     private final JTextArea notesArea = new CodeArea(10, 80);
     private final JTextField classFilterField = new JTextField(20);   // NEW
     private String classFilter = "";
+    private JScrollPane cfgScroll;
+    private CFGVisualizer cfgPanel;
+    private final JTabbedPane tabs = new JTabbedPane();
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -66,7 +68,6 @@ public class MappingEditor extends JFrame {
         classTree.addTreeSelectionListener(this::onClassSelected);
         classTree.addMouseListener(new ClassTreePopup());
 
-        JTabbedPane tabs = new JTabbedPane();
         JTable methodTableView = new JTable(methodTable);
         JTable fieldTableView = new JTable(fieldTable);
         methodTableView.setFillsViewportHeight(true);
@@ -94,12 +95,14 @@ public class MappingEditor extends JFrame {
 
         notesArea.setEditable(false);
         JScrollPane notesScroll = new JScrollPane(notesArea);
+        cfgScroll = new JScrollPane();
 
         JScrollPane methodScroll = new JScrollPane(methodTableView);
         JScrollPane fieldScroll = new JScrollPane(fieldTableView);
         tabs.addTab("Methods", methodScroll);
         tabs.addTab("Fields", fieldScroll);
         tabs.addTab("Analysis"  , notesScroll);
+        tabs.addTab("CFG", cfgScroll);
 
         rightPanel.add(searchPanel, BorderLayout.NORTH);
         rightPanel.add(tabs, BorderLayout.CENTER);
@@ -231,6 +234,23 @@ public class MappingEditor extends JFrame {
                                     getContentPane().getComponent(0)).getRightComponent()).getLayout())
                                     .getLayoutComponent(BorderLayout.CENTER)).setSelectedIndex(2);
                         });
+                    }
+                });
+
+                menu.add(new AbstractAction("Show CFG") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+                        try {
+                            if(cfgPanel == null)
+                                cfgPanel = CFGVisualizer.create(mr.node);
+                            else
+                                cfgPanel.updateMethod(mr.node);
+                            cfgScroll.setViewportView(cfgPanel);
+
+                            tabs.setSelectedComponent(cfgScroll);
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(MappingEditor.this,
+                                    ex.getMessage(), "CFG error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 });
 
