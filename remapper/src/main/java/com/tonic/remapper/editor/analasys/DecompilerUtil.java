@@ -9,6 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.tree.*;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class DecompilerUtil {
@@ -57,6 +58,7 @@ public final class DecompilerUtil {
     public static String decompile(ClassNode owner, MethodNode target)
     {
         ClassNode stub = isolateMethod(owner, target);
+
         MethodNode copy = stub.methods.stream()
                 .filter(m -> m.name.equals(target.name) && m.desc.equals(target.desc))
                 .findFirst()
@@ -149,6 +151,7 @@ public final class DecompilerUtil {
         stub.superName  = (owner.superName == null ? "java/lang/Object"
                 : owner.superName);
         stub.interfaces = java.util.List.of();
+        stub.visibleAnnotations = new ArrayList<>(owner.visibleAnnotations);
 
         MethodNode copy = cloneMethod(target);
         stub.methods.add(copy);

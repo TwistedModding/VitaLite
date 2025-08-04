@@ -2,7 +2,6 @@ package com.tonic.remapper.editor.analasys;
 
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
-import org.objectweb.asm.commons.MethodRemapper;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 import java.util.*;
@@ -12,9 +11,10 @@ import java.util.*;
  * while updating ALL references throughout the bytecode.
  *
  * Features:
- * - Renames classes to class0, class1, class2...
+ * - Renames classes to class0, class1, class2... (only if original name is 2 chars or less)
  * - Renames fields to field0, field1, field2...
  * - Renames methods to method0, method1, method2... (preserves <init>, <clinit>, main)
+ * - Adds @ObfuscatedName annotations to preserve original names and descriptors
  * - Updates ALL bytecode references including:
  *   - Regular method calls (invokevirtual, invokestatic, invokespecial, invokeinterface)
  *   - Field accesses (getfield, putfield, getstatic, putstatic)
@@ -32,27 +32,47 @@ import java.util.*;
  *   - Permitted subclasses
  *   - Module declarations
  *
+ * The @ObfuscatedName annotation is expected to have this structure:
+ *   @Retention(RetentionPolicy.RUNTIME)
+ *   @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
+ *   public @interface ObfuscatedName {
+ *       String obfuscatedName();
+ *       String descriptor() default "";
+ *   }
+ *
  * Usage:
  *   BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
  *   List<ClassNode> renamedClasses = renamer.rename();
  */
 public class BytecodeRenamer {
     private static final int ASM_VERSION = Opcodes.ASM9;
+    private static final String DEFAULT_ANNOTATION_DESCRIPTOR = "Lcom/tonic/remapper/ObfuscatedName;";
     private final List<ClassNode> classes;
     private final Map<String, String> classMapping = new HashMap<>();
     private final Map<String, Map<String, String>> fieldMapping = new HashMap<>();
     private final Map<String, Map<String, String>> methodMapping = new HashMap<>();
     private final ComprehensiveRemapper remapper;
+    private final String annotationDescriptor;
     private int classCounter = 0;
     private int fieldCounter = 0;
     private int methodCounter = 0;
 
     /**
-     * Creates a new BytecodeRenamer instance.
+     * Creates a new BytecodeRenamer instance with default annotation descriptor.
      * @param classes List of ClassNode objects to rename
      */
     public BytecodeRenamer(List<ClassNode> classes) {
+        this(classes, DEFAULT_ANNOTATION_DESCRIPTOR);
+    }
+
+    /**
+     * Creates a new BytecodeRenamer instance with custom annotation descriptor.
+     * @param classes List of ClassNode objects to rename
+     * @param annotationDescriptor The descriptor for the ObfuscatedName annotation (e.g., "Lcom/example/ObfuscatedName;")
+     */
+    public BytecodeRenamer(List<ClassNode> classes, String annotationDescriptor) {
         this.classes = classes;
+        this.annotationDescriptor = annotationDescriptor;
         this.remapper = new ComprehensiveRemapper();
     }
 
@@ -66,6 +86,52 @@ public class BytecodeRenamer {
         mappings.put("fields", new HashMap<>(fieldMapping));
         mappings.put("methods", new HashMap<>(methodMapping));
         return mappings;
+    }
+
+    /**
+     * Retrieves the original obfuscated name from an annotated element.
+     * @param annotations List of annotation nodes
+     * @param annotationDescriptor The descriptor of the ObfuscatedName annotation
+     * @return The original name, or null if not found
+     */
+    public static String getOriginalName(List<AnnotationNode> annotations, String annotationDescriptor) {
+        if (annotations == null) return null;
+
+        for (AnnotationNode an : annotations) {
+            if (an.desc.equals(annotationDescriptor)) {
+                if (an.values != null) {
+                    for (int i = 0; i < an.values.size(); i += 2) {
+                        if ("obfuscatedName".equals(an.values.get(i))) {
+                            return (String) an.values.get(i + 1);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the original descriptor from an annotated method or field.
+     * @param annotations List of annotation nodes
+     * @param annotationDescriptor The descriptor of the ObfuscatedName annotation
+     * @return The original descriptor, or null if not found
+     */
+    public static String getOriginalDescriptor(List<AnnotationNode> annotations, String annotationDescriptor) {
+        if (annotations == null) return null;
+
+        for (AnnotationNode an : annotations) {
+            if (an.desc.equals(annotationDescriptor)) {
+                if (an.values != null) {
+                    for (int i = 0; i < an.values.size(); i += 2) {
+                        if ("descriptor".equals(an.values.get(i))) {
+                            return (String) an.values.get(i + 1);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -175,11 +241,15 @@ public class BytecodeRenamer {
 
     /**
      * Builds mappings for all classes, fields, and methods.
+     * Only renames classes with names of 2 characters or less.
      */
     private void buildMappings() {
         for (ClassNode cn : classes) {
-            String newClassName = cn.name.length() > 2 ? cn.name : "class" + (classCounter++);
-            classMapping.put(cn.name, newClassName);
+            // Only rename classes with names of 2 characters or less
+            if (cn.name.length() <= 2) {
+                String newClassName = "class" + (classCounter++);
+                classMapping.put(cn.name, newClassName);
+            }
 
             Map<String, String> fieldMap = new HashMap<>();
             fieldMapping.put(cn.name, fieldMap);
@@ -192,22 +262,11 @@ public class BytecodeRenamer {
             methodMapping.put(cn.name, methodMap);
 
             for (MethodNode mn : cn.methods) {
-                if (mn.name.length() < 3) {
+                if (!mn.name.equals("<init>") && !mn.name.equals("<clinit>") && !mn.name.equals("main")) {
                     methodMap.put(mn.name + mn.desc, "method" + (methodCounter++));
                 }
             }
         }
-    }
-
-    /**
-     * Verifies the renaming results for debugging.
-     * @param original Original ClassNode
-     * @param renamed Renamed ClassNode
-     */
-    private void verifyRenaming(ClassNode original, ClassNode renamed) {
-        System.out.println("Original class: " + original.name + " -> Renamed: " + renamed.name);
-        System.out.println("Original methods: " + original.methods.size() + " -> Renamed methods: " + renamed.methods.size());
-        System.out.println("Original fields: " + original.fields.size() + " -> Renamed fields: " + renamed.fields.size());
     }
 
     /**
@@ -219,11 +278,93 @@ public class BytecodeRenamer {
         ClassNode renamed = new ClassNode(ASM_VERSION);
         ClassRemapper classRemapper = new ClassRemapper(renamed, this.remapper);
         original.accept(classRemapper);
+
+        // Add @ObfuscatedName annotation to the class if it was renamed
+        if (classMapping.containsKey(original.name)) {
+            addClassAnnotation(renamed, original.name);
+        }
+
+        // Add @ObfuscatedName annotations to fields and methods
+        addFieldAndMethodAnnotations(renamed, original);
+
         return renamed;
     }
 
     /**
-     * Custom remapper that handles all renaming logic.
+     * Adds @ObfuscatedName annotation to a class.
+     * @param classNode The class node to annotate
+     * @param originalName The original obfuscated name
+     */
+    private void addClassAnnotation(ClassNode classNode, String originalName) {
+        if (classNode.visibleAnnotations == null) {
+            classNode.visibleAnnotations = new ArrayList<>();
+        }
+
+        AnnotationNode annotation = new AnnotationNode(annotationDescriptor);
+        annotation.values = new ArrayList<>();
+        annotation.values.add("obfuscatedName");
+        annotation.values.add(originalName);
+
+        classNode.visibleAnnotations.add(annotation);
+    }
+
+    /**
+     * Adds @ObfuscatedName annotations to fields and methods.
+     * @param renamed The renamed class node
+     * @param original The original class node
+     */
+    private void addFieldAndMethodAnnotations(ClassNode renamed, ClassNode original) {
+        // Annotate fields
+        Map<String, String> fieldMap = fieldMapping.get(original.name);
+        if (fieldMap != null) {
+            for (int i = 0; i < original.fields.size(); i++) {
+                FieldNode originalField = original.fields.get(i);
+                FieldNode renamedField = renamed.fields.get(i);
+
+                if (fieldMap.containsKey(originalField.name)) {
+                    if (renamedField.visibleAnnotations == null) {
+                        renamedField.visibleAnnotations = new ArrayList<>();
+                    }
+
+                    AnnotationNode annotation = new AnnotationNode(annotationDescriptor);
+                    annotation.values = new ArrayList<>();
+                    annotation.values.add("obfuscatedName");
+                    annotation.values.add(originalField.name);
+                    annotation.values.add("descriptor");
+                    annotation.values.add(originalField.desc);
+
+                    renamedField.visibleAnnotations.add(annotation);
+                }
+            }
+        }
+
+        // Annotate methods
+        Map<String, String> methodMap = methodMapping.get(original.name);
+        if (methodMap != null) {
+            for (int i = 0; i < original.methods.size(); i++) {
+                MethodNode originalMethod = original.methods.get(i);
+                MethodNode renamedMethod = renamed.methods.get(i);
+
+                if (methodMap.containsKey(originalMethod.name + originalMethod.desc)) {
+                    if (renamedMethod.visibleAnnotations == null) {
+                        renamedMethod.visibleAnnotations = new ArrayList<>();
+                    }
+
+                    AnnotationNode annotation = new AnnotationNode(annotationDescriptor);
+                    annotation.values = new ArrayList<>();
+                    annotation.values.add("obfuscatedName");
+                    annotation.values.add(originalMethod.name);
+                    annotation.values.add("descriptor");
+                    annotation.values.add(originalMethod.desc);
+
+                    renamedMethod.visibleAnnotations.add(annotation);
+                }
+            }
+        }
+    }
+
+    /**
+     * Custom remapper that handles all renaming logic including invokedynamic.
      */
     private class ComprehensiveRemapper extends Remapper {
         @Override
@@ -245,7 +386,7 @@ public class BytecodeRenamer {
 
         @Override
         public String mapMethodName(String owner, String name, String descriptor) {
-            if (name.length() > 2) {
+            if (name.equals("<init>") || name.equals("<clinit>") || name.equals("main")) {
                 return name;
             }
 
@@ -261,12 +402,23 @@ public class BytecodeRenamer {
 
         @Override
         public String mapInvokeDynamicMethodName(String name, String descriptor) {
+            // For invokedynamic, we need to check all classes since the method could be anywhere
             for (Map<String, String> methodMap : methodMapping.values()) {
                 String mapped = methodMap.get(name + descriptor);
                 if (mapped != null) {
                     return mapped;
                 }
             }
+            return name;
+        }
+
+        @Override
+        public String mapPackageName(String name) {
+            return name;
+        }
+
+        @Override
+        public String mapModuleName(String name) {
             return name;
         }
     }

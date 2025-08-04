@@ -355,14 +355,14 @@ public class MappingEditor extends JFrame {
             }
         }
 
-        BytecodeRenamer.scanForInvokeDynamic(classNodes);
+//        BytecodeRenamer.scanForInvokeDynamic(classNodes);
+//        BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
+//        List<ClassNode> renamedClasses = renamer.rename();
+//        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(renamedClasses);
 
-        BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
-        List<ClassNode> renamedClasses = renamer.rename();
+        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(classNodes);
 
-        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(renamedClasses);
-
-        for (ClassNode cn : renamedClasses) {
+        for (ClassNode cn : classNodes) {
             ClassMapping cm = new ClassMapping(cn, used);
             classMappings.put(cn.name, cm);
         }
