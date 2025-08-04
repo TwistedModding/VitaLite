@@ -9,6 +9,7 @@ import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
 import com.tonic.remapper.editor.analasys.AsmUtil;
+import com.tonic.remapper.editor.analasys.BytecodeRenamer;
 import com.tonic.remapper.editor.analasys.DecompilerUtil;
 import com.tonic.remapper.editor.analasys.DeobDump;
 import com.tonic.remapper.methods.MethodKey;
@@ -354,9 +355,14 @@ public class MappingEditor extends JFrame {
             }
         }
 
-        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(classNodes);
+        BytecodeRenamer.scanForInvokeDynamic(classNodes);
 
-        for (ClassNode cn : classNodes) {
+        BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
+        List<ClassNode> renamedClasses = renamer.rename();
+
+        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(renamedClasses);
+
+        for (ClassNode cn : renamedClasses) {
             ClassMapping cm = new ClassMapping(cn, used);
             classMappings.put(cn.name, cm);
         }

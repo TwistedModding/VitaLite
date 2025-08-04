@@ -51,7 +51,7 @@ public class UsedMethodScanner {
 
         // initial seeding: mirror Javassist filter
         for (ClassNode cn : classNodes) {
-            if (cn.name.length() > 2 && !cn.name.equals("client")) {
+            if (cn.name.length() > 2 && !cn.name.equals("client") && !cn.name.startsWith("class")) {
                 if (VERBOSE) System.out.printf("SEED SKIP class %s (name length >2 and not client)%n", cn.name);
                 continue; // same gate as the Javassist version
             }
@@ -104,7 +104,7 @@ public class UsedMethodScanner {
 
             String owner = min.owner;
             // mirror javassist filter: only allow if owner length <=2 or equals "client"
-            if (owner.length() > 2 && !owner.equals("client")) continue;
+            if (owner.length() > 2 && !owner.equals("client") && !owner.startsWith("class")) continue;
 
             MethodKey calleeKey = new MethodKey(owner, min.name, min.desc);
             MethodNode callee = allMethods.get(calleeKey);

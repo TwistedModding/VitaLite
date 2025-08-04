@@ -167,7 +167,8 @@ public class Remapper {
             if (entry.getValue().size() > 1) {
                 FieldKey newField = entry.getKey();
                 List<FieldKey> oldFields = entry.getValue();
-                System.out.println("Multiple fields map to " + newField + ": " + oldFields);
+                if(parser.isVerbose())
+                    System.out.println("Multiple fields map to " + newField + ": " + oldFields);
 
                 // Keep the highest scoring match
                 FieldKey bestOld = null;
@@ -192,7 +193,8 @@ public class Remapper {
                                     m.score >= FIELD_THRESHOLD) {
                                 bestFieldMap.put(m.oldKey, m.newKey);
                                 bestFieldScore.put(m.oldKey, m.score);
-                                System.out.println("  Reassigned " + oldField + " to " + m.newKey);
+                                if(parser.isVerbose())
+                                    System.out.println("  Reassigned " + oldField + " to " + m.newKey);
                                 break;
                             }
                         }
@@ -325,6 +327,15 @@ public class Remapper {
                             oldF.getOwnerObfuscatedName() + "." + oldF.getObfuscatedName() + " -> " + newFKey.owner + "." + newFKey.name + " " + newFKey.desc);
                 }
             }
+        }
+
+        for(JClass jClass : remappedClasses.values())
+        {
+            String name = jClass.getName();
+            for(JMethod jm : jClass.getMethods())
+                jm.setOwner(name);
+            for(JField jf : jClass.getFields())
+                jf.setOwner(name);
         }
 
         // 13.  Write remapped dto to file
