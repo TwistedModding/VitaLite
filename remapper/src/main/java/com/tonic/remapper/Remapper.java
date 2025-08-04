@@ -12,6 +12,7 @@ import com.tonic.remapper.fields.FieldMatcher;
 import com.tonic.remapper.fields.FieldUsage;
 import com.tonic.remapper.garbage.FieldMultiplierScanner;
 import com.tonic.remapper.garbage.OpaquePredicateScanner;
+import com.tonic.remapper.misc.Debug;
 import com.tonic.remapper.misc.RemapperOptions;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.ClassReader;
@@ -102,20 +103,7 @@ public class Remapper {
         System.out.println("Mapping complete. Found " + refined.size() + " method mappings.");
         if(parser.isVerbose())
         {
-            System.out.println("Final mapping (old -> new) with initial scores:");
-            for (Map.Entry<MethodKey, MethodKey> e : refined.entrySet()) {
-                MethodKey oldKey = e.getKey();
-                MethodKey newKey = e.getValue();
-                Number opaque = opaquePredicates.get(newKey);
-                double score = 0.0;
-                for (MethodMatcher.Match m : candidates) {
-                    if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
-                        score = m.score;
-                        break;
-                    }
-                }
-                System.out.printf("%s -> %s [%s] (score=%.3f)%n", oldKey, newKey, opaque, score);
-            }
+            Debug.debugMethods(refined, candidates, opaquePredicates);
         }
 
         // ---------------- Field remapping integration ----------------
@@ -162,23 +150,7 @@ public class Remapper {
         System.out.println("Field mapping complete.  Found " + bestFieldMap.size() + " mappings.");
         if(parser.isVerbose())
         {
-            System.out.println("Field mapping results (old -> new) with scores:");
-            bestFieldMap.entrySet()
-                    .stream()
-                    .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
-                    .forEach(e -> {
-                        FieldMultiplierScanner.Pair multi = multiplierMap.get(e.getKey());
-                        if(multi != null)
-                        {
-                            System.out.printf("%s -> %s set=%s, get=%s(score=%.3f)%n",
-                                    e.getKey(), e.getValue(), multi.encode, multi.decode, bestFieldScore.get(e.getKey()));
-                        }
-                        else
-                        {
-                            System.out.printf("%s -> %s (score=%.3f)%n",
-                                    e.getKey(), e.getValue(), bestFieldScore.get(e.getKey()));
-                        }
-                    });
+            Debug.debugFields(bestFieldMap, bestFieldScore, multiplierMap);
         }
 
         String oldMappings = parser.getOldMappings();

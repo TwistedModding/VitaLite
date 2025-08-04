@@ -9,6 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.tree.*;
 
 import java.io.StringWriter;
+import java.util.List;
 
 public final class DecompilerUtil {
 
@@ -30,7 +31,7 @@ public final class DecompilerUtil {
             try {
                 DeobPipeline.create()
                         .add(BytecodeTransformers.constantFolding())
-                        .add(BytecodeTransformers.deadCodeElimination())
+                        //.add(BytecodeTransformers.deadCodeElimination())
                         .add(BytecodeTransformers.stripTryCatch())
                         .run(copy);
             } catch (Exception ex) {
@@ -64,7 +65,7 @@ public final class DecompilerUtil {
         try {
             DeobPipeline.create()
                     .add(BytecodeTransformers.constantFolding())
-                    .add(BytecodeTransformers.deadCodeElimination())
+                    //.add(BytecodeTransformers.deadCodeElimination())
                     .add(BytecodeTransformers.stripTryCatch())
                     .run(copy);
         } catch (Exception ex) {

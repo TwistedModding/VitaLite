@@ -1,12 +1,55 @@
 package com.tonic.remapper.misc;
 
+import com.tonic.remapper.fields.FieldKey;
+import static com.tonic.remapper.garbage.FieldMultiplierScanner.*;
+
+import com.tonic.remapper.garbage.FieldMultiplierScanner;
 import com.tonic.remapper.methods.MethodKey;
+import com.tonic.remapper.methods.MethodMatcher;
 import com.tonic.remapper.methods.NormalizedMethod;
 import org.objectweb.asm.tree.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 public class Debug {
+    public static void debugMethods(Map<MethodKey, MethodKey> refined, List<MethodMatcher.Match> candidates, Map<MethodKey, Number> opaquePredicates)
+    {
+        System.out.println("Final mapping (old -> new) with initial scores:");
+        for (Map.Entry<MethodKey, MethodKey> e : refined.entrySet()) {
+            MethodKey oldKey = e.getKey();
+            MethodKey newKey = e.getValue();
+            Number opaque = opaquePredicates.get(newKey);
+            double score = 0.0;
+            for (MethodMatcher.Match m : candidates) {
+                if (m.oldKey.equals(oldKey) && m.newKey.equals(newKey)) {
+                    score = m.score;
+                    break;
+                }
+            }
+            System.out.printf("%s -> %s [%s] (score=%.3f)%n", oldKey, newKey, opaque, score);
+        }
+    }
+    public static void debugFields(Map<FieldKey, FieldKey> bestFieldMap, Map<FieldKey, Double> bestFieldScore, Map<FieldKey, Pair> multiplierMap)
+    {
+        System.out.println("Field mapping results (old -> new) with scores:");
+        bestFieldMap.entrySet()
+                .stream()
+                .sorted(Comparator.comparingDouble(e -> -bestFieldScore.get(e.getKey())))
+                .forEach(e -> {
+                    FieldMultiplierScanner.Pair multi = multiplierMap.get(e.getKey());
+                    if(multi != null)
+                    {
+                        System.out.printf("%s -> %s set=%s, get=%s(score=%.3f)%n",
+                                e.getKey(), e.getValue(), multi.encode, multi.decode, bestFieldScore.get(e.getKey()));
+                    }
+                    else
+                    {
+                        System.out.printf("%s -> %s (score=%.3f)%n",
+                                e.getKey(), e.getValue(), bestFieldScore.get(e.getKey()));
+                    }
+                });
+    }
+
     /**
      * Compare two methods and print why their score is what it is.
      */

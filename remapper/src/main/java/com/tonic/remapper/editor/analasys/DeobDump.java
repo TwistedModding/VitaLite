@@ -1,5 +1,6 @@
 package com.tonic.remapper.editor.analasys;
 
+import com.strobel.assembler.metadata.ITypeLoader;
 import com.tonic.remapper.editor.ClassMapping;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -36,11 +37,11 @@ public class DeobDump
                 if(methodNode.invisibleAnnotations != null)
                     methodNode.invisibleAnnotations.clear();
                 try {
-                    DeobPipeline.create()
-                            .add(BytecodeTransformers.constantFolding())
+                    //DeobPipeline.create()
+                            //.add(BytecodeTransformers.constantFolding())
                             //.add(BytecodeTransformers.deadCodeElimination())
-                            .add(BytecodeTransformers.stripTryCatch())
-                            .run(methodNode);
+                            //.add(BytecodeTransformers.stripTryCatch())
+                            //.run(methodNode);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

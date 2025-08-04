@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.strobel.assembler.metadata.ITypeLoader;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
@@ -359,6 +360,8 @@ public class MappingEditor extends JFrame {
             ClassMapping cm = new ClassMapping(cn, used);
             classMappings.put(cn.name, cm);
         }
+
+        //sharedLoader = DecompilerUtil.buildLoader(classNodes);
         rebuildTree();
     }
 

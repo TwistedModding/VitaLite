@@ -69,6 +69,15 @@ public class SpoonPipeline
                     .replaceAll("(?m)^\\s*\\n", ""));
         }
 
+        CtType<?> ctAnnotation = launcher.getFactory().Annotation().get(name);
+        if(ctAnnotation != null)
+        {
+            process(ctAnnotation.getMethods());
+            return ParenCleaner.clean(ctAnnotation.prettyprint()
+                    .replace("\r\n", "\n")
+                    .replaceAll("(?m)^\\s*\\n", ""));
+        }
+
         System.err.println("Class " + name + " not found in the provided source.");
         return src;
     }
@@ -110,42 +119,7 @@ public class SpoonPipeline
 
     private static String sanitise(String src) {
         //match and remove labels like Label_0228:
-        src = src.replaceAll("(?m)^[ \t]*Label_[A-Za-z_][A-Za-z0-9_]*:\\s*", "if(true /* stripped label */ )");
-        // Fix inverted null checks FIRST
-        src = src.replaceAll(
-                "if\\s*\\(([a-zA-Z0-9_]+)\\s*==\\s*null\\)\\s*\\{\\s*\\1\\.",
-                "if ($1 != null) { $1."
-        );
-        src = src.replaceAll(
-                "if\\s*\\(([a-zA-Z0-9_]+)\\s*==\\s*null\\)\\s*\\{\\s*return\\s+\\1\\.",
-                "if ($1 != null) { return $1."
-        );
-
-        // Remove goto statements and their labels
-        src = src.replaceAll("goto\\s+[A-Za-z_][A-Za-z0-9_]*\\s*;", "// goto removed");
-        // Use (?m) for multiline mode
-        src = src.replaceAll("(?m)^\\s*[A-Za-z_][A-Za-z0-9_]*:\\s*$", "");
-
-        // Fix bare semicolons (from stripped synchronized blocks)
-        src = src.replaceAll(";\\s*/\\*\\s*stripped\\s*\\*/", "// synchronization removed");
-
-        // Wrap wait() and notify() calls in synchronized blocks
-        src = src.replaceAll(
-                "([a-zA-Z0-9_]+\\.wait\\(\\))",
-                "synchronized(this) { $1; }"
-        );
-        src = src.replaceAll(
-                "([a-zA-Z0-9_]+\\.notify\\(\\))",
-                "synchronized(this) { $1; }"
-        );
-        src = src.replaceAll(
-                "(this\\.wait\\(\\))",
-                "synchronized(this) { $1; }"
-        );
-        src = src.replaceAll(
-                "(this\\.notify\\(\\))",
-                "synchronized(this) { $1; }"
-        );
+        //src = src.replaceAll("(?m)^[ \t]*Label_[A-Za-z_][A-Za-z0-9_]*:\\s*", "if(true /* stripped label */ )");
 
         for (String kw : JAVA_KEYWORDS) {
             src = src.replaceAll(
@@ -157,8 +131,13 @@ public class SpoonPipeline
         src = src.replace(".if(", "._if(");
         src = src.replace(" do(", " _do(");
         src = src.replace(" if(", " _if(");
-        src = BAD_MNEMONICS.matcher(src).replaceAll("; /* stripped */");
-        return src;
+        //src = BAD_MNEMONICS.matcher(src).replaceAll("/* stripped */");
+        //synchronized
+//        src = src.replaceAll(
+//                "\\bmonitorexit\\s*\\(\\s*([A-Za-z_$][\\w$]*)\\s*\\)\\s*;",
+//                "}"
+//        );
+        return src; //SyncFixer.fix(src);
     }
 
     public interface SpoonTransformer
