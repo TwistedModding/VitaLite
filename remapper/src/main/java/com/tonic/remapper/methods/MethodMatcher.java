@@ -90,7 +90,7 @@ public class MethodMatcher {
         CorpusStats stats = buildCorpusStats(corpus);
 
         long totalPairs = (long) oldMethods.size() * (long) newMethods.size();
-        ProgressBar progressBar = new ProgressBar(totalPairs, 40);
+        ProgressBar progressBar = new ProgressBar(totalPairs, 50);
         AtomicLong processed = new AtomicLong(0);
         ConcurrentLinkedQueue<Match> collected = new ConcurrentLinkedQueue<>();
 
@@ -175,7 +175,6 @@ public class MethodMatcher {
 
         List<Match> result = new ArrayList<>(collected);
         result.sort(Comparator.comparingDouble((Match m) -> -m.score));
-        synchronized (progressBar) { progressBar.update(totalPairs); }
         return result;
     }
 

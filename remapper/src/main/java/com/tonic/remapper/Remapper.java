@@ -2,14 +2,13 @@ package com.tonic.remapper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
 import com.tonic.remapper.editor.MappingEditor;
-import com.tonic.remapper.fields.FieldKey;
-import com.tonic.remapper.fields.FieldMatcher;
-import com.tonic.remapper.fields.FieldUsage;
+import com.tonic.remapper.fields.*;
 import com.tonic.remapper.garbage.FieldMultiplierScanner;
 import com.tonic.remapper.garbage.OpaquePredicateScanner;
 import com.tonic.remapper.misc.Debug;
@@ -119,6 +118,14 @@ public class Remapper {
         Map<FieldKey, Set<MethodKey>> oldFieldUses = FieldUsage.build(oldClasses);
         Map<FieldKey, Set<MethodKey>> newFieldUses = FieldUsage.build(newClasses);
 
+        // ===== ADD THIS NEW SECTION =====
+        // 8.5 Analyze field access patterns for better primitive matching
+        System.out.println("Analyzing field access patterns...");
+        Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldFieldProfiles =
+                FieldAccessAnalyzer.analyzeFieldAccess(oldClasses, oldFieldNodesAll);
+        Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> newFieldProfiles =
+                FieldAccessAnalyzer.analyzeFieldAccess(newClasses, newFieldNodesAll);
+
         // 9.  Match fields (type-aware, class-aware, method-usage-aware)
         System.out.println("Matching fields…");
         List<FieldMatcher.Match> fieldMatches =
@@ -129,12 +136,15 @@ public class Remapper {
                         newFieldUses,
                         refined,
                         classMatchByOldOwner,
+                        oldFieldProfiles,
+                        newFieldProfiles,
                         10
                 );
 
         // 10.  Pick the best candidate per old field
         Map<FieldKey, FieldKey> bestFieldMap = new HashMap<>();
         Map<FieldKey, Double>   bestFieldScore = new HashMap<>();
+
         double FIELD_THRESHOLD = 0.25;           // tweak
         for (FieldMatcher.Match m : fieldMatches) {
             if (m.score < FIELD_THRESHOLD) continue;
@@ -142,6 +152,52 @@ public class Remapper {
             if (prev == null || m.score > prev) {
                 bestFieldMap.put(m.oldKey, m.newKey);
                 bestFieldScore.put(m.oldKey, m.score);
+            }
+        }
+
+        // Ensure one-to-one mapping by removing duplicates
+        System.out.println("\nResolving duplicate field mappings...");
+        Map<FieldKey, List<FieldKey>> reverseMap = new HashMap<>();
+        for (Map.Entry<FieldKey, FieldKey> entry : bestFieldMap.entrySet()) {
+            reverseMap.computeIfAbsent(entry.getValue(), k -> new ArrayList<>()).add(entry.getKey());
+        }
+
+        // Find and fix duplicates
+        for (Map.Entry<FieldKey, List<FieldKey>> entry : reverseMap.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                FieldKey newField = entry.getKey();
+                List<FieldKey> oldFields = entry.getValue();
+                System.out.println("Multiple fields map to " + newField + ": " + oldFields);
+
+                // Keep the highest scoring match
+                FieldKey bestOld = null;
+                double bestScore = -1;
+                for (FieldKey oldField : oldFields) {
+                    Double score = bestFieldScore.get(oldField);
+                    if (score != null && score > bestScore) {
+                        bestScore = score;
+                        bestOld = oldField;
+                    }
+                }
+
+                // Remove the others and try to find their next best match
+                for (FieldKey oldField : oldFields) {
+                    if (!oldField.equals(bestOld)) {
+                        bestFieldMap.remove(oldField);
+
+                        // Find next best match that isn't already taken
+                        for (FieldMatcher.Match m : fieldMatches) {
+                            if (m.oldKey.equals(oldField) &&
+                                    !bestFieldMap.containsValue(m.newKey) &&
+                                    m.score >= FIELD_THRESHOLD) {
+                                bestFieldMap.put(m.oldKey, m.newKey);
+                                bestFieldScore.put(m.oldKey, m.score);
+                                System.out.println("  Reassigned " + oldField + " to " + m.newKey);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -177,7 +233,16 @@ public class Remapper {
 
         Map<String,JClass> remappedClasses = buildDtoClassesForNewJar(newClasses, newMethods, newFieldNodesAll);
         try (Reader r = new InputStreamReader(new FileInputStream(oldMappings), StandardCharsets.UTF_8)) {
-            JClass[] dtoClasses = gson.fromJson(r, JClass[].class);
+            //Backwards compatability bc im dumb
+            List<JClass> dtoClasses;
+            try
+            {
+                dtoClasses = gson.fromJson(r, new TypeToken<List<JClass>>(){}.getType());
+            }
+            catch (Exception ignored)
+            {
+                dtoClasses = List.of(gson.fromJson(r, JClass[].class));
+            }
 
             for (JClass oldCls : dtoClasses) {
 
@@ -192,6 +257,7 @@ public class Remapper {
                 /* ---------- class name ---------- */
                 if (oldCls.getName() != null && !oldCls.getName().isBlank()) {
                     newClsDto.setName(oldCls.getName());
+                    System.out.println("Remapping class [" + oldCls.getName() + "]: " + oldCls.getObfuscatedName() + " -> " + newOwnerObf);
                 }
 
                 /* build quick look-ups inside the target class */
@@ -227,6 +293,8 @@ public class Remapper {
                     target.setName(oldM.getName());
                     target.setOwner(newClsDto.getName());
                     target.setGarbageValue(opaquePredicates.get(newKey));
+                    System.out.println("\tRemapping method [" + oldM.getOwner() + "." + oldM.getName() + "]: " +
+                            oldM.getOwnerObfuscatedName() + "." +oldM.getObfuscatedName() + " -> " + newKey.owner + "." + newKey.name + newKey.desc);
                 }
 
                 /* ---------- fields ---------- */
@@ -253,7 +321,8 @@ public class Remapper {
                         target.setGetter(multi.decode);
                         target.setSetter(multi.encode);
                     }
-
+                    System.out.println("\tRemapping field [" + oldF.getOwner() + "." + oldF.getName() + "]: " +
+                            oldF.getOwnerObfuscatedName() + "." + oldF.getObfuscatedName() + " -> " + newFKey.owner + "." + newFKey.name + " " + newFKey.desc);
                 }
             }
         }
