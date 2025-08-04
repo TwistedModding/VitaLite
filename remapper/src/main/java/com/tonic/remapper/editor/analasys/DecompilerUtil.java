@@ -151,7 +151,8 @@ public final class DecompilerUtil {
         stub.superName  = (owner.superName == null ? "java/lang/Object"
                 : owner.superName);
         stub.interfaces = java.util.List.of();
-        stub.visibleAnnotations = new ArrayList<>(owner.visibleAnnotations);
+        if(owner.visibleAnnotations != null)
+            stub.visibleAnnotations = new ArrayList<>(owner.visibleAnnotations);
 
         MethodNode copy = cloneMethod(target);
         stub.methods.add(copy);
