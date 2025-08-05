@@ -3,6 +3,7 @@ package com.tonic.remapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.tonic.RuneliteConfigUtil;
 import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
@@ -44,13 +45,14 @@ public class Remapper {
             return;
         }
 
-        if(parser.getOldJar() == null || parser.getNewJar() == null) {
+        if(parser.getOldJar() == null) {
             parser.help();
             System.exit(0);
         }
+
         // 1. Load all methods from both jars
         Path oldJar = Paths.get(parser.getOldJar());
-        Path newJar = Paths.get(parser.getNewJar());
+        Path newJar = parser.getNewJar() == null ? null : Paths.get(parser.getNewJar());
         Map<MethodKey, MethodNode> newMethods = loadMethodsFromJar(newJar, newClasses);
         Map<MethodKey, MethodNode> oldMethods = loadMethodsFromJar(oldJar, oldClasses);
 
@@ -436,7 +438,7 @@ public class Remapper {
     public static Map<FieldKey, FieldNode> loadFieldsFromJar(Path jarPath) throws Exception {
         Map<FieldKey, FieldNode> fields = new HashMap<>();
 
-        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
+        try (JarFile jarFile = (jarPath == null ? RuneliteConfigUtil.fetchGamePack() : new JarFile(jarPath.toFile()))) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();
@@ -469,7 +471,7 @@ public class Remapper {
     public static Map<MethodKey, MethodNode> loadMethodsFromJar(Path jarPath, List<ClassNode> classes) throws Exception {
         Map<MethodKey, MethodNode> methods = new HashMap<>();
 
-        try (JarFile jarFile = new JarFile(jarPath.toFile())) {
+        try (JarFile jarFile = (jarPath == null ? RuneliteConfigUtil.fetchGamePack() : new JarFile(jarPath.toFile()))) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry entry = entries.nextElement();

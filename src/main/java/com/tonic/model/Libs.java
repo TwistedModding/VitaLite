@@ -1,17 +1,13 @@
 package com.tonic.model;
 
 import com.tonic.util.ArtifactReader;
-import com.tonic.util.RuneliteConfigUtil;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.jar.JarFile;
-import java.util.stream.Stream;
 
 @Getter
 @Setter

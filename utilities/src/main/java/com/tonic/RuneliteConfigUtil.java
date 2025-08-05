@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
