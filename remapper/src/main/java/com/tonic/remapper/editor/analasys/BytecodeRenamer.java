@@ -1,5 +1,8 @@
 package com.tonic.remapper.editor.analasys;
 
+import com.tonic.remapper.dto.JClass;
+import com.tonic.remapper.dto.JField;
+import com.tonic.remapper.dto.JMethod;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
@@ -51,6 +54,7 @@ public class BytecodeRenamer {
     private final Map<String, String> classMapping = new HashMap<>();
     private final Map<String, Map<String, String>> fieldMapping = new HashMap<>();
     private final Map<String, Map<String, String>> methodMapping = new HashMap<>();
+    private final List<JClass> mappings;
     private final ComprehensiveRemapper remapper;
     private final String annotationDescriptor;
     private int classCounter = 0;
@@ -61,8 +65,8 @@ public class BytecodeRenamer {
      * Creates a new BytecodeRenamer instance with default annotation descriptor.
      * @param classes List of ClassNode objects to rename
      */
-    public BytecodeRenamer(List<ClassNode> classes) {
-        this(classes, DEFAULT_ANNOTATION_DESCRIPTOR);
+    public BytecodeRenamer(List<ClassNode> classes, List<JClass> mappings) {
+        this(classes, mappings, DEFAULT_ANNOTATION_DESCRIPTOR);
     }
 
     /**
@@ -70,10 +74,11 @@ public class BytecodeRenamer {
      * @param classes List of ClassNode objects to rename
      * @param annotationDescriptor The descriptor for the ObfuscatedName annotation (e.g., "Lcom/example/ObfuscatedName;")
      */
-    public BytecodeRenamer(List<ClassNode> classes, String annotationDescriptor) {
+    public BytecodeRenamer(List<ClassNode> classes, List<JClass> mappings, String annotationDescriptor) {
         this.classes = classes;
         this.annotationDescriptor = annotationDescriptor;
         this.remapper = new ComprehensiveRemapper();
+        this.mappings = mappings;
     }
 
     /**
@@ -244,10 +249,16 @@ public class BytecodeRenamer {
      * Only renames classes with names of 2 characters or less.
      */
     private void buildMappings() {
+        JClass owner;
         for (ClassNode cn : classes) {
+            owner = findCLass(cn.name);
             // Only rename classes with names of 2 characters or less
             if (cn.name.length() <= 2) {
-                String newClassName = "class" + (classCounter++);
+                String newClassName;
+                if(owner == null || owner.getName() == null || owner.getName().isBlank())
+                    newClassName = "class" + (classCounter++);
+                else
+                    newClassName = owner.getName();
                 classMapping.put(cn.name, newClassName);
             }
 
@@ -255,7 +266,13 @@ public class BytecodeRenamer {
             fieldMapping.put(cn.name, fieldMap);
 
             for (FieldNode fn : cn.fields) {
-                fieldMap.put(fn.name, "field" + (fieldCounter++));
+                String fieldName;
+                JField field = findField(owner, fn.name);
+                if (field == null || field.getName() == null || field.getName().isBlank())
+                    fieldName = "field" + (fieldCounter++);
+                else
+                    fieldName = field.getName();
+                fieldMap.put(fn.name, fieldName);
             }
 
             Map<String, String> methodMap = new HashMap<>();
@@ -263,7 +280,13 @@ public class BytecodeRenamer {
 
             for (MethodNode mn : cn.methods) {
                 if (!mn.name.equals("<init>") && !mn.name.equals("<clinit>") && !mn.name.equals("main")) {
-                    methodMap.put(mn.name + mn.desc, "method" + (methodCounter++));
+                    String methodName;
+                    JMethod method = findMethod(owner, mn.name, mn.desc);
+                    if (method == null || method.getName() == null || method.getName().isBlank())
+                        methodName = "method" + (methodCounter++);
+                    else
+                        methodName = method.getName();
+                    methodMap.put(mn.name + mn.desc, methodName);
                 }
             }
         }
@@ -421,5 +444,41 @@ public class BytecodeRenamer {
         public String mapModuleName(String name) {
             return name;
         }
+    }
+
+    private JClass findCLass(String obfuName)
+    {
+        if(mappings == null)
+            return null;
+        for (JClass jClass : mappings) {
+            if (jClass.getObfuscatedName().equals(obfuName)) {
+                return jClass;
+            }
+        }
+        return null;
+    }
+
+    private JMethod findMethod(JClass owner, String obfuName, String desc) {
+        if(owner == null) {
+            return null;
+        }
+        for (JMethod method : owner.getMethods()) {
+            if (method.getObfuscatedName().equals(obfuName) && method.getDescriptor().equals(desc)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    private JField findField(JClass owner, String obfuName) {
+        if(owner == null) {
+            return null;
+        }
+        for (JField field : owner.getFields()) {
+            if (field.getObfuscatedName().equals(obfuName)) {
+                return field;
+            }
+        }
+        return null;
     }
 }

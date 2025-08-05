@@ -12,15 +12,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 public class SpoonPipeline
 {
-    private static final Set<String> JAVA_KEYWORDS = Set.of(
-            "do","if"
-    );
-    private static final Pattern BAD_MNEMONICS = Pattern.compile("\\bmonitorenter\\s*\\([^)]*\\);?|\\bmonitorexit\\s*\\([^)]*\\);?");
     private final List<SpoonTransformer> chain = new ArrayList<>();
     public static SpoonPipeline create() {
         return new SpoonPipeline();
@@ -32,54 +26,59 @@ public class SpoonPipeline
     }
 
     public String run(String name, String src) {
-        src = sanitise(src);
+        // Extract package and imports from original source
+        String packageDecl = extractPackage(src);
+        String imports = extractImports(src);
+
         Launcher launcher = generateLauncher(name, src);
 
-        if(name.equals("do") || name.equals("if"))
-        {
+        if(name.equals("do") || name.equals("if")) {
             name = "_" + name;
         }
 
-        CtClass<?> ctClass = launcher.getFactory().Class().get(name);
-        if(ctClass != null)
-        {
-            process(ctClass.getMethods());
-            process(ctClass.getConstructors());
-            return ParenCleaner.clean(ctClass.prettyprint()
-                    .replace("\r\n", "\n")
-                    .replaceAll("(?m)^\\s*\\n", ""));
+        CtType<?> ctType = null;
+
+        // Try all type kinds
+        ctType = launcher.getFactory().Class().get(name);
+        if (ctType == null) ctType = launcher.getFactory().Interface().get(name);
+        if (ctType == null) ctType = launcher.getFactory().Enum().get(name);
+        if (ctType == null) ctType = launcher.getFactory().Annotation().get(name);
+
+        if (ctType == null) {
+            System.err.println("Type " + name + " not found in the provided source.");
+            return src;
         }
 
-        CtInterface<?> ctInterface = launcher.getFactory().Interface().get(name);
-        if(ctInterface != null)
-        {
-            process(ctInterface.getMethods());
-            return ParenCleaner.clean(ctInterface.prettyprint()
-                    .replace("\r\n", "\n")
-                    .replaceAll("(?m)^\\s*\\n", ""));
+        // Process the type
+        if (ctType instanceof CtClass<?>) {
+            process(((CtClass<?>) ctType).getMethods());
+            process(((CtClass<?>) ctType).getConstructors());
+        } else if (ctType instanceof CtInterface<?>) {
+            process(((CtInterface<?>) ctType).getMethods());
+        } else if (ctType instanceof CtEnum<?>) {
+            process(((CtEnum<?>) ctType).getMethods());
+            process(((CtEnum<?>) ctType).getConstructors());
         }
 
-        CtEnum<?> ctEnum = launcher.getFactory().Enum().get(name);
-        if(ctEnum != null)
-        {
-            process(ctEnum.getConstructors());
-            process(ctEnum.getMethods());
-            return ParenCleaner.clean(ctEnum.prettyprint()
-                    .replace("\r\n", "\n")
-                    .replaceAll("(?m)^\\s*\\n", ""));
+        // Build the output
+        StringBuilder result = new StringBuilder();
+
+        // Add package if present
+        if (!packageDecl.isEmpty()) {
+            result.append(packageDecl).append("\n\n");
         }
 
-        CtType<?> ctAnnotation = launcher.getFactory().Annotation().get(name);
-        if(ctAnnotation != null)
-        {
-            process(ctAnnotation.getMethods());
-            return ParenCleaner.clean(ctAnnotation.prettyprint()
-                    .replace("\r\n", "\n")
-                    .replaceAll("(?m)^\\s*\\n", ""));
+        // Add imports if present
+        if (!imports.isEmpty()) {
+            result.append(imports).append("\n");
         }
 
-        System.err.println("Class " + name + " not found in the provided source.");
-        return src;
+        // Add the processed type
+        result.append(ctType.prettyprint());
+
+        return ParenCleaner.clean(result.toString()
+                .replace("\r\n", "\n")
+                .replaceAll("(?m)^\\s*\\n", ""));
     }
 
     private SpoonPipeline()
@@ -94,50 +93,16 @@ public class SpoonPipeline
         }
     }
 
-    public static Number calculateOpaquePredicate(String name, String src)
-    {
-        src = sanitise(src);
-        Launcher launcher = generateLauncher(name, src);
-        CtClass<?> ctClass = launcher.getFactory().Class().get(name);
-        CtMethod<?> method = ctClass.getMethods().iterator().next();
-
-        return null;
-    }
-
     private static Launcher generateLauncher(String name, String src) {
         Launcher launcher = new Launcher();
         launcher.addInputResource(new VirtualFile(src, name + ".java"));
         launcher.getEnvironment().setEncoding(StandardCharsets.ISO_8859_1);
-        launcher.getEnvironment().setCommentEnabled(false);
+        launcher.getEnvironment().setCommentEnabled(true);
         launcher.getEnvironment().setPreserveLineNumbers(true);
         launcher.getEnvironment().setNoClasspath(true);
         launcher.getEnvironment().setIgnoreSyntaxErrors(true);
-        launcher.getEnvironment().setAutoImports(true);
         launcher.buildModel();
         return launcher;
-    }
-
-    private static String sanitise(String src) {
-        //match and remove labels like Label_0228:
-        //src = src.replaceAll("(?m)^[ \t]*Label_[A-Za-z_][A-Za-z0-9_]*:\\s*", "if(true /* stripped label */ )");
-
-        for (String kw : JAVA_KEYWORDS) {
-            src = src.replaceAll(
-                    "(?<![\\w$])" + kw + "(?![\\w$])(?!\\s*[\\({])",
-                    "_" + kw);
-        }
-        src = src.replace("class do", "class _do");
-        src = src.replace(".do(", "._do(");
-        src = src.replace(".if(", "._if(");
-        src = src.replace(" do(", " _do(");
-        src = src.replace(" if(", " _if(");
-        //src = BAD_MNEMONICS.matcher(src).replaceAll("/* stripped */");
-        //synchronized
-//        src = src.replaceAll(
-//                "\\bmonitorexit\\s*\\(\\s*([A-Za-z_$][\\w$]*)\\s*\\)\\s*;",
-//                "}"
-//        );
-        return src; //SyncFixer.fix(src);
     }
 
     public interface SpoonTransformer
@@ -254,5 +219,37 @@ public class SpoonPipeline
         }
     }
 
+    private String extractImports(String src) {
+        StringBuilder imports = new StringBuilder();
+        String[] lines = src.split("\n");
+        boolean inImports = false;
 
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("package ")) {
+                inImports = true;
+                continue;
+            }
+            if (line.startsWith("import ")) {
+                imports.append(line).append("\n");
+                inImports = true;
+            } else if (inImports && !line.isEmpty() && !line.startsWith("import ")) {
+                // We've reached the end of imports
+                break;
+            }
+        }
+
+        return imports.toString();
+    }
+
+    private String extractPackage(String src) {
+        String[] lines = src.split("\n");
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("package ")) {
+                return line;
+            }
+        }
+        return "";
+    }
 }

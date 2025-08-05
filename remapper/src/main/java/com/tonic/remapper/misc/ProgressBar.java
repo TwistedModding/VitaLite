@@ -44,4 +44,9 @@ public class ProgressBar {
             System.out.print("\n");
         }
     }
+
+    public void step()
+    {
+        update(total + 1);
+    }
 }

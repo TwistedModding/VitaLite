@@ -321,7 +321,8 @@ public class MappingEditor extends JFrame {
         } else {
             return;
         }
-        DeobDump.dump(classMappings, selectedDir.toPath().toString());
+        List<JClass> dtoClasses = buildDtoClasses();
+        DeobDump.dump(classMappings, dtoClasses, selectedDir.toPath().toString());
     }
 
     private void openJar() {

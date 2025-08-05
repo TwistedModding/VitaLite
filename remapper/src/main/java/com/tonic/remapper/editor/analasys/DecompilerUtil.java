@@ -31,7 +31,7 @@ public final class DecompilerUtil {
         if(deobfuscate) {
             try {
                 DeobPipeline.create()
-                        .add(BytecodeTransformers.constantFolding())
+                        //.add(BytecodeTransformers.constantFolding())
                         //.add(BytecodeTransformers.deadCodeElimination())
                         .add(BytecodeTransformers.stripTryCatch())
                         .run(copy);
@@ -66,7 +66,7 @@ public final class DecompilerUtil {
 
         try {
             DeobPipeline.create()
-                    .add(BytecodeTransformers.constantFolding())
+                    //.add(BytecodeTransformers.constantFolding())
                     //.add(BytecodeTransformers.deadCodeElimination())
                     .add(BytecodeTransformers.stripTryCatch())
                     .run(copy);

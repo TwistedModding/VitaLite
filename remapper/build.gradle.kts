@@ -37,6 +37,10 @@ dependencies {
 
     implementation("com.github.jgraph:jgraphx:4.0.6")
 
+    //implementation("org.jetbrains:fernflower:1.0.0")
+    // Or if using the Vineflower fork (actively maintained):
+    implementation("org.vineflower:vineflower:1.9.3")
+
     implementation(project(":utilities"))
 }
 
