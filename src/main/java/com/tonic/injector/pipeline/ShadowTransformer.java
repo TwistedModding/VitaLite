@@ -2,7 +2,6 @@ package com.tonic.injector.pipeline;
 
 import com.tonic.dto.JClass;
 import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
@@ -10,6 +9,8 @@ import com.tonic.util.AnnotationUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import java.util.List;
 
 public class ShadowTransformer
 {
