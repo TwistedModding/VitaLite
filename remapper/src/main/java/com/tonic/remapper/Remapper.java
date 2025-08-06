@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 public class Remapper {
     private static final List<ClassNode> oldClasses = new ArrayList<>();
     private static final List<ClassNode> newClasses = new ArrayList<>();
+    private static RemapperOptions parser = new RemapperOptions();
     public static void main(String[] args) throws Exception
     {
-        RemapperOptions parser = new RemapperOptions();
         parser.parse(args);
 
         if(parser.isEditor())
