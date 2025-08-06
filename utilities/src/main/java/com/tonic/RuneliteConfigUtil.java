@@ -5,7 +5,7 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.JarURLConnection;
 import java.net.URL;
@@ -13,12 +13,15 @@ import java.util.jar.JarFile;
 
 public class RuneliteConfigUtil
 {
-    public static JarFile fetchGamePack() throws Exception
+    public static String fetchUrl()
     {
-        // Download latest client patch
         String injectedVersion   = getTagValueFromURL("release");
         String injectedFilename  = "injected-client-" + injectedVersion + ".jar";
-        String injectedUrl       = "https://repo.runelite.net/net/runelite/injected-client/" + injectedVersion + "/" + injectedFilename;
+        return  "https://repo.runelite.net/net/runelite/injected-client/" + injectedVersion + "/" + injectedFilename;
+    }
+    public static JarFile fetchGamePack() throws Exception
+    {
+        String injectedUrl = fetchUrl();
         URL jarUrl = new URL("jar:" + injectedUrl + "!/");
         return ((JarURLConnection) jarUrl.openConnection()).getJarFile();
     }

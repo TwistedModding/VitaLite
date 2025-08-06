@@ -323,13 +323,15 @@ public class Remapper {
                     target.setOwner(newClsDto.getName());
 
                     FieldMultiplierScanner.Pair multi = multiplierMap.get(newFKey);
+                    String out = "\tRemapping field [" + oldF.getOwner() + "." + oldF.getName() + "]: " +
+                            oldF.getOwnerObfuscatedName() + "." + oldF.getObfuscatedName() + " -> " + newFKey.owner + "." + newFKey.name + " " + newFKey.desc;
                     if(multi != null)
                     {
                         target.setGetter(multi.decode);
                         target.setSetter(multi.encode);
+                        out += " (getter: " + multi.decode + ", setter: " + multi.encode + ")";
                     }
-                    System.out.println("\tRemapping field [" + oldF.getOwner() + "." + oldF.getName() + "]: " +
-                            oldF.getOwnerObfuscatedName() + "." + oldF.getObfuscatedName() + " -> " + newFKey.owner + "." + newFKey.name + " " + newFKey.desc);
+                    System.out.println(out);
                 }
             }
         }

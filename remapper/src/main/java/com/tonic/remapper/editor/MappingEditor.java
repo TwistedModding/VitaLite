@@ -4,6 +4,7 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.tonic.RuneliteConfigUtil;
 import com.tonic.dto.JClass;
 import com.tonic.dto.JField;
 import com.tonic.dto.JMethod;
@@ -28,12 +29,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
 
 /**
  * Mapping editor for obfuscated JARs.
@@ -282,6 +286,20 @@ public class MappingEditor extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) { openJar(); }
         });
+        file.add(new AbstractAction("Download Latest GamePack") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try
+                {
+                    downloadNewRev();
+                }
+                catch (Exception ex)
+                {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(MappingEditor.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
         file.add(new AbstractAction("Load Mapping...") {
             @Override
             public void actionPerformed(ActionEvent e) { loadMapping(); }
@@ -353,11 +371,6 @@ public class MappingEditor extends JFrame {
                 }
             }
         }
-
-//        BytecodeRenamer.scanForInvokeDynamic(classNodes);
-//        BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
-//        List<ClassNode> renamedClasses = renamer.rename();
-//        Set<MethodKey> used = UsedMethodScanner.findUsedMethods(renamedClasses);
 
         Set<MethodKey> used = UsedMethodScanner.findUsedMethods(classNodes);
 
@@ -634,5 +647,65 @@ public class MappingEditor extends JFrame {
         {
         }
         return null;
+    }
+
+    public void downloadNewRev() throws Exception {
+        JarFile jarFile = RuneliteConfigUtil.fetchGamePack();
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save JAR File");
+        fileChooser.setCurrentDirectory(new File("C:/test/remap/"));
+
+        String defaultName = new File(jarFile.getName()).getName();
+        fileChooser.setSelectedFile(new File(defaultName));
+
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.isDirectory() || f.getName().toLowerCase().endsWith(".jar");
+            }
+
+            @Override
+            public String getDescription() {
+                return "JAR Files (*.jar)";
+            }
+        });
+
+        int result = fileChooser.showSaveDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            if (!selectedFile.getName().toLowerCase().endsWith(".jar")) {
+                selectedFile = new File(selectedFile.getAbsolutePath() + ".jar");
+            }
+
+            try (JarOutputStream jos = new JarOutputStream(new FileOutputStream(selectedFile))) {
+
+                Enumeration<JarEntry> entries = jarFile.entries();
+                byte[] buffer = new byte[8192];
+
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    jos.putNextEntry(new JarEntry(entry.getName()));
+                    if (!entry.isDirectory()) {
+                        try (InputStream is = jarFile.getInputStream(entry)) {
+                            int bytesRead;
+                            while ((bytesRead = is.read(buffer)) != -1) {
+                                jos.write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+
+                    jos.closeEntry();
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null,
+                        "Error saving JAR file:\n" + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+            loadJar(selectedFile.toPath());
+        }
     }
 }

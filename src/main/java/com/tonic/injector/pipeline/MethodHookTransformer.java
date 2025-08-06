@@ -2,8 +2,8 @@ package com.tonic.injector.pipeline;
 
 import com.tonic.dto.JClass;
 import com.tonic.dto.JMethod;
+import com.tonic.injector.Injector;
 import com.tonic.injector.MappingProvider;
-import com.tonic.injector.Mappings;
 import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.util.AnnotationUtil;
@@ -13,13 +13,14 @@ import org.objectweb.asm.tree.*;
 
 public class MethodHookTransformer
 {
-    public static void
-    patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
-        InjectTransformer.patch(gamepack, mixin, method);
+    public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, MethodHook.class, "value");
         JClass jClass = MappingProvider.getClass(gamepackName);
         JMethod jMethod = MappingProvider.getMethod(jClass, name);
+
+        ClassNode gamepack = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
+        InjectTransformer.patch(gamepack, mixin, method);
 
         MethodNode toHook = gamepack.methods.stream()
                 .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
@@ -30,6 +31,8 @@ public class MethodHookTransformer
             System.err.println("Could not find method to hook: " + name);
             return;
         }
+
+        System.out.println("Hooking method: " + toHook.name + toHook.desc + " in class " + gamepack.name);
 
         // Parse method descriptors
         Type hookMethodType = Type.getMethodType(method.desc);

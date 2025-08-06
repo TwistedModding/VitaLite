@@ -17,9 +17,9 @@ import java.util.HashMap;
 
 public class Injector {
     private static final String MIXINS = "com.tonic.mixins";
+    public static HashMap<String, ClassNode> gamepack = new HashMap<>();
 
     public static void patch() throws Exception {
-        HashMap<String, ClassNode> gamepack = new HashMap<>();
         for (var entry : Main.LIBS.getGamepack().classes.entrySet()) {
             String name = entry.getKey();
             byte[] bytes = entry.getValue();
@@ -27,8 +27,8 @@ public class Injector {
         }
 
         HashMap<ClassNode, ClassNode> pairs = PackageUtil.getPairs(MIXINS);
-        applyInterfaces(pairs, gamepack);
-        applyMixins(pairs, gamepack);
+        applyInterfaces(pairs);
+        applyMixins(pairs);
 
         for (var entry : gamepack.entrySet()) {
             String name = entry.getKey();
@@ -49,7 +49,7 @@ public class Injector {
         JarDumper.dump(Main.LIBS.getGamepackClean().classes);
     }
 
-    private static void applyMixins(HashMap<ClassNode, ClassNode> pairs, HashMap<String, ClassNode> gamepack) {
+    private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) {
         for (ClassNode mixin : pairs.keySet()) {
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             JClass jClass = MappingProvider.getClass(gamepackName);
@@ -62,7 +62,7 @@ public class Injector {
                 }
                 if(AnnotationUtil.hasAnnotation(field, Shadow.class))
                 {
-                    ShadowTransformer.patch(gamepackClass, mixin, field);
+                    ShadowTransformer.patch(mixin, field);
                 }
             }
 
@@ -74,7 +74,7 @@ public class Injector {
                 }
                 if(AnnotationUtil.hasAnnotation(method, MethodHook.class))
                 {
-                    MethodHookTransformer.patch(gamepackClass, mixin, method);
+                    MethodHookTransformer.patch(mixin, method);
                 }
                 if(AnnotationUtil.hasAnnotation(method, Replace.class))
                 {
@@ -92,7 +92,7 @@ public class Injector {
         }
     }
 
-    private static void applyInterfaces(HashMap<ClassNode, ClassNode> pairs, HashMap<String, ClassNode> gamepack) {
+    private static void applyInterfaces(HashMap<ClassNode, ClassNode> pairs) {
         for (var entry : pairs.entrySet()) {
             try
             {

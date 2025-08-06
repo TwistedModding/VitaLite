@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ShadowTransformer
 {
-    public static void patch(ClassNode gamepack, ClassNode mixin, FieldNode field) {
+    public static void patch(ClassNode mixin, FieldNode field) {
         try
         {
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
@@ -32,7 +32,7 @@ public class ShadowTransformer
 
             for(MethodNode mn : mixin.methods)
             {
-                transformProxyField(mn, oldType, newType, oldName, oldOwner, newName, newOwner);
+                transformProxyField(jField, mn, oldType, newType, oldName, oldOwner, newName, newOwner);
             }
         }
         catch (Exception e)
@@ -56,7 +56,7 @@ public class ShadowTransformer
      * @param newName new name
      * @param newOwner new owner
      */
-    private static void transformProxyField(MethodNode mn, Type oldType, Type newType, String oldName, String oldOwner, String newName, String newOwner)
+    private static void transformProxyField(JField field, MethodNode mn, Type oldType, Type newType, String oldName, String oldOwner, String newName, String newOwner)
     {
         InsnList instructions = mn.instructions;
         if (instructions == null) return;
@@ -65,25 +65,65 @@ public class ShadowTransformer
             if (!(insn instanceof FieldInsnNode)) continue;
 
             FieldInsnNode fin = (FieldInsnNode) insn;
-            // match owner + name
             if (!fin.owner.equals(oldOwner) || !fin.name.equals(oldName)) continue;
 
-            // redirect to new field
             fin.owner = newOwner;
             fin.name  = newName;
             fin.desc = newType.getDescriptor();
-            // descriptor stays the same (we assume mixin field.desc matches target)
 
-            // if this is a field load and the mixin type is non-primitive, cast it
             int op = fin.getOpcode();
-            if ((op == Opcodes.GETFIELD || op == Opcodes.GETSTATIC)
-                    && (oldType.getSort() == Type.OBJECT || oldType.getSort() == Type.ARRAY))
+            if ((op == Opcodes.GETFIELD || op == Opcodes.GETSTATIC))
             {
-                TypeInsnNode checkcast = new TypeInsnNode(
-                        Opcodes.CHECKCAST,
-                        oldType.getInternalName()
-                );
-                instructions.insert(fin, checkcast);
+                if((oldType.getSort() == Type.OBJECT || oldType.getSort() == Type.ARRAY))
+                {
+                    TypeInsnNode checkcast = new TypeInsnNode(
+                            Opcodes.CHECKCAST,
+                            oldType.getInternalName()
+                    );
+                    instructions.insert(fin, checkcast);
+                    continue;
+                }
+                if(field.getGetter() == null)
+                    continue;
+
+                Number multiplier = field.getGetter();
+
+                if(field.getDescriptor().equals("I"))
+                {
+                    instructions.insert(fin, new LdcInsnNode(multiplier.intValue()));
+                    instructions.insert(fin.getNext(), new InsnNode(Opcodes.IMUL));
+                }
+                else if(field.getDescriptor().equals("J"))
+                {
+                    instructions.insert(fin, new LdcInsnNode(multiplier.longValue()));
+                    instructions.insert(fin.getNext(), new InsnNode(Opcodes.LMUL));
+                }
+            }
+            else if (op == Opcodes.PUTFIELD || op == Opcodes.PUTSTATIC) {
+                if((oldType.getSort() == Type.OBJECT || oldType.getSort() == Type.ARRAY))
+                {
+                    TypeInsnNode checkcast = new TypeInsnNode(
+                            Opcodes.CHECKCAST,
+                            newType.getInternalName()
+                    );
+                    instructions.insertBefore(fin, checkcast);
+                    continue;
+                }
+                if(field.getSetter() == null)
+                    continue;
+
+                Number multiplier = field.getSetter();
+
+                if(field.getDescriptor().equals("I"))
+                {
+                    instructions.insertBefore(fin, new LdcInsnNode(multiplier.intValue()));
+                    instructions.insertBefore(fin, new InsnNode(Opcodes.IMUL));
+                }
+                else if(field.getDescriptor().equals("J"))
+                {
+                    instructions.insertBefore(fin, new LdcInsnNode(multiplier.longValue()));
+                    instructions.insertBefore(fin, new InsnNode(Opcodes.LMUL));
+                }
             }
         }
     }
