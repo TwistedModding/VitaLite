@@ -15,23 +15,30 @@ import java.util.List;
 public class ShadowTransformer
 {
     public static void patch(ClassNode gamepack, ClassNode mixin, FieldNode field) {
-
-        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
-        String name = AnnotationUtil.getAnnotation(field, Shadow.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JField jField = MappingProvider.getField(jClass, name);
-
-        String oldOwner = mixin.name;
-        String oldName = field.name;
-        String newOwner = gamepack.name;
-        String newName = jField.getObfuscatedName();
-
-        Type oldType = Type.getType(field.desc);
-        Type newType = Type.getType(jField.getDescriptor());
-
-        for(MethodNode mn : mixin.methods)
+        try
         {
-            transformProxyField(mn, oldType, newType, oldName, oldOwner, newName, newOwner);
+            String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+            String name = AnnotationUtil.getAnnotation(field, Shadow.class, "value");
+            JClass jClass = MappingProvider.getClass(gamepackName);
+            JField jField = MappingProvider.getField(jClass, name);
+
+            String oldOwner = mixin.name;
+            String oldName = field.name;
+            String newOwner = jField.getOwnerObfuscatedName();
+            String newName = jField.getObfuscatedName();
+
+            Type oldType = Type.getType(field.desc);
+            Type newType = Type.getType(jField.getDescriptor());
+
+            for(MethodNode mn : mixin.methods)
+            {
+                transformProxyField(mn, oldType, newType, oldName, oldOwner, newName, newOwner);
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error transforming shadow field: " + mixin.name + "." + field.name);
+            System.exit(0);
         }
     }
 
