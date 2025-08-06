@@ -64,6 +64,8 @@ public class Remapper {
                         cm -> cm
                 ));
 
+        System.out.println("\n--- Starting method remapping integration ---");
+
         // 2. Normalize
         System.out.println("Normalizing methods...");
         Map<MethodKey, NormalizedMethod> oldNorm = new HashMap<>();
@@ -117,7 +119,7 @@ public class Remapper {
         Map<FieldKey, FieldNode> newFieldNodesAll = loadFieldsFromJar(newJar);
 
         // 8.  Build field-usage maps (which methods touch which fields)
-        System.out.println("Building field-usage maps…");
+        System.out.println("Building field-usage maps...");
         Map<FieldKey, Set<MethodKey>> oldFieldUses = FieldUsage.build(oldClasses);
         Map<FieldKey, Set<MethodKey>> newFieldUses = FieldUsage.build(newClasses);
 

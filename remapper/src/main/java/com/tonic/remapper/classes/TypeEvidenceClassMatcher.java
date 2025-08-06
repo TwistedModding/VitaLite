@@ -6,14 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Advanced class matcher that uses type usage evidence and iterative refinement
- * Fixed version with name length rules and better constant class handling
+ * Class matcher that uses type usage evidence and iterative refinement
  */
 public class TypeEvidenceClassMatcher {
 
-    /**
-     * Main entry point - returns ClassMatch objects compatible with existing code
-     */
     public static List<ClassMatch> matchClassesTopK(
             Collection<ClassNode> oldClasses,
             Collection<ClassNode> newClasses,
@@ -190,13 +186,12 @@ public class TypeEvidenceClassMatcher {
             System.out.println("\n=== Final Class Matching Results (topK=1) ===");
             System.out.println("Total matches: " + results.size());
 
-            // Show some example matches for debugging
-            results.stream()
-                    .filter(m -> m.oldFp.internalName.length() <= 2)
-                    .limit(10)
-                    .forEach(m -> System.out.println("  " + m.oldFp.internalName + " -> " +
-                            m.newFp.internalName + " (sim: " +
-                            String.format("%.3f", m.similarity) + ")"));
+//            results.stream()
+//                    .filter(m -> m.oldFp.internalName.length() <= 2)
+//                    .limit(10)
+//                    .forEach(m -> System.out.println("  " + m.oldFp.internalName + " -> " +
+//                            m.newFp.internalName + " (sim: " +
+//                            String.format("%.3f", m.similarity) + ")"));
 
         } else {
             // For topK > 1, handle accordingly (keeping name rules in mind)
@@ -311,8 +306,8 @@ public class TypeEvidenceClassMatcher {
                     if (betterMatch != null) {
                         validated.put(oldClass, betterMatch);
                         changed = true;
-                        System.out.println("Validation: Remapped " + oldClass + " from " +
-                                newClass + " to " + betterMatch);
+                        //System.out.println("Validation: Remapped " + oldClass + " from " +
+                        //        newClass + " to " + betterMatch);
                     }
                 }
             }
@@ -730,8 +725,8 @@ public class TypeEvidenceClassMatcher {
                 if (bestMatch != null && bestScore > minSimilarity + 0.1) { // Higher threshold
                     propagated.put(oldClass, bestMatch);
                     changed = true;
-                    System.out.println("Propagated: " + oldClass + " -> " + bestMatch +
-                            " (score: " + String.format("%.3f", bestScore) + ")");
+                    //System.out.println("Propagated: " + oldClass + " -> " + bestMatch +
+                    //        " (score: " + String.format("%.3f", bestScore) + ")");
                 }
             }
         }
@@ -778,8 +773,8 @@ public class TypeEvidenceClassMatcher {
                 if (betterMatch != null && !betterMatch.equals(currentMatch)) {
                     current.put(oldClass, betterMatch);
                     improved = true;
-                    System.out.println("Refined: " + oldClass + " from " +
-                            currentMatch + " to " + betterMatch);
+                    //System.out.println("Refined: " + oldClass + " from " +
+                    //        currentMatch + " to " + betterMatch);
                 }
             }
 
