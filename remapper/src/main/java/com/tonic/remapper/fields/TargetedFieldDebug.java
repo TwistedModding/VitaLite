@@ -1,7 +1,7 @@
 package com.tonic.remapper.fields;
 
+import com.tonic.remapper.classes.ClassMatch;
 import com.tonic.remapper.methods.MethodKey;
-import com.tonic.remapper.classes.ClassMatcher;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.FieldNode;
 
@@ -38,7 +38,7 @@ public class TargetedFieldDebug {
             Map<FieldKey, Set<MethodKey>> oldUses,
             Map<FieldKey, Set<MethodKey>> newUses,
             Map<MethodKey, MethodKey> methodMap,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldProfiles,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> newProfiles) {
 
@@ -68,7 +68,7 @@ public class TargetedFieldDebug {
             System.out.println("Found new field: " + newKey);
 
             // Step 2: Check class mapping
-            ClassMatcher.ClassMatch classMatch = classMatchByOldOwner.get(expected.oldClass);
+            ClassMatch classMatch = classMatchByOldOwner.get(expected.oldClass);
             if (classMatch == null) {
                 System.out.println("ERROR: No class mapping for " + expected.oldClass);
                 System.out.println("Available class mappings: " + classMatchByOldOwner.keySet());
@@ -174,13 +174,13 @@ public class TargetedFieldDebug {
             Map<FieldKey, Set<MethodKey>> oldUses,
             Map<FieldKey, Set<MethodKey>> newUses,
             Map<MethodKey, MethodKey> methodMap,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldProfiles,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> newProfiles,
             int topK) {
 
         List<ScoredMatch> matches = new ArrayList<>();
-        ClassMatcher.ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
+        ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
 
         for (Map.Entry<FieldKey, FieldNode> entry : newFields.entrySet()) {
             FieldKey newKey = entry.getKey();
@@ -214,7 +214,7 @@ public class TargetedFieldDebug {
             Map<FieldKey, Set<MethodKey>> oldUses,
             Map<FieldKey, Set<MethodKey>> newUses,
             Map<MethodKey, MethodKey> methodMap,
-            ClassMatcher.ClassMatch classMatch,
+            ClassMatch classMatch,
             FieldAccessAnalyzer.FieldAccessProfile oldProfile,
             FieldAccessAnalyzer.FieldAccessProfile newProfile) {
 

@@ -1,7 +1,7 @@
 package com.tonic.remapper.fields;
 
+import com.tonic.remapper.classes.ClassMatch;
 import com.tonic.remapper.methods.MethodKey;
-import com.tonic.remapper.classes.ClassMatcher;
 import com.tonic.remapper.misc.ProgressBar;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -43,7 +43,7 @@ public class FieldMatcher {
             Map<FieldKey, Set<MethodKey>> oldUses,
             Map<FieldKey, Set<MethodKey>> newUses,
             Map<MethodKey, MethodKey> methodMap,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldProfiles,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> newProfiles,
             int topKPerOld
@@ -173,7 +173,7 @@ public class FieldMatcher {
             Map<FieldKey, Set<MethodKey>> oldUses,
             Map<FieldKey, Set<MethodKey>> newUses,
             Map<MethodKey, MethodKey> methodMap,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldProfiles,
             Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> newProfiles,
             Map<FieldKey, Set<FieldKey>> oldCoOccur,
@@ -189,7 +189,7 @@ public class FieldMatcher {
         boolean oldFinal = (oldFn.access & Opcodes.ACC_FINAL) != 0;
 
         // Get class match info
-        ClassMatcher.ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
+        ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
         double classConfidence = classMatch != null ? classMatch.similarity : 0.0;
         String likelyNewOwner = classMatch != null ? classMatch.newFp.internalName : null;
 

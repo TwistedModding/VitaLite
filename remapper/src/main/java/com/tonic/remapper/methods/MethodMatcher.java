@@ -1,11 +1,10 @@
 package com.tonic.remapper.methods;
 
+import com.tonic.remapper.classes.ClassMatch;
 import com.tonic.remapper.misc.ProgressBar;
-import com.tonic.remapper.classes.ClassMatcher;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
@@ -65,7 +64,7 @@ public class MethodMatcher {
     public static List<Match> matchAll(
             Map<MethodKey, NormalizedMethod> oldMethods,
             Map<MethodKey, NormalizedMethod> newMethods,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             int topKPerOld,
             double classWeight
     ) {
@@ -76,7 +75,7 @@ public class MethodMatcher {
     public static List<Match> matchAllWithClassContext(
             Map<MethodKey, NormalizedMethod> oldMethods,
             Map<MethodKey, NormalizedMethod> newMethods,
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner,
+            Map<String, ClassMatch> classMatchByOldOwner,
             int topKPerOld,
             int threads,
             double classWeight // in [0,1], how much to boost when class owners align
@@ -105,7 +104,7 @@ public class MethodMatcher {
                     PriorityQueue<Match> topK =
                             new PriorityQueue<>(topKPerOld, Comparator.comparingDouble(m -> m.score));
 
-                    ClassMatcher.ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
+                    ClassMatch classMatch = classMatchByOldOwner.get(oldKey.owner);
                     String expectedNewOwner = classMatch != null ? classMatch.newFp.internalName : null;
 
                     for (Map.Entry<MethodKey, NormalizedMethod> nEntry : newMethods.entrySet()) {

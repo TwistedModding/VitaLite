@@ -1,6 +1,6 @@
 package com.tonic.remapper.fields;
 
-import com.tonic.remapper.classes.ClassMatcher;
+import com.tonic.remapper.classes.ClassMatch;
 import org.objectweb.asm.Type;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,13 +78,13 @@ public class DescriptorRemapper {
      * Maps old internal names to new internal names.
      */
     public static Map<String, String> createClassMapping(
-            Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner) {
+            Map<String, ClassMatch> classMatchByOldOwner) {
 
         Map<String, String> mapping = new HashMap<>();
 
-        for (Map.Entry<String, ClassMatcher.ClassMatch> entry : classMatchByOldOwner.entrySet()) {
+        for (Map.Entry<String, ClassMatch> entry : classMatchByOldOwner.entrySet()) {
             String oldClass = entry.getKey();
-            ClassMatcher.ClassMatch match = entry.getValue();
+            ClassMatch match = entry.getValue();
             if (match != null && match.similarity > 0.3) {  // Only include confident matches
                 mapping.put(oldClass, match.newFp.internalName);
             }

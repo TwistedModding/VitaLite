@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tonic.RuneliteConfigUtil;
-import com.tonic.remapper.classes.ClassMatcher;
+import com.tonic.remapper.classes.*;
 import com.tonic.remapper.dto.JClass;
 import com.tonic.remapper.dto.JField;
 import com.tonic.remapper.dto.JMethod;
@@ -56,8 +56,9 @@ public class Remapper {
         Map<MethodKey, MethodNode> newMethods = loadMethodsFromJar(newJar, newClasses);
         Map<MethodKey, MethodNode> oldMethods = loadMethodsFromJar(oldJar, oldClasses);
 
-        List<ClassMatcher.ClassMatch> topMatches = ClassMatcher.matchClassesTopK(oldClasses, newClasses, 1, 0.3);
-        Map<String, ClassMatcher.ClassMatch> classMatchByOldOwner = topMatches.stream()
+        List<ClassMatch> topMatches = TypeEvidenceClassMatcher.matchClassesTopK(
+                oldClasses, newClasses, 1, 0.3);
+        Map<String, ClassMatch> classMatchByOldOwner = topMatches.stream()
                 .collect(Collectors.toMap(
                         cm -> cm.oldFp.internalName,
                         cm -> cm
@@ -251,7 +252,7 @@ public class Remapper {
             for (JClass oldCls : dtoClasses) {
 
                 /* ---------- find the equivalent class in the NEW jar ---------- */
-                ClassMatcher.ClassMatch cMatch = classMatchByOldOwner.get(oldCls.getObfuscatedName());
+                ClassMatch cMatch = classMatchByOldOwner.get(oldCls.getObfuscatedName());
                 if (cMatch == null) continue;                                 // class vanished / no match
 
                 String newOwnerObf = cMatch.newFp.internalName;               // obfuscated internal name
