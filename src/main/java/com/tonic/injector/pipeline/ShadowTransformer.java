@@ -22,7 +22,7 @@ public class ShadowTransformer
 
         String oldOwner = mixin.name;
         String oldName = field.name;
-        String newOwner = gamepack.name;
+        String newOwner = jField.getObfuscatedName();
         String newName = jField.getObfuscatedName();
 
         Type oldType = Type.getType(field.desc);
