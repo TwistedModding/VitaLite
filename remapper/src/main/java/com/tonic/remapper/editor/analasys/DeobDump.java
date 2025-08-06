@@ -1,11 +1,7 @@
 package com.tonic.remapper.editor.analasys;
 
-import com.strobel.assembler.metadata.ITypeLoader;
-import com.tonic.remapper.dto.JClass;
+import com.tonic.dto.JClass;
 import com.tonic.remapper.editor.ClassMapping;
-import com.tonic.remapper.methods.MethodKey;
-import com.tonic.remapper.methods.UsedMethodScanner;
-import com.tonic.remapper.misc.ProgressBar;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;

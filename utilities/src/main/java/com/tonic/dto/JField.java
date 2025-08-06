@@ -1,4 +1,4 @@
-package com.tonic.remapper.dto;
+package com.tonic.dto;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;

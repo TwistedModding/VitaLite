@@ -1,8 +1,8 @@
 package com.tonic.remapper.editor.analasys;
 
-import com.tonic.remapper.dto.JClass;
-import com.tonic.remapper.dto.JField;
-import com.tonic.remapper.dto.JMethod;
+import com.tonic.dto.JClass;
+import com.tonic.dto.JField;
+import com.tonic.dto.JMethod;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;

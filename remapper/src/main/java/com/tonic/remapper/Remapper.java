@@ -5,9 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tonic.RuneliteConfigUtil;
 import com.tonic.remapper.classes.*;
-import com.tonic.remapper.dto.JClass;
-import com.tonic.remapper.dto.JField;
-import com.tonic.remapper.dto.JMethod;
+import com.tonic.dto.JClass;
+import com.tonic.dto.JField;
+import com.tonic.dto.JMethod;
 import com.tonic.remapper.editor.MappingEditor;
 import com.tonic.remapper.fields.*;
 import com.tonic.remapper.garbage.FieldMultiplierScanner;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class Remapper {
     private static final List<ClassNode> oldClasses = new ArrayList<>();
     private static final List<ClassNode> newClasses = new ArrayList<>();
-    private static RemapperOptions parser = new RemapperOptions();
+    private static final RemapperOptions parser = new RemapperOptions();
     public static void main(String[] args) throws Exception
     {
         parser.parse(args);
@@ -389,14 +389,12 @@ public class Remapper {
 
         Map<String, JClass> dtoByClass = new LinkedHashMap<>();
 
-        /* ---------- create one JClass for every ClassNode ---------- */
         for (ClassNode cn : classes) {
             JClass jc = new JClass();
             jc.setObfuscatedName(cn.name);
             dtoByClass.put(cn.name, jc);
         }
 
-        /* ---------- add methods (only the used ones we kept) ---------- */
         for (Map.Entry<MethodKey, MethodNode> e : methods.entrySet()) {
             MethodKey  key = e.getKey();
             MethodNode mn  = e.getValue();
@@ -414,7 +412,6 @@ public class Remapper {
             owner.getMethods().add(jm);
         }
 
-        /* ---------- add *all* fields ---------- */
         for (Map.Entry<FieldKey, FieldNode> e : fields.entrySet()) {
             FieldKey  key = e.getKey();
             FieldNode fn  = e.getValue();
