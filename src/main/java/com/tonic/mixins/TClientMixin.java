@@ -8,10 +8,10 @@ import com.tonic.services.CallStackFilter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Mixin("client")
+@Mixin("Client")
 public class TClientMixin implements TClient
 {
-    @Shadow(name = Mappings.packetWriterFieldName, desc = "L" + Mappings.packetWriterClassName + ";")
+    @Shadow("packetWriter")
     private TPacketWriter packetWriter;
 
     @Inject
@@ -21,7 +21,7 @@ public class TClientMixin implements TClient
         return packetWriter;
     }
 
-    @MethodOverride(name = Mappings.currentCallStackCheckerMethodName, desc = Mappings.currentCallStackCheckerMethodDesc)
+    @MethodOverride("callStackCheck")
     public static String callStackVerifier(long j)
     {
         try {

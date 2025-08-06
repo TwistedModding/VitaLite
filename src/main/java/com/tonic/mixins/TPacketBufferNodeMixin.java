@@ -8,13 +8,13 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import lombok.Getter;
 
-@Mixin(Mappings.packetBufferNodeClassName)
+@Mixin("PacketBufferNode")
 @Getter
 public class TPacketBufferNodeMixin implements TPacketBufferNode
 {
-    @Shadow(name = Mappings.packetBufferFieldName, desc = "L" + Mappings.packetBufferClassName + ";")
+    @Shadow("packetBuffer")
     private TPacketBuffer packetBuffer;
 
-    @Shadow(name = Mappings.clientPacketFieldName, desc = "L" + Mappings.clientPacketClassName + ";")
+    @Shadow("clientPacket")
     private TClientPacket clientPacket;
 }

@@ -1,5 +1,10 @@
 package com.tonic.injector.pipeline;
 
+import com.tonic.dto.JClass;
+import com.tonic.dto.JField;
+import com.tonic.dto.JMethod;
+import com.tonic.injector.MappingProvider;
+import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import com.tonic.util.AnnotationUtil;
 import org.objectweb.asm.Opcodes;
@@ -9,12 +14,19 @@ import org.objectweb.asm.tree.*;
 public class ShadowTransformer
 {
     public static void patch(ClassNode gamepack, ClassNode mixin, FieldNode field) {
+
+        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        String name = AnnotationUtil.getAnnotation(field, Shadow.class, "value");
+        JClass jClass = MappingProvider.getClass(gamepackName);
+        JField jField = MappingProvider.getField(jClass, name);
+
         String oldOwner = mixin.name;
         String oldName = field.name;
         String newOwner = gamepack.name;
-        String newName = AnnotationUtil.getAnnotation(field, Shadow.class, "name");
-        Type newType = Type.getType((String)AnnotationUtil.getAnnotation(field, Shadow.class, "desc"));
+        String newName = jField.getObfuscatedName();
+
         Type oldType = Type.getType(field.desc);
+        Type newType = Type.getType(jField.getDescriptor());
 
         for(MethodNode mn : mixin.methods)
         {

@@ -47,7 +47,7 @@ public class MappingProvider
     {
         for (JClass jClass : mappings)
         {
-            if (jClass.getName().equals(name))
+            if (jClass.getName() != null && jClass.getName().equals(name))
             {
                 return jClass;
             }
@@ -67,11 +67,11 @@ public class MappingProvider
         return null;
     }
 
-    public static JMethod getMethod(JClass owner, String name, String desc)
+    public static JMethod getMethod(JClass owner, String name)
     {
         for (JMethod jMethod : owner.getMethods())
         {
-            if (jMethod.getName().equals(name) && jMethod.getDescriptor().equals(desc))
+            if (jMethod.getName() != null && jMethod.getName().equals(name))
             {
                 return jMethod;
             }
@@ -97,7 +97,7 @@ public class MappingProvider
         {
             for (JMethod jMethod : jClass.getMethods())
             {
-                if (jMethod.getName().equals(name) && jMethod.isStatic())
+                if (jMethod.getName() != null && jMethod.getName().equals(name) && jMethod.isStatic())
                 {
                     return jMethod;
                 }
@@ -110,7 +110,7 @@ public class MappingProvider
     {
         for (JField jField : owner.getFields())
         {
-            if (jField.getName().equals(name))
+            if (jField.getName() != null && jField.getName().equals(name))
             {
                 return jField;
             }
@@ -136,7 +136,7 @@ public class MappingProvider
         {
             for (JField jField : jClass.getFields())
             {
-                if (jField.getName().equals(name) && jField.isStatic())
+                if (jField.getName() != null && jField.getName().equals(name) && jField.isStatic())
                 {
                     return jField;
                 }

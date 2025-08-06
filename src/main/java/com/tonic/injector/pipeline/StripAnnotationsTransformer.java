@@ -12,16 +12,13 @@ public class StripAnnotationsTransformer
 {
     public static void stripAnnotations(ClassNode cn)
     {
-        clearIfNonNull(cn.visibleAnnotations);
         clearIfNonNull(cn.invisibleAnnotations);
         for(FieldNode fn : cn.fields)
         {
-            clearIfNonNull(fn.visibleAnnotations);
             clearIfNonNull(fn.invisibleAnnotations);
         }
         for(MethodNode mn : cn.methods)
         {
-            clearIfNonNull(mn.visibleAnnotations);
             clearIfNonNull(mn.invisibleAnnotations);
         }
     }

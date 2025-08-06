@@ -1,6 +1,11 @@
 package com.tonic.injector.pipeline;
 
+import com.tonic.dto.JClass;
+import com.tonic.dto.JMethod;
+import com.tonic.injector.MappingProvider;
+import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.MethodOverride;
+import com.tonic.injector.annotations.Mixin;
 import com.tonic.util.AnnotationUtil;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -19,8 +24,13 @@ public class MethodOverrideTransformer {
         InjectTransformer.patch(gamepack, mixin, method);
 
         // Read target identity from @MethodOverride on the mixin method
-        String targetName = AnnotationUtil.getAnnotation(method, MethodOverride.class, "name");
-        String targetDesc = AnnotationUtil.getAnnotation(method, MethodOverride.class, "desc");
+        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        String name = AnnotationUtil.getAnnotation(method, MethodOverride.class, "value");
+        JClass jClass = MappingProvider.getClass(gamepackName);
+        JMethod jMethod = MappingProvider.getMethod(jClass, name);
+
+        String targetName = jMethod.getObfuscatedName();
+        String targetDesc = jMethod.getDescriptor();
 
         // Find the target method in the gamepack
         MethodNode toReplace = gamepack.methods.stream()

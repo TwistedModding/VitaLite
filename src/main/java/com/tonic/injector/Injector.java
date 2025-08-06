@@ -1,6 +1,7 @@
 package com.tonic.injector;
 
 import com.tonic.Main;
+import com.tonic.dto.JClass;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.pipeline.*;
 import com.tonic.util.AnnotationUtil;
@@ -11,6 +12,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Injector {
@@ -50,7 +52,8 @@ public class Injector {
     private static void applyMixins(HashMap<ClassNode, ClassNode> pairs, HashMap<String, ClassNode> gamepack) {
         for (ClassNode mixin : pairs.keySet()) {
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
-            ClassNode gamepackClass = gamepack.get(gamepackName);
+            JClass jClass = MappingProvider.getClass(gamepackName);
+            ClassNode gamepackClass = gamepack.get(jClass.getObfuscatedName());
             for(FieldNode field : mixin.fields)
             {
                 if(AnnotationUtil.hasAnnotation(field, Inject.class))
@@ -98,7 +101,12 @@ public class Injector {
                     continue;
                 ClassNode mixin = entry.getKey();
                 String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
-                ClassNode gamepackClass = gamepack.get(gamepackName);
+                JClass clazz = MappingProvider.getClass(gamepackName);
+                ClassNode gamepackClass = gamepack.get(clazz.getObfuscatedName());
+                if(gamepackClass.interfaces == null)
+                {
+                    gamepackClass.interfaces = new ArrayList<>();
+                }
                 gamepackClass.interfaces.add(api.name);
             }
             catch (Exception e)

@@ -6,12 +6,12 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import lombok.Getter;
 
-@Mixin(Mappings.clientPacketClassName)
+@Mixin("ClientPacket")
 @Getter
 public class TClientPacketMixin implements TClientPacket {
-    @Shadow(name = Mappings.clientPacketIdField, desc = "I")
+    @Shadow("id")
     public int id;
 
-    @Shadow(name = Mappings.clientPacketLengthField, desc = "I")
+    @Shadow("length")
     public int length;
 }

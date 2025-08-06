@@ -13,6 +13,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface MethodHook {
-    String name();
-    String desc();
+    String value();
 }

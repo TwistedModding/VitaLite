@@ -6,13 +6,13 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import lombok.Getter;
 
-@Mixin(Mappings.bufferClassName)
+@Mixin("Buffer")
 @Getter
 public class TBufferMixin implements TBuffer
 {
-    @Shadow(name = Mappings.bufferArrayFieldName, desc = "[B")
+    @Shadow("array")
     public byte[] array;
 
-    @Shadow(name = Mappings.bufferOffsetField, desc = "I")
+    @Shadow("offset")
     public int offset;
 }
