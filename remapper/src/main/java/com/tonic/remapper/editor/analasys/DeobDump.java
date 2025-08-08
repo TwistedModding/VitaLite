@@ -55,7 +55,6 @@ public class DeobDump
         //BytecodeTransformers.clearModifiedMethods();
 
         System.out.println("Renaming classes...");
-        BytecodeRenamer.scanForInvokeDynamic(classesObfu);
         BytecodeRenamer renamer = new BytecodeRenamer(classesObfu, mappings);
         List<ClassNode> classes = renamer.rename();
 

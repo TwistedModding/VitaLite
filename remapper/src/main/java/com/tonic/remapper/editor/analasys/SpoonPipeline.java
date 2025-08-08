@@ -77,9 +77,7 @@ public class SpoonPipeline
         // Add the processed type
         result.append(ctType.prettyprint());
 
-        return ParenCleaner.clean(result.toString()
-                .replace("\r\n", "\n")
-                .replaceAll("(?m)^\\s*\\n", ""));
+        return result.toString();
     }
 
     private SpoonPipeline()
@@ -239,11 +237,13 @@ public class SpoonPipeline
             /* drop now-unused opaque parameter */
             CtExecutableReference<?> execRef = exec.getReference();
             CtTypeReference<?> declaringTypeRef = execRef.getDeclaringType();
-            String className = declaringTypeRef.getQualifiedName();
+            String className = declaringTypeRef.getSimpleName();
             cleanedMethods.add(className + "." + exec.getSignature());
             exec.removeParameter(lastParam);
         }
     }
+
+
 
     private String extractImports(String src) {
         StringBuilder imports = new StringBuilder();

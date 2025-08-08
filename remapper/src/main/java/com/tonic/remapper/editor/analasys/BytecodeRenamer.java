@@ -10,195 +10,276 @@ import org.objectweb.asm.tree.*;
 import java.util.*;
 
 /**
- * Comprehensive bytecode renaming utility that renames all classes, methods, and fields
- * while updating ALL references throughout the bytecode.
+ * Complete bytecode renaming utility with full hierarchy support and InvokeDynamic handling.
  *
  * Features:
- * - Renames classes to class0, class1, class2... (only if original name is 2 chars or less)
- * - Renames fields to field0, field1, field2...
- * - Renames methods to method0, method1, method2... (preserves <init>, <clinit>, main)
- * - Adds @ObfuscatedName annotations to preserve original names and descriptors
- * - Updates ALL bytecode references including:
- *   - Regular method calls (invokevirtual, invokestatic, invokespecial, invokeinterface)
- *   - Field accesses (getfield, putfield, getstatic, putstatic)
- *   - Type references (new, instanceof, checkcast, etc.)
- *   - InvokeDynamic instructions with bootstrap methods and arguments
- *   - Method handles in constant pool
- *   - ConstantDynamic values
- *   - Annotations and their values
- *   - Type annotations
- *   - Generic signatures
- *   - Exception handlers
- *   - Local variable tables
- *   - Inner classes
- *   - Nest members
- *   - Permitted subclasses
- *   - Module declarations
- *
- * The @ObfuscatedName annotation is expected to have this structure:
- *   @Retention(RetentionPolicy.RUNTIME)
- *   @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
- *   public @interface ObfuscatedName {
- *       String obfuscatedName();
- *       String descriptor() default "";
- *   }
- *
- * Usage:
- *   BytecodeRenamer renamer = new BytecodeRenamer(classNodes);
- *   List<ClassNode> renamedClasses = renamer.rename();
+ * - Handles class inheritance hierarchies properly
+ * - Ensures method overrides get the same name
+ * - Handles field inheritance and cross-class references
+ * - Full InvokeDynamic support including bootstrap methods and method handles
+ * - Handles ConstantDynamic and all dynamic constant pool entries
+ * - Adds @ObfuscatedName annotations to preserve original names
  */
 public class BytecodeRenamer {
     private static final int ASM_VERSION = Opcodes.ASM9;
     private static final String DEFAULT_ANNOTATION_DESCRIPTOR = "Lcom/tonic/remapper/ObfuscatedName;";
+
     private final List<ClassNode> classes;
+    private final Map<String, ClassNode> classNodeMap = new HashMap<>();
     private final Map<String, String> classMapping = new HashMap<>();
     private final Map<String, Map<String, String>> fieldMapping = new HashMap<>();
     private final Map<String, Map<String, String>> methodMapping = new HashMap<>();
+
+    // Hierarchy tracking
+    private final Map<String, Set<String>> classHierarchy = new HashMap<>();
+    private final Map<String, Set<String>> subclasses = new HashMap<>();
+    private final Map<String, Set<String>> implementers = new HashMap<>();
+    private final Map<MethodSignature, String> globalMethodNames = new HashMap<>();
+    private final Map<FieldSignature, String> globalFieldNames = new HashMap<>();
+
     private final List<JClass> mappings;
-    private final ComprehensiveRemapper remapper;
+    private final HierarchyAwareRemapper remapper;
     private final String annotationDescriptor;
+
     private int classCounter = 0;
     private int fieldCounter = 0;
     private int methodCounter = 0;
 
-    /**
-     * Creates a new BytecodeRenamer instance with default annotation descriptor.
-     * @param classes List of ClassNode objects to rename
-     */
     public BytecodeRenamer(List<ClassNode> classes, List<JClass> mappings) {
         this(classes, mappings, DEFAULT_ANNOTATION_DESCRIPTOR);
     }
 
-    /**
-     * Creates a new BytecodeRenamer instance with custom annotation descriptor.
-     * @param classes List of ClassNode objects to rename
-     * @param annotationDescriptor The descriptor for the ObfuscatedName annotation (e.g., "Lcom/example/ObfuscatedName;")
-     */
     public BytecodeRenamer(List<ClassNode> classes, List<JClass> mappings, String annotationDescriptor) {
         this.classes = classes;
         this.annotationDescriptor = annotationDescriptor;
-        this.remapper = new ComprehensiveRemapper();
         this.mappings = mappings;
-    }
 
-    /**
-     * Gets the current mappings for debugging purposes.
-     * @return Map containing class, field, and method mappings
-     */
-    public Map<String, Object> getMappings() {
-        Map<String, Object> mappings = new HashMap<>();
-        mappings.put("classes", new HashMap<>(classMapping));
-        mappings.put("fields", new HashMap<>(fieldMapping));
-        mappings.put("methods", new HashMap<>(methodMapping));
-        return mappings;
-    }
-
-    /**
-     * Retrieves the original obfuscated name from an annotated element.
-     * @param annotations List of annotation nodes
-     * @param annotationDescriptor The descriptor of the ObfuscatedName annotation
-     * @return The original name, or null if not found
-     */
-    public static String getOriginalName(List<AnnotationNode> annotations, String annotationDescriptor) {
-        if (annotations == null) return null;
-
-        for (AnnotationNode an : annotations) {
-            if (an.desc.equals(annotationDescriptor)) {
-                if (an.values != null) {
-                    for (int i = 0; i < an.values.size(); i += 2) {
-                        if ("obfuscatedName".equals(an.values.get(i))) {
-                            return (String) an.values.get(i + 1);
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Retrieves the original descriptor from an annotated method or field.
-     * @param annotations List of annotation nodes
-     * @param annotationDescriptor The descriptor of the ObfuscatedName annotation
-     * @return The original descriptor, or null if not found
-     */
-    public static String getOriginalDescriptor(List<AnnotationNode> annotations, String annotationDescriptor) {
-        if (annotations == null) return null;
-
-        for (AnnotationNode an : annotations) {
-            if (an.desc.equals(annotationDescriptor)) {
-                if (an.values != null) {
-                    for (int i = 0; i < an.values.size(); i += 2) {
-                        if ("descriptor".equals(an.values.get(i))) {
-                            return (String) an.values.get(i + 1);
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Scans classes for invokedynamic instructions and reports findings.
-     * @param classes List of ClassNode objects to scan
-     */
-    public static void scanForInvokeDynamic(List<ClassNode> classes) {
-        int totalInvokeDynamic = 0;
+        // Build class node map
         for (ClassNode cn : classes) {
-            for (MethodNode mn : cn.methods) {
-                if (mn.instructions != null) {
-                    for (AbstractInsnNode insn : mn.instructions) {
-                        if (insn instanceof InvokeDynamicInsnNode) {
-                            totalInvokeDynamic++;
-                            InvokeDynamicInsnNode indy = (InvokeDynamicInsnNode) insn;
-                            System.out.println("  InvokeDynamic found in " + cn.name + "." + mn.name +
-                                    ": " + indy.name + indy.desc);
+            classNodeMap.put(cn.name, cn);
+        }
+
+        // Build hierarchy before creating remapper
+        buildClassHierarchy();
+        this.remapper = new HierarchyAwareRemapper();
+    }
+
+    /**
+     * Build complete class hierarchy information
+     */
+    private void buildClassHierarchy() {
+        System.out.println("Building class hierarchy...");
+
+        // First pass: build direct relationships
+        for (ClassNode cn : classes) {
+            Set<String> hierarchy = new HashSet<>();
+
+            // Add superclass
+            if (cn.superName != null && !cn.superName.equals("java/lang/Object")) {
+                hierarchy.add(cn.superName);
+                subclasses.computeIfAbsent(cn.superName, k -> new HashSet<>()).add(cn.name);
+            }
+
+            // Add interfaces
+            if (cn.interfaces != null) {
+                for (String iface : cn.interfaces) {
+                    hierarchy.add(iface);
+                    implementers.computeIfAbsent(iface, k -> new HashSet<>()).add(cn.name);
+                }
+            }
+
+            classHierarchy.put(cn.name, hierarchy);
+        }
+
+        // Second pass: compute transitive closure
+        for (ClassNode cn : classes) {
+            Set<String> allAncestors = new HashSet<>();
+            Queue<String> toProcess = new LinkedList<>(classHierarchy.get(cn.name));
+
+            while (!toProcess.isEmpty()) {
+                String ancestor = toProcess.poll();
+                if (allAncestors.add(ancestor)) {
+                    Set<String> ancestorHierarchy = classHierarchy.get(ancestor);
+                    if (ancestorHierarchy != null) {
+                        toProcess.addAll(ancestorHierarchy);
+                    }
+
+                    ClassNode ancestorNode = classNodeMap.get(ancestor);
+                    if (ancestorNode != null) {
+                        if (ancestorNode.superName != null && !ancestorNode.superName.equals("java/lang/Object")) {
+                            toProcess.add(ancestorNode.superName);
+                        }
+                        if (ancestorNode.interfaces != null) {
+                            toProcess.addAll(ancestorNode.interfaces);
                         }
                     }
                 }
             }
+
+            classHierarchy.put(cn.name, allAncestors);
         }
-        System.out.println("Total InvokeDynamic instructions found: " + totalInvokeDynamic);
+
+        System.out.println("Hierarchy built for " + classHierarchy.size() + " classes");
     }
 
     /**
-     * Test method to check if ClassNodes are being properly populated.
-     * @param classes List of ClassNode objects to test
+     * Build mappings with hierarchy awareness
      */
-    public static void testClassNodes(List<ClassNode> classes) {
-        System.out.println("\n=== Testing ClassNodes ===");
-        for (int i = 0; i < Math.min(3, classes.size()); i++) {
-            ClassNode cn = classes.get(i);
-            System.out.println("\nClass: " + cn.name);
-            System.out.println("  Methods (" + cn.methods.size() + "):");
-            for (int j = 0; j < Math.min(5, cn.methods.size()); j++) {
-                MethodNode mn = cn.methods.get(j);
-                System.out.println("    - " + mn.name + mn.desc +
-                        " (instructions: " + (mn.instructions != null ? mn.instructions.size() : 0) + ")");
-            }
-            System.out.println("  Fields (" + cn.fields.size() + "):");
-            for (int j = 0; j < Math.min(5, cn.fields.size()); j++) {
-                FieldNode fn = cn.fields.get(j);
-                System.out.println("    - " + fn.name + " : " + fn.desc);
+    private void buildMappings() {
+        System.out.println("Building mappings with hierarchy awareness...");
+
+        // First: map classes
+        for (ClassNode cn : classes) {
+            JClass owner = findClass(cn.name);
+            if (cn.name.length() <= 2) {
+                String newClassName = (owner != null && owner.getName() != null && !owner.getName().isBlank())
+                        ? owner.getName()
+                        : "class" + (classCounter++);
+                classMapping.put(cn.name, newClassName);
             }
         }
-        System.out.println("=== End Test ===\n");
+
+        // Second: collect all methods and fields with their inheritance chains
+        Map<MethodSignature, Set<String>> methodOwners = new HashMap<>();
+        Map<FieldSignature, Set<String>> fieldOwners = new HashMap<>();
+
+        for (ClassNode cn : classes) {
+            if(cn.name.contains("/") )
+                continue;
+            // Collect methods
+            for (MethodNode mn : cn.methods) {
+                if(mn.name.length() > 2)
+                    continue;
+                MethodSignature sig = new MethodSignature(mn.name, mn.desc);
+                methodOwners.computeIfAbsent(sig, k -> new HashSet<>()).add(cn.name);
+            }
+
+            // Collect fields
+            for (FieldNode fn : cn.fields) {
+                FieldSignature sig = new FieldSignature(fn.name, fn.desc);
+                fieldOwners.computeIfAbsent(sig, k -> new HashSet<>()).add(cn.name);
+            }
+        }
+
+        // Third: assign names to method groups
+        for (Map.Entry<MethodSignature, Set<String>> entry : methodOwners.entrySet()) {
+            MethodSignature sig = entry.getKey();
+            Set<String> owners = entry.getValue();
+
+            if (sig.name.equals("main")) {
+                continue;
+            }
+
+            Set<String> relatedClasses = findRelatedClasses(owners);
+
+            String assignedName = null;
+            for (String className : relatedClasses) {
+                JClass jClass = findClass(className);
+                if (jClass != null) {
+                    JMethod jMethod = findMethod(jClass, sig.name, sig.descriptor);
+                    if (jMethod != null && jMethod.getName() != null && !jMethod.getName().isBlank()) {
+                        assignedName = jMethod.getName();
+                        break;
+                    }
+                }
+            }
+
+            if (assignedName == null) {
+                assignedName = "method" + (methodCounter++);
+            }
+
+            globalMethodNames.put(sig, assignedName);
+            for (String className : relatedClasses) {
+                methodMapping.computeIfAbsent(className, k -> new HashMap<>())
+                        .put(sig.name + sig.descriptor, assignedName);
+            }
+        }
+
+        // Fourth: assign names to fields
+        for (Map.Entry<FieldSignature, Set<String>> entry : fieldOwners.entrySet()) {
+            FieldSignature sig = entry.getKey();
+            Set<String> owners = entry.getValue();
+
+            Set<String> relatedClasses = findRelatedClasses(owners);
+
+            String assignedName = null;
+            for (String className : relatedClasses) {
+                JClass jClass = findClass(className);
+                if (jClass != null) {
+                    JField jField = findField(jClass, sig.name);
+                    if (jField != null && jField.getName() != null && !jField.getName().isBlank()) {
+                        assignedName = jField.getName();
+                        break;
+                    }
+                }
+            }
+
+            if (assignedName == null) {
+                assignedName = "field" + (fieldCounter++);
+            }
+
+            globalFieldNames.put(sig, assignedName);
+            for (String className : relatedClasses) {
+                fieldMapping.computeIfAbsent(className, k -> new HashMap<>())
+                        .put(sig.name, assignedName);
+            }
+        }
+
+        System.out.println("Mappings complete: " + methodCounter + " methods, " + fieldCounter + " fields");
     }
 
     /**
-     * Performs the renaming operation on all classes.
-     * @return List of renamed ClassNode objects
+     * Find all classes related by inheritance
      */
+    private Set<String> findRelatedClasses(Set<String> classes) {
+        Set<String> related = new HashSet<>(classes);
+        Set<String> toProcess = new HashSet<>(classes);
+
+        while (!toProcess.isEmpty()) {
+            Set<String> nextRound = new HashSet<>();
+
+            for (String className : toProcess) {
+                // Add superclasses and interfaces
+                Set<String> ancestors = classHierarchy.get(className);
+                if (ancestors != null) {
+                    for (String ancestor : ancestors) {
+                        if (related.add(ancestor)) {
+                            nextRound.add(ancestor);
+                        }
+                    }
+                }
+
+                // Add subclasses
+                Set<String> subs = subclasses.get(className);
+                if (subs != null) {
+                    for (String sub : subs) {
+                        if (related.add(sub)) {
+                            nextRound.add(sub);
+                        }
+                    }
+                }
+
+                // Add implementers
+                Set<String> impls = implementers.get(className);
+                if (impls != null) {
+                    for (String impl : impls) {
+                        if (related.add(impl)) {
+                            nextRound.add(impl);
+                        }
+                    }
+                }
+            }
+
+            toProcess = nextRound;
+        }
+
+        return related;
+    }
+
     public List<ClassNode> rename() {
         return rename(false);
     }
 
-    /**
-     * Performs the renaming operation on all classes.
-     * @param verbose If true, prints detailed debug output
-     * @return List of renamed ClassNode objects
-     */
     public List<ClassNode> rename(boolean verbose) {
         buildMappings();
         List<ClassNode> renamedClasses = new ArrayList<>();
@@ -207,14 +288,7 @@ public class BytecodeRenamer {
             ClassNode renamed = applyRenaming(cn);
 
             if (verbose) {
-                // Debug output
                 System.out.println("Class " + cn.name + " -> " + renamed.name);
-                System.out.println("  Original methods: " + cn.methods.size());
-                System.out.println("  Renamed methods: " + renamed.methods.size());
-                System.out.println("  Original fields: " + cn.fields.size());
-                System.out.println("  Renamed fields: " + renamed.fields.size());
-
-                // Verify the renamed class is valid
                 verifyClassNode(renamed);
             }
 
@@ -222,16 +296,382 @@ public class BytecodeRenamer {
         }
 
         System.out.println("Renamed " + renamedClasses.size() + " classes");
-        System.out.println("Total mappings: " + classMapping.size() + " classes, " +
-                fieldCounter + " fields, " + methodCounter + " methods");
-
         return renamedClasses;
     }
 
+    private ClassNode applyRenaming(ClassNode original) {
+        ClassNode renamed = new ClassNode(ASM_VERSION);
+
+        // Use enhanced remapper
+        EnhancedClassRemapper classRemapper = new EnhancedClassRemapper(renamed, this.remapper);
+        original.accept(classRemapper);
+
+        // Post-process InvokeDynamic instructions
+        postProcessInvokeDynamic(renamed);
+
+        // Add annotations
+        if (classMapping.containsKey(original.name)) {
+            addClassAnnotation(renamed, original.name);
+        }
+        addFieldAndMethodAnnotations(renamed, original);
+
+        return renamed;
+    }
+
     /**
-     * Verifies that a ClassNode is valid and can be written.
-     * @param cn ClassNode to verify
+     * Post-process all methods to handle InvokeDynamic instructions
      */
+    private void postProcessInvokeDynamic(ClassNode classNode) {
+        for (MethodNode method : classNode.methods) {
+            if (method.instructions == null) continue;
+
+            for (AbstractInsnNode insn : method.instructions) {
+                if (insn instanceof InvokeDynamicInsnNode) {
+                    InvokeDynamicInsnNode indy = (InvokeDynamicInsnNode) insn;
+
+                    // Remap the name
+                    String newName = remapper.mapInvokeDynamicMethodName(indy.name, indy.desc);
+                    if (!newName.equals(indy.name)) {
+                        indy.name = newName;
+                    }
+
+                    // Remap the descriptor
+                    indy.desc = remapper.mapMethodDesc(indy.desc);
+
+                    // Process bootstrap method
+                    if (indy.bsm != null) {
+                        indy.bsm = remapHandle(indy.bsm);
+                    }
+
+                    // Process bootstrap method arguments
+                    if (indy.bsmArgs != null) {
+                        for (int i = 0; i < indy.bsmArgs.length; i++) {
+                            indy.bsmArgs[i] = remapBootstrapArgument(indy.bsmArgs[i]);
+                        }
+                    }
+                }
+                // Handle LDC instructions with method handles
+                else if (insn instanceof LdcInsnNode) {
+                    LdcInsnNode ldc = (LdcInsnNode) insn;
+                    ldc.cst = remapConstant(ldc.cst);
+                }
+            }
+        }
+    }
+
+    /**
+     * Remap a bootstrap method argument
+     */
+    private Object remapBootstrapArgument(Object arg) {
+        if (arg instanceof Type) {
+            Type type = (Type) arg;
+            if (type.getSort() == Type.OBJECT || type.getSort() == Type.ARRAY) {
+                return Type.getType(remapper.mapDesc(type.getDescriptor()));
+            }
+            return type;
+        } else if (arg instanceof Handle) {
+            return remapHandle((Handle) arg);
+        } else if (arg instanceof ConstantDynamic) {
+            return remapConstantDynamic((ConstantDynamic) arg);
+        } else if (arg instanceof String) {
+            // Sometimes class names are passed as strings
+            String str = (String) arg;
+            if (str.contains("/") && !str.contains(" ")) {
+                String mapped = classMapping.get(str);
+                if (mapped != null) {
+                    return mapped;
+                }
+            }
+            return str;
+        }
+        return arg;
+    }
+
+    /**
+     * Remap a method handle
+     */
+    private Handle remapHandle(Handle handle) {
+        String owner = remapper.map(handle.getOwner());
+        String name = handle.getName();
+        String desc = handle.getDesc();
+
+        switch (handle.getTag()) {
+            case Opcodes.H_GETFIELD:
+            case Opcodes.H_GETSTATIC:
+            case Opcodes.H_PUTFIELD:
+            case Opcodes.H_PUTSTATIC:
+                // Field handle
+                name = remapper.mapFieldName(handle.getOwner(), handle.getName(), desc);
+                desc = remapper.mapDesc(desc);
+                break;
+
+            case Opcodes.H_INVOKEVIRTUAL:
+            case Opcodes.H_INVOKESTATIC:
+            case Opcodes.H_INVOKESPECIAL:
+            case Opcodes.H_NEWINVOKESPECIAL:
+            case Opcodes.H_INVOKEINTERFACE:
+                // Method handle
+                name = remapper.mapMethodName(handle.getOwner(), handle.getName(), desc);
+                desc = remapper.mapMethodDesc(desc);
+                break;
+        }
+
+        if (owner.equals(handle.getOwner()) && name.equals(handle.getName()) && desc.equals(handle.getDesc())) {
+            return handle;
+        }
+
+        return new Handle(handle.getTag(), owner, name, desc, handle.isInterface());
+    }
+
+    /**
+     * Remap a ConstantDynamic
+     */
+    private ConstantDynamic remapConstantDynamic(ConstantDynamic condy) {
+        String name = condy.getName();
+        String desc = remapper.mapDesc(condy.getDescriptor());
+        Handle bsm = remapHandle(condy.getBootstrapMethod());
+
+        // Remap bootstrap method arguments
+        Object[] bsmArgs = new Object[condy.getBootstrapMethodArgumentCount()];
+        for (int i = 0; i < bsmArgs.length; i++) {
+            bsmArgs[i] = remapBootstrapArgument(condy.getBootstrapMethodArgument(i));
+        }
+
+        return new ConstantDynamic(name, desc, bsm, bsmArgs);
+    }
+
+    /**
+     * Remap constants
+     */
+    private Object remapConstant(Object cst) {
+        if (cst instanceof Type) {
+            Type type = (Type) cst;
+            String desc = remapper.mapDesc(type.getDescriptor());
+            return Type.getType(desc);
+        } else if (cst instanceof Handle) {
+            return remapHandle((Handle) cst);
+        } else if (cst instanceof ConstantDynamic) {
+            return remapConstantDynamic((ConstantDynamic) cst);
+        }
+        return cst;
+    }
+
+    /**
+     * Enhanced ClassRemapper that handles InvokeDynamic
+     */
+    private class EnhancedClassRemapper extends ClassRemapper {
+        public EnhancedClassRemapper(ClassVisitor classVisitor, Remapper remapper) {
+            super(classVisitor, remapper);
+        }
+
+        @Override
+        public MethodVisitor visitMethod(int access, String name, String descriptor,
+                                         String signature, String[] exceptions) {
+            MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+            return new EnhancedMethodRemapper(mv, remapper);
+        }
+    }
+
+    /**
+     * Enhanced MethodRemapper for InvokeDynamic support
+     */
+    private class EnhancedMethodRemapper extends MethodVisitor {
+        private final Remapper remapper;
+
+        public EnhancedMethodRemapper(MethodVisitor methodVisitor, Remapper remapper) {
+            super(ASM_VERSION, methodVisitor);
+            this.remapper = remapper;
+        }
+
+        @Override
+        public void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+            String remappedName = remapper.mapInvokeDynamicMethodName(name, descriptor);
+            String remappedDesc = remapper.mapMethodDesc(descriptor);
+            Handle remappedBsm = remapHandle(bootstrapMethodHandle);
+
+            Object[] remappedArgs = new Object[bootstrapMethodArguments.length];
+            for (int i = 0; i < bootstrapMethodArguments.length; i++) {
+                remappedArgs[i] = remapBootstrapArgument(bootstrapMethodArguments[i]);
+            }
+
+            super.visitInvokeDynamicInsn(remappedName, remappedDesc, remappedBsm, remappedArgs);
+        }
+
+        @Override
+        public void visitLdcInsn(Object value) {
+            super.visitLdcInsn(remapConstant(value));
+        }
+    }
+
+    /**
+     * Hierarchy-aware remapper that looks up the inheritance chain
+     */
+    private class HierarchyAwareRemapper extends Remapper {
+        @Override
+        public String map(String internalName) {
+            return classMapping.getOrDefault(internalName, internalName);
+        }
+
+        @Override
+        public String mapFieldName(String owner, String name, String descriptor) {
+            // First try direct owner
+            Map<String, String> fieldMap = fieldMapping.get(owner);
+            if (fieldMap != null) {
+                String mapped = fieldMap.get(name);
+                if (mapped != null) {
+                    return mapped;
+                }
+            }
+
+            // Try global field names
+            FieldSignature sig = new FieldSignature(name, descriptor);
+            String globalName = globalFieldNames.get(sig);
+            if (globalName != null) {
+                return globalName;
+            }
+
+            // Check superclasses
+            Set<String> ancestors = classHierarchy.get(owner);
+            if (ancestors != null) {
+                for (String ancestor : ancestors) {
+                    fieldMap = fieldMapping.get(ancestor);
+                    if (fieldMap != null) {
+                        String mapped = fieldMap.get(name);
+                        if (mapped != null) {
+                            fieldMapping.computeIfAbsent(owner, k -> new HashMap<>()).put(name, mapped);
+                            return mapped;
+                        }
+                    }
+                }
+            }
+
+            return name;
+        }
+
+        @Override
+        public String mapMethodName(String owner, String name, String descriptor) {
+            if (name.equals("<init>") || name.equals("<clinit>") || name.equals("main")) {
+                return name;
+            }
+
+            // First try direct owner
+            Map<String, String> methodMap = methodMapping.get(owner);
+            if (methodMap != null) {
+                String mapped = methodMap.get(name + descriptor);
+                if (mapped != null) {
+                    return mapped;
+                }
+            }
+
+            // Try global method names
+            MethodSignature sig = new MethodSignature(name, descriptor);
+            String globalName = globalMethodNames.get(sig);
+            if (globalName != null) {
+                return globalName;
+            }
+
+            // Check superclasses
+            Set<String> ancestors = classHierarchy.get(owner);
+            if (ancestors != null) {
+                for (String ancestor : ancestors) {
+                    methodMap = methodMapping.get(ancestor);
+                    if (methodMap != null) {
+                        String mapped = methodMap.get(name + descriptor);
+                        if (mapped != null) {
+                            methodMapping.computeIfAbsent(owner, k -> new HashMap<>())
+                                    .put(name + descriptor, mapped);
+                            return mapped;
+                        }
+                    }
+                }
+            }
+
+            return name;
+        }
+
+        @Override
+        public String mapInvokeDynamicMethodName(String name, String descriptor) {
+            // Check global method names first
+            MethodSignature sig = new MethodSignature(name, descriptor);
+            String globalName = globalMethodNames.get(sig);
+            if (globalName != null) {
+                return globalName;
+            }
+
+            // Check all classes
+            for (Map<String, String> methodMap : methodMapping.values()) {
+                String mapped = methodMap.get(name + descriptor);
+                if (mapped != null) {
+                    return mapped;
+                }
+            }
+            return name;
+        }
+
+        @Override
+        public String mapPackageName(String name) {
+            return name;
+        }
+
+        @Override
+        public String mapModuleName(String name) {
+            return name;
+        }
+    }
+
+    /**
+     * Method signature for tracking overrides
+     */
+    private static class MethodSignature {
+        final String name;
+        final String descriptor;
+
+        MethodSignature(String name, String descriptor) {
+            this.name = name;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof MethodSignature)) return false;
+            MethodSignature that = (MethodSignature) o;
+            return name.equals(that.name) && descriptor.equals(that.descriptor);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, descriptor);
+        }
+    }
+
+    /**
+     * Field signature for tracking inheritance
+     */
+    private static class FieldSignature {
+        final String name;
+        final String descriptor;
+
+        FieldSignature(String name, String descriptor) {
+            this.name = name;
+            this.descriptor = descriptor;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof FieldSignature)) return false;
+            FieldSignature that = (FieldSignature) o;
+            return name.equals(that.name) && descriptor.equals(that.descriptor);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, descriptor);
+        }
+    }
+
+    // Helper methods
     private void verifyClassNode(ClassNode cn) {
         try {
             ClassWriter cw = new ClassWriter(0);
@@ -240,84 +680,9 @@ public class BytecodeRenamer {
             System.out.println("  Verification: Class " + cn.name + " produces " + bytes.length + " bytes");
         } catch (Exception e) {
             System.err.println("  ERROR: Failed to verify class " + cn.name + ": " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
-    /**
-     * Builds mappings for all classes, fields, and methods.
-     * Only renames classes with names of 2 characters or less.
-     */
-    private void buildMappings() {
-        JClass owner;
-        for (ClassNode cn : classes) {
-            owner = findCLass(cn.name);
-            // Only rename classes with names of 2 characters or less
-            if (cn.name.length() <= 2) {
-                String newClassName;
-                if(owner == null || owner.getName() == null || owner.getName().isBlank())
-                    newClassName = "class" + (classCounter++);
-                else
-                    newClassName = owner.getName();
-                classMapping.put(cn.name, newClassName);
-            }
-
-            Map<String, String> fieldMap = new HashMap<>();
-            fieldMapping.put(cn.name, fieldMap);
-
-            for (FieldNode fn : cn.fields) {
-                String fieldName;
-                JField field = findField(owner, fn.name);
-                if (field == null || field.getName() == null || field.getName().isBlank())
-                    fieldName = "field" + (fieldCounter++);
-                else
-                    fieldName = field.getName();
-                fieldMap.put(fn.name, fieldName);
-            }
-
-            Map<String, String> methodMap = new HashMap<>();
-            methodMapping.put(cn.name, methodMap);
-
-            for (MethodNode mn : cn.methods) {
-                if (!mn.name.equals("<init>") && !mn.name.equals("<clinit>") && !mn.name.equals("main")) {
-                    String methodName;
-                    JMethod method = findMethod(owner, mn.name, mn.desc);
-                    if (method == null || method.getName() == null || method.getName().isBlank())
-                        methodName = "method" + (methodCounter++);
-                    else
-                        methodName = method.getName();
-                    methodMap.put(mn.name + mn.desc, methodName);
-                }
-            }
-        }
-    }
-
-    /**
-     * Applies renaming to a single ClassNode.
-     * @param original Original ClassNode
-     * @return Renamed ClassNode
-     */
-    private ClassNode applyRenaming(ClassNode original) {
-        ClassNode renamed = new ClassNode(ASM_VERSION);
-        ClassRemapper classRemapper = new ClassRemapper(renamed, this.remapper);
-        original.accept(classRemapper);
-
-        // Add @ObfuscatedName annotation to the class if it was renamed
-        if (classMapping.containsKey(original.name)) {
-            addClassAnnotation(renamed, original.name);
-        }
-
-        // Add @ObfuscatedName annotations to fields and methods
-        addFieldAndMethodAnnotations(renamed, original);
-
-        return renamed;
-    }
-
-    /**
-     * Adds @ObfuscatedName annotation to a class.
-     * @param classNode The class node to annotate
-     * @param originalName The original obfuscated name
-     */
     private void addClassAnnotation(ClassNode classNode, String originalName) {
         if (classNode.visibleAnnotations == null) {
             classNode.visibleAnnotations = new ArrayList<>();
@@ -327,15 +692,9 @@ public class BytecodeRenamer {
         annotation.values = new ArrayList<>();
         annotation.values.add("obfuscatedName");
         annotation.values.add(originalName);
-
         classNode.visibleAnnotations.add(annotation);
     }
 
-    /**
-     * Adds @ObfuscatedName annotations to fields and methods.
-     * @param renamed The renamed class node
-     * @param original The original class node
-     */
     private void addFieldAndMethodAnnotations(ClassNode renamed, ClassNode original) {
         // Annotate fields
         Map<String, String> fieldMap = fieldMapping.get(original.name);
@@ -355,7 +714,6 @@ public class BytecodeRenamer {
                     annotation.values.add(originalField.name);
                     annotation.values.add("descriptor");
                     annotation.values.add(originalField.desc);
-
                     renamedField.visibleAnnotations.add(annotation);
                 }
             }
@@ -379,77 +737,23 @@ public class BytecodeRenamer {
                     annotation.values.add(originalMethod.name);
                     annotation.values.add("descriptor");
                     annotation.values.add(originalMethod.desc);
-
                     renamedMethod.visibleAnnotations.add(annotation);
                 }
             }
         }
     }
 
-    /**
-     * Custom remapper that handles all renaming logic including invokedynamic.
-     */
-    private class ComprehensiveRemapper extends Remapper {
-        @Override
-        public String map(String internalName) {
-            return classMapping.getOrDefault(internalName, internalName);
-        }
-
-        @Override
-        public String mapFieldName(String owner, String name, String descriptor) {
-            Map<String, String> fieldMap = fieldMapping.get(owner);
-            if (fieldMap != null) {
-                String mapped = fieldMap.get(name);
-                if (mapped != null) {
-                    return mapped;
-                }
-            }
-            return name;
-        }
-
-        @Override
-        public String mapMethodName(String owner, String name, String descriptor) {
-            if (name.equals("<init>") || name.equals("<clinit>") || name.equals("main")) {
-                return name;
-            }
-
-            Map<String, String> methodMap = methodMapping.get(owner);
-            if (methodMap != null) {
-                String mapped = methodMap.get(name + descriptor);
-                if (mapped != null) {
-                    return mapped;
-                }
-            }
-            return name;
-        }
-
-        @Override
-        public String mapInvokeDynamicMethodName(String name, String descriptor) {
-            // For invokedynamic, we need to check all classes since the method could be anywhere
-            for (Map<String, String> methodMap : methodMapping.values()) {
-                String mapped = methodMap.get(name + descriptor);
-                if (mapped != null) {
-                    return mapped;
-                }
-            }
-            return name;
-        }
-
-        @Override
-        public String mapPackageName(String name) {
-            return name;
-        }
-
-        @Override
-        public String mapModuleName(String name) {
-            return name;
-        }
+    public Map<String, Object> getMappings() {
+        Map<String, Object> mappings = new HashMap<>();
+        mappings.put("classes", new HashMap<>(classMapping));
+        mappings.put("fields", new HashMap<>(fieldMapping));
+        mappings.put("methods", new HashMap<>(methodMapping));
+        return mappings;
     }
 
-    private JClass findCLass(String obfuName)
-    {
-        if(mappings == null)
-            return null;
+    // Finder methods
+    private JClass findClass(String obfuName) {
+        if (mappings == null) return null;
         for (JClass jClass : mappings) {
             if (jClass.getObfuscatedName().equals(obfuName)) {
                 return jClass;
@@ -459,9 +763,7 @@ public class BytecodeRenamer {
     }
 
     private JMethod findMethod(JClass owner, String obfuName, String desc) {
-        if(owner == null) {
-            return null;
-        }
+        if (owner == null) return null;
         for (JMethod method : owner.getMethods()) {
             if (method.getObfuscatedName().equals(obfuName) && method.getDescriptor().equals(desc)) {
                 return method;
@@ -471,9 +773,7 @@ public class BytecodeRenamer {
     }
 
     private JField findField(JClass owner, String obfuName) {
-        if(owner == null) {
-            return null;
-        }
+        if (owner == null) return null;
         for (JField field : owner.getFields()) {
             if (field.getObfuscatedName().equals(obfuName)) {
                 return field;

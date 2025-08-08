@@ -321,24 +321,65 @@ public class MappingEditor extends JFrame {
         setJMenuBar(bar);
     }
 
-    private void dumpDeob()
-    {
+    private void dumpDeob() {
         JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Select Directory");
+        chooser.setDialogTitle("Select Output Directory");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        chooser.setAcceptAllFileFilterUsed(false); // hide "All files" option
+        chooser.setAcceptAllFileFilterUsed(false);
         chooser.setApproveButtonText("Choose");
         chooser.setCurrentDirectory(new File("C:/test/remap/"));
 
         int result = chooser.showOpenDialog(this);
-        File selectedDir;
-        if (result == JFileChooser.APPROVE_OPTION) {
-            selectedDir = chooser.getSelectedFile();
-        } else {
+        if (result != JFileChooser.APPROVE_OPTION) {
             return;
         }
+
+        File selectedDir = chooser.getSelectedFile();
         List<JClass> dtoClasses = buildDtoClasses();
-        DeobDump.dump(classMappings, dtoClasses, selectedDir.toPath().toString());
+
+        // Create simple progress dialog
+        JDialog dialog = new JDialog(this, "Processing", true);
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        progressBar.setString("Decompiling classes...");
+        progressBar.setStringPainted(true);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.add(progressBar, BorderLayout.CENTER);
+
+        dialog.add(panel);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setSize(300, 100);
+        dialog.setLocationRelativeTo(this);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                DeobDump.dump(classMappings, dtoClasses, selectedDir.getAbsolutePath());
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                dialog.dispose();
+                try {
+                    get();
+                    JOptionPane.showMessageDialog(MappingEditor.this,
+                            "Export completed successfully!",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(MappingEditor.this,
+                            "Export failed: " + e.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+
+        worker.execute();
+        dialog.setVisible(true);
     }
 
     private void openJar() {
