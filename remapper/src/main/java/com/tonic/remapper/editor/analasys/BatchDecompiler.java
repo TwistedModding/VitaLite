@@ -39,7 +39,7 @@ public final class BatchDecompiler {
             Map<String, Path> classFiles = new HashMap<>();
             for (ClassNode classNode : classes) {
                 try {
-                    ClassWriter cw = new SafeClassWriter(ClassWriter.COMPUTE_FRAMES, classNodeMap);
+                    ClassWriter cw = new SafeClassWriter(0, classNodeMap);
                     classNode.accept(cw);
                     byte[] bytes = cw.toByteArray();
 

@@ -34,6 +34,7 @@ public final class DecompilerUtil {
                         //.add(BytecodeTransformers.constantFolding())
                         //.add(BytecodeTransformers.deadCodeElimination())
                         .add(BytecodeTransformers.stripTryCatch())
+                        .add(BytecodeTransformers.removeOpaquePredicateParameter(owner.name))
                         .run(copy);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -44,9 +45,9 @@ public final class DecompilerUtil {
 
         if(deobfuscate) {
             try {
-                fullSrc = SpoonPipeline.create()
-                        .add(new OpaquePredicateCleaner())
-                        .run(owner.name, fullSrc);
+                //fullSrc = SpoonPipeline.create()
+                //        .add(new OpaquePredicateCleaner())
+                //        .run(owner.name, fullSrc);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

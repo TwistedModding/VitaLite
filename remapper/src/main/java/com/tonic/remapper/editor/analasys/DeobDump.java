@@ -24,13 +24,8 @@ public class DeobDump
             }
         }
 
-        System.out.println("Renaming classes...");
-        BytecodeRenamer.scanForInvokeDynamic(classesObfu);
-        BytecodeRenamer renamer = new BytecodeRenamer(classesObfu, mappings);
-        List<ClassNode> classes = renamer.rename();
-
         System.out.println("Deobfuscating classes...");
-        for(ClassNode classNode : classes)
+        for(ClassNode classNode : classesObfu)
         {
             preprocessClassNode(classNode);
             for(FieldNode fieldNode : classNode.fields)
@@ -48,6 +43,7 @@ public class DeobDump
                             //.add(BytecodeTransformers.deadCodeElimination())
                             //.add(BytecodeTransformers.fixLabeledBreaks())
                             .add(BytecodeTransformers.stripTryCatch())
+                            //.add(BytecodeTransformers.removeOpaquePredicateParameter(classNode.name))
                             .run(methodNode);
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -55,12 +51,31 @@ public class DeobDump
             }
         }
 
+        //CallSiteUpdater.updateAllCallSites(classesObfu);
+        //BytecodeTransformers.clearModifiedMethods();
+
+        System.out.println("Renaming classes...");
+        BytecodeRenamer.scanForInvokeDynamic(classesObfu);
+        BytecodeRenamer renamer = new BytecodeRenamer(classesObfu, mappings);
+        List<ClassNode> classes = renamer.rename();
+
         System.out.println("Decompiling classes...");
         Map<String,String> sources = BatchDecompiler.decompile(classes, true);
         for (Map.Entry<String, String> entry : sources.entrySet()) {
             try {
                 String cleaned = SpoonPipeline.create()
                         .add(new SpoonPipeline.OpaquePredicateCleaner())
+                        .run(entry.getKey(), entry.getValue());
+                sources.put(entry.getKey(), cleaned);
+            } catch (Exception ex) {
+                // Keep original source if Spoon fails
+                System.err.println("Spoon processing failed for " + entry.getKey() + ": " + ex.getMessage());
+            }
+        }
+        for (Map.Entry<String, String> entry : sources.entrySet()) {
+            try {
+                String cleaned = SpoonPipeline.create()
+                        .add(new SpoonPipeline.paramCleaner())
                         .run(entry.getKey(), entry.getValue());
                 sources.put(entry.getKey(), cleaned);
             } catch (Exception ex) {

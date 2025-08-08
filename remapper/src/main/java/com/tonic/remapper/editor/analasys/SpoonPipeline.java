@@ -3,19 +3,20 @@ package com.tonic.remapper.editor.analasys;
 import spoon.Launcher;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.*;
+import spoon.reflect.reference.CtExecutableReference;
 import spoon.reflect.reference.CtParameterReference;
+import spoon.reflect.reference.CtTypeReference;
 import spoon.reflect.visitor.Filter;
 import spoon.reflect.visitor.filter.AbstractFilter;
 import spoon.reflect.visitor.filter.TypeFilter;
 import spoon.support.compiler.VirtualFile;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class SpoonPipeline
 {
     private final List<SpoonTransformer> chain = new ArrayList<>();
+    public static final List<String> cleanedMethods = new ArrayList<>();
     public static SpoonPipeline create() {
         return new SpoonPipeline();
     }
@@ -108,6 +109,27 @@ public class SpoonPipeline
     public interface SpoonTransformer
     {
         void transform(CtExecutable<?> method);
+    }
+
+    public static class paramCleaner implements SpoonTransformer
+    {
+
+        @Override
+        public void transform(CtExecutable<?> method) {
+            method.getBody()
+                    .getElements(new TypeFilter<>(CtInvocation.class))
+                    .forEach(invocation -> {
+                        var arguments = invocation.getArguments();
+                        String name = invocation.getExecutable().getDeclaringType().getSimpleName() + "." + invocation.getExecutable().getSignature();
+                        if (!arguments.isEmpty() && cleanedMethods.contains(name)) {
+                            System.out.println("Cleaning invocation: " + name);
+                            // Remove the last argument
+                            ArrayList<CtExpression<?>> newArguments = new ArrayList<>(invocation.getArguments());
+                            newArguments.remove(newArguments.size() - 1);
+                            invocation.setArguments(newArguments);
+                        }
+                    });
+        }
     }
 
     public static class OpaquePredicateCleaner implements SpoonTransformer {
@@ -215,6 +237,10 @@ public class SpoonPipeline
             }
 
             /* drop now-unused opaque parameter */
+            CtExecutableReference<?> execRef = exec.getReference();
+            CtTypeReference<?> declaringTypeRef = execRef.getDeclaringType();
+            String className = declaringTypeRef.getQualifiedName();
+            cleanedMethods.add(className + "." + exec.getSignature());
             exec.removeParameter(lastParam);
         }
     }
