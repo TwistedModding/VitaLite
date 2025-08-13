@@ -4,6 +4,10 @@ import com.tonic.util.BytecodeBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+/**
+ * This transformer patches the PluginManager class to always return true for the developerMode check
+ * so that it always loads the devtools plugins.
+ */
 public class PatchDevToolsPluginManagerTransformer
 {
     public static void patch(ClassNode classNode) {

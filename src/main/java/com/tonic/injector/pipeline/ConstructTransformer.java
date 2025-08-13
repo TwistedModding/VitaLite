@@ -14,6 +14,11 @@ import java.util.Arrays;
 
 public class ConstructTransformer
 {
+    /**
+     * Patches a mixin method annotated with @Construct to create an instance of the target class
+     * @param mixin the mixin class node
+     * @param method the method node annotated with @Construct
+     */
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, Construct.class, "value");
@@ -31,26 +36,17 @@ public class ConstructTransformer
             throw new RuntimeException("Construct target or injection target class not found for " + name);
         }
 
-        // Parse parameter types from constructorMethod
         Type[] paramTypes = Type.getArgumentTypes(method.desc);
-
-        // Find matching constructor in constructTarget
         MethodNode targetConstructor = findMatchingConstructor(constructTarget, paramTypes);
-
         if (targetConstructor == null) {
             throw new RuntimeException("No matching constructor found in " + constructTarget.name +
                     " for parameters " + Arrays.toString(paramTypes));
         }
 
-        // Create the method body
         InsnList instructions = new InsnList();
-
-        // NEW instruction - create new instance
         instructions.add(new TypeInsnNode(Opcodes.NEW, constructTarget.name));
-        // DUP the reference for constructor call
         instructions.add(new InsnNode(Opcodes.DUP));
 
-        // Load parameters
         boolean isStatic = (method.access & Opcodes.ACC_STATIC) != 0;
         int localVarIndex = isStatic ? 0 : 1;
 
@@ -58,10 +54,7 @@ public class ConstructTransformer
 
         for (int i = 0; i < paramTypes.length; i++) {
             Type paramType = paramTypes[i];
-            // Load the parameter
             instructions.add(new VarInsnNode(paramType.getOpcode(Opcodes.ILOAD), localVarIndex));
-
-            // Cast if necessary - the constructor might expect a more specific type
             if (i < constructorParamTypes.length) {
                 Type expectedType = constructorParamTypes[i];
                 if (!paramType.equals(expectedType) && needsCast(paramType, expectedType)) {
@@ -72,7 +65,6 @@ public class ConstructTransformer
             localVarIndex += paramType.getSize();
         }
 
-        // INVOKESPECIAL to call constructor
         instructions.add(new MethodInsnNode(
                 Opcodes.INVOKESPECIAL,
                 constructTarget.name,
@@ -81,17 +73,14 @@ public class ConstructTransformer
                 false
         ));
 
-        // ARETURN - return the new instance
         instructions.add(new InsnNode(Opcodes.ARETURN));
-
-        // Create the factory method with return type of constructTarget
         String returnDesc = Type.getMethodDescriptor(
                 Type.getObjectType(constructTarget.name),
                 paramTypes
         );
 
         MethodNode factoryMethod = new MethodNode(
-                method.access & ~Opcodes.ACC_ABSTRACT, // Remove abstract flag if present
+                method.access & ~Opcodes.ACC_ABSTRACT,
                 method.name,
                 returnDesc,
                 null,
@@ -101,7 +90,6 @@ public class ConstructTransformer
 
         factoryMethod.instructions = instructions;
 
-        // Add the method to injectionTarget
         injectionTarget.methods.add(factoryMethod);
     }
 
@@ -113,14 +101,14 @@ public class ConstructTransformer
 
             Type[] constructorParams = Type.getArgumentTypes(method.desc);
 
-            if (isCompatibleSignature(paramTypes, constructorParams, classNode)) {
+            if (isCompatibleSignature(paramTypes, constructorParams)) {
                 return method;
             }
         }
         return null;
     }
 
-    private static boolean isCompatibleSignature(Type[] providedTypes, Type[] expectedTypes, ClassNode context) {
+    private static boolean isCompatibleSignature(Type[] providedTypes, Type[] expectedTypes) {
         if (providedTypes.length != expectedTypes.length) {
             return false;
         }
@@ -129,8 +117,7 @@ public class ConstructTransformer
             Type provided = providedTypes[i];
             Type expected = expectedTypes[i];
 
-            // Check if types are compatible
-            if (!isAssignable(provided, expected, context)) {
+            if (!isAssignable(provided, expected)) {
                 return false;
             }
         }
@@ -138,30 +125,21 @@ public class ConstructTransformer
         return true;
     }
 
-    private static boolean isAssignable(Type from, Type to, ClassNode context) {
-        // Same type - always compatible
+    private static boolean isAssignable(Type from, Type to) {
         if (from.equals(to)) {
             return true;
         }
 
-        // Primitive types must match exactly
         if (from.getSort() < Type.ARRAY && to.getSort() < Type.ARRAY) {
             return false;
         }
 
-        // For object types, check inheritance
         if (from.getSort() == Type.OBJECT && to.getSort() == Type.OBJECT) {
-            // This is a simplified check - in a real implementation you'd need to:
-            // 1. Load the class hierarchy from the gamepack
-            // 2. Check if 'to' is assignable from 'from'
-            // For now, we'll assume the user knows what they're doing
-            // and allow any object-to-object assignment
             return true;
         }
 
-        // Arrays need special handling
         if (from.getSort() == Type.ARRAY && to.getSort() == Type.ARRAY) {
-            return isAssignable(from.getElementType(), to.getElementType(), context);
+            return isAssignable(from.getElementType(), to.getElementType());
         }
 
         return false;

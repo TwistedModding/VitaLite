@@ -5,6 +5,10 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * This transformer modifies the PluginManager class to make the loadSideLoadPlugins method a no-op. Solves
+ * issues with dev mode attempting to double load our plugins from the side-loaded plugins directory.
+ */
 public class NoOpLoadSideLoadPluginsTransformer
 {
     public static void patch(ClassNode classNode){

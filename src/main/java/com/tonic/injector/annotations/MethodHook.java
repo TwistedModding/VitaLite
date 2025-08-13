@@ -8,7 +8,6 @@ import java.lang.annotation.Target;
 /**
  * Hook a method
  * value: name of the tag or obfuscated name of the method
- * after: run before or after the method runs (default false)
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

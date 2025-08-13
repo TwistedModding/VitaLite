@@ -26,7 +26,6 @@ public class RLInjector
             ScheduleWithFixedDelayTransformer.patch(node);
             InjectSideLoadCallTransformer.patch(node);
             NoOpLoadSideLoadPluginsTransformer.patch(node);
-            //PatchDevToolsLauncherCheck.patch(node);
             DisableTelemetryTransformer.patch(node);
             PatchDevToolsPluginManagerTransformer.patch(node);
         }
@@ -45,19 +44,19 @@ public class RLInjector
                     bytes
             );
 
-            List<String> toDump = List.of(
-                    "net.runelite.client.RuneLite",
-                    "net.runelite.client.RuneLiteModule",
-                    "net.runelite.client.plugins.PluginManager"
-            );
-            if(toDump.contains(name))
-            {
-                ClassFileUtil.writeClass(
-                        name,
-                        bytes,
-                        Path.of("C:/test/dumper/")
-                );
-            }
+//            List<String> toDump = List.of(
+//                    "net.runelite.client.RuneLite",
+//                    "net.runelite.client.RuneLiteModule",
+//                    "net.runelite.client.plugins.PluginManager"
+//            );
+//            if(toDump.contains(name))
+//            {
+//                ClassFileUtil.writeClass(
+//                        name,
+//                        bytes,
+//                        Path.of("C:/test/dumper/")
+//                );
+//            }
         }
     }
 }

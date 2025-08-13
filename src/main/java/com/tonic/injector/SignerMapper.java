@@ -10,6 +10,9 @@ import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.*;
 
+/**
+ * This class is responsible for mapping any cert checks. for us to respect.
+ */
 public class SignerMapper
 {
     private static final Set<String> blacklist = new HashSet<>();
@@ -28,7 +31,7 @@ public class SignerMapper
             ClassNode node = ClassNodeUtil.toNode(entry.getValue());
             for(MethodNode mn : node.methods)
             {
-                scan(node, mn);
+                scan(mn);
             }
         }
 
@@ -37,7 +40,7 @@ public class SignerMapper
             ClassNode node = ClassNodeUtil.toNode(entry.getValue());
             for(MethodNode mn : node.methods)
             {
-                scan(node, mn);
+                scan(mn);
             }
         }
 
@@ -46,11 +49,11 @@ public class SignerMapper
             ClassNode node = ClassNodeUtil.toNode(entry.getValue());
             for(MethodNode mn : node.methods)
             {
-                scan(node, mn);
+                scan(mn);
             }
         }
     }
-    private static void scan(ClassNode cn, MethodNode mn)
+    private static void scan(MethodNode mn)
     {
         AbstractInsnNode target;
         for(AbstractInsnNode insn : mn.instructions)

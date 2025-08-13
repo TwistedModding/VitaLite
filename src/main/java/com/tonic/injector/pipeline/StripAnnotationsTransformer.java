@@ -1,6 +1,5 @@
 package com.tonic.injector.pipeline;
 
-import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -10,6 +9,12 @@ import java.util.List;
 
 public class StripAnnotationsTransformer
 {
+    /**
+     * Strips annotations that contain "Named" from the class, fields, and methods.
+     * This is used for when you dump the injected gamepack for analysis.
+     *
+     * @param cn the ClassNode to process
+     */
     public static void stripAnnotations(ClassNode cn)
     {
         clearIfNonNull(cn.invisibleAnnotations);

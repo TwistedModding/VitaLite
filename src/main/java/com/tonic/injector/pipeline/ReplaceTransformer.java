@@ -13,6 +13,16 @@ import org.objectweb.asm.tree.*;
 
 public class ReplaceTransformer
 {
+    /**
+     * This transformer replaces a method in the gamepack with a static hook method.
+     * The hook method is injected into the gamepack and then used to override the target method.
+     * The target method is identified by its name and descriptor, which are obtained from the mixin's
+     * @MethodHook annotation and the @Replace annotation on the method.
+     *
+     * @param gamepack The ClassNode of the gamepack being modified.
+     * @param mixin    The ClassNode of the mixin containing the hook method.
+     * @param method   The MethodNode of the hook method to be injected.
+     */
     public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
         // First, inject the hook method into the gamepack (static copy)
         InjectTransformer.patch(gamepack, mixin, method);

@@ -1,7 +1,6 @@
 package com.tonic.mixins;
 
 import com.tonic.api.TClientPacket;
-import com.tonic.injector.Mappings;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import lombok.Getter;

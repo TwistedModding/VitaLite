@@ -4,6 +4,11 @@ import com.tonic.util.BytecodeBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+/**
+ * This transformer injects a call to the side load plugin installation process
+ * into the RuneLite main method. The injection occurs after the call to
+ * PluginManager.loadSideLoadPlugins().
+ */
 public class InjectSideLoadCallTransformer
 {
     public static void patch(ClassNode classNode) {

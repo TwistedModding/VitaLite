@@ -18,12 +18,14 @@ public class MethodOverrideTransformer {
     /**
      * Replaces the bytecode of the target (toHook) method in the gamepack with the bytecode
      * from the provided mixin MethodNode.
+     *
+     * @param gamepack The ClassNode of the gamepack being transformed.
+     * @param mixin The ClassNode containing the mixin method.
+     * @param method The MethodNode from the mixin that contains the new bytecode.
      */
     public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
-        // Ensure the mixin method exists in the gamepack
         InjectTransformer.patch(gamepack, mixin, method);
 
-        // Read target identity from @MethodOverride on the mixin method
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, MethodOverride.class, "value");
         JClass jClass = MappingProvider.getClass(gamepackName);
@@ -32,7 +34,6 @@ public class MethodOverrideTransformer {
         String targetName = jMethod.getObfuscatedName();
         String targetDesc = jMethod.getDescriptor();
 
-        // Find the target method in the gamepack
         MethodNode toReplace = gamepack.methods.stream()
                 .filter(m -> m.name.equals(targetName) && m.desc.equals(targetDesc))
                 .findFirst().orElse(null);
@@ -43,22 +44,17 @@ public class MethodOverrideTransformer {
             return;
         }
 
-        // Wipe out original instructions and metadata
         toReplace.instructions.clear();
         toReplace.tryCatchBlocks.clear();
         toReplace.localVariables.clear();
 
-        // Prepare a label mapping for cloning labels correctly
         Map<LabelNode, LabelNode> labelMap = new HashMap<>();
-
-        // First pass: create all label mappings
         for (AbstractInsnNode insn : method.instructions.toArray()) {
             if (insn instanceof LabelNode) {
                 labelMap.put((LabelNode) insn, new LabelNode());
             }
         }
 
-        // Clone and insert all instructions from the mixin method
         for (AbstractInsnNode insn : method.instructions.toArray()) {
             AbstractInsnNode cloned = insn.clone(labelMap);
             if (cloned != null) {
@@ -68,7 +64,6 @@ public class MethodOverrideTransformer {
             }
         }
 
-        // Copy max stack and locals to match the mixin method
         toReplace.maxStack  = method.maxStack;
         toReplace.maxLocals = method.maxLocals;
     }

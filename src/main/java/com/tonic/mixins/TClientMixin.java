@@ -1,7 +1,6 @@
 package com.tonic.mixins;
 
 import com.tonic.api.*;
-import com.tonic.injector.Mappings;
 import com.tonic.injector.annotations.*;
 import com.tonic.services.CallStackFilter;
 import java.util.regex.Matcher;

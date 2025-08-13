@@ -13,6 +13,11 @@ import org.objectweb.asm.tree.*;
 
 public class MethodHookTransformer
 {
+    /**
+     * Hooks a method in the gamepack with a method from a mixin.
+     * @param mixin the mixin class containing the method to hook
+     * @param method the method to hook
+     */
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, MethodHook.class, "value");
@@ -34,18 +39,13 @@ public class MethodHookTransformer
 
         System.out.println("Hooking method: " + toHook.name + toHook.desc + " in class " + gamepack.name);
 
-        // Parse method descriptors
         Type hookMethodType = Type.getMethodType(method.desc);
         Type targetMethodType = Type.getMethodType(toHook.desc);
         Type[] hookParams = hookMethodType.getArgumentTypes();
         Type[] targetParams = targetMethodType.getArgumentTypes();
 
-        // Build the call
         InsnList call = new InsnList();
-
-        // Case 1: Hook method has no parameters
         if (hookParams.length == 0) {
-            // Simple static call with no arguments
             call.add(new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     gamepack.name,
@@ -54,23 +54,19 @@ public class MethodHookTransformer
                     false
             ));
         }
-        // Case 2: Hook method has parameters
         else {
-            // Check if we have enough parameters in target method
             if (hookParams.length > targetParams.length) {
                 System.err.println("Hook method expects more parameters than target method has");
                 return;
             }
 
-            // Load parameters from target method
             boolean isTargetStatic = (toHook.access & Opcodes.ACC_STATIC) != 0;
-            int localVarIndex = isTargetStatic ? 0 : 1; // Skip 'this' if not static
+            int localVarIndex = isTargetStatic ? 0 : 1;
 
             for (int i = 0; i < hookParams.length; i++) {
                 Type targetParamType = targetParams[i];
                 Type hookParamType = hookParams[i];
 
-                // Load the parameter
                 switch (targetParamType.getSort()) {
                     case Type.BOOLEAN:
                     case Type.CHAR:
@@ -90,7 +86,6 @@ public class MethodHookTransformer
                         break;
                     default: // Object/Array
                         call.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
-                        // Add cast if types differ
                         if (!targetParamType.equals(hookParamType) &&
                                 hookParamType.getSort() == Type.OBJECT) {
                             call.add(new TypeInsnNode(Opcodes.CHECKCAST,
@@ -99,10 +94,8 @@ public class MethodHookTransformer
                         break;
                 }
 
-                localVarIndex += targetParamType.getSize(); // Long and Double take 2 slots
+                localVarIndex += targetParamType.getSize();
             }
-
-            // Make the static call
             call.add(new MethodInsnNode(
                     Opcodes.INVOKESTATIC,
                     gamepack.name,
@@ -112,10 +105,8 @@ public class MethodHookTransformer
             ));
         }
 
-        // Find injection point
         AbstractInsnNode injectionPoint = null;
 
-        // For constructors, inject after super() call
         if (toHook.name.equals("<init>")) {
             for (AbstractInsnNode insn : toHook.instructions) {
                 if (insn.getOpcode() == Opcodes.INVOKESPECIAL) {
@@ -128,7 +119,6 @@ public class MethodHookTransformer
             }
         }
 
-        // Inject the call
         if (injectionPoint != null) {
             toHook.instructions.insert(injectionPoint, call);
         } else {

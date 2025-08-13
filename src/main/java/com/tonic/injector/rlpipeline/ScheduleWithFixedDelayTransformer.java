@@ -5,8 +5,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 /**
- * ASM transformer that replaces all calls to scheduleWithFixedDelay(...) with null.
- * Direct ASM equivalent of Javassist's "{ $_ = null; }" replacement.
+ * Transforms the submitPlugins method to be a no-op.
  */
 public class ScheduleWithFixedDelayTransformer implements Opcodes {
 

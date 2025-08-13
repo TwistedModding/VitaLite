@@ -5,6 +5,10 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * This class patches the RuneLiteModule class to disable telemetry by making the
+ * provideTelemetry method return null.
+ */
 public class DisableTelemetryTransformer {
     public static void patch(ClassNode classNode) {
         if (!classNode.name.equals("net/runelite/client/RuneLiteModule"))
