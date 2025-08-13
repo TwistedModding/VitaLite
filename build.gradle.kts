@@ -1,3 +1,5 @@
+import java.net.URI
+
 plugins {
     id("java")
 }
@@ -7,9 +9,14 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven {
+        url = URI("https://repo.runelite.net");
+    }
 }
 
 dependencies {
+    compileOnly("net.runelite:api:latest.release")
+
     implementation("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
