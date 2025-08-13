@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("maven-publish")
 }
 
 group = "com.tonic"
@@ -18,3 +19,6 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+val TaskContainer.publishToMavenLocal: TaskProvider<DefaultTask>
+    get() = named<DefaultTask>("publishToMavenLocal")

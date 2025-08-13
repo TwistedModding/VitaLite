@@ -123,7 +123,14 @@ public interface TPacketWriter
     void sendWidgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl);
 
     /**
-     * send a interface close packet
+     * send an interface close packet
      */
     void sendInterfaceClosePacket();
+
+    /**
+     * send a chat packet
+     * @param type type
+     * @param text the chat message text
+     */
+    void sendChatPacket(int type, String text);
 }

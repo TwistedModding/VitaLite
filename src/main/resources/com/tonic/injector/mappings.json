@@ -5267,9 +5267,11 @@
         "isStatic": true
       },
       {
+        "name": "constructChat",
         "obfuscatedName": "al",
         "ownerObfuscatedName": "bu",
         "descriptor": "(ILjava/lang/String;Lqq;II)Lmb;",
+        "garbageValue": -1088032740,
         "isStatic": true
       },
       {
@@ -71908,11 +71910,13 @@
     ]
   },
   {
+    "name": "Language",
     "obfuscatedName": "qq",
     "fields": [
       {
         "name": "",
         "obfuscatedName": "am",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "[Lqq;",
         "isStatic": true
@@ -71920,6 +71924,7 @@
       {
         "name": "",
         "obfuscatedName": "au",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71927,6 +71932,7 @@
       {
         "name": "",
         "obfuscatedName": "ac",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71934,6 +71940,7 @@
       {
         "name": "",
         "obfuscatedName": "av",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71941,6 +71948,7 @@
       {
         "name": "",
         "obfuscatedName": "ab",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71948,6 +71956,7 @@
       {
         "name": "",
         "obfuscatedName": "as",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71955,6 +71964,7 @@
       {
         "name": "client",
         "obfuscatedName": "fn",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lclient;",
         "isStatic": true
@@ -71962,6 +71972,7 @@
       {
         "name": "",
         "obfuscatedName": "ah",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -71969,6 +71980,7 @@
       {
         "name": "",
         "obfuscatedName": "ap",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -71976,6 +71988,7 @@
       {
         "name": "",
         "obfuscatedName": "aj",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "I",
         "isStatic": false
@@ -71983,6 +71996,7 @@
       {
         "name": "",
         "obfuscatedName": "ag",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -71990,6 +72004,7 @@
       {
         "name": "",
         "obfuscatedName": "ck",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "I",
         "isStatic": true
@@ -71997,6 +72012,7 @@
       {
         "name": "",
         "obfuscatedName": "al",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "Lqq;",
         "isStatic": true
@@ -72004,6 +72020,7 @@
       {
         "name": "",
         "obfuscatedName": "bq",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "I",
         "isStatic": true
@@ -72011,6 +72028,7 @@
       {
         "name": "",
         "obfuscatedName": "az",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "I",
         "isStatic": true
@@ -72018,6 +72036,7 @@
       {
         "name": "",
         "obfuscatedName": "lg",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "I",
         "isStatic": true
@@ -72026,48 +72045,56 @@
     "methods": [
       {
         "obfuscatedName": "\u003cinit\u003e",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lqc;ILjava/lang/String;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "ac",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(II)Lqq;",
         "isStatic": true
       },
       {
         "obfuscatedName": "av",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(B)Ljava/lang/String;",
         "isStatic": false
       },
       {
         "obfuscatedName": "toString",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "()Ljava/lang/String;",
         "isStatic": false
       },
       {
         "obfuscatedName": "ii",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(Ldj;Lca;IB)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "au",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "\u003cclinit\u003e",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "()V",
         "isStatic": true
       },
       {
         "obfuscatedName": "al",
+        "owner": "Language",
         "ownerObfuscatedName": "qq",
         "descriptor": "(I)[Lqq;",
         "isStatic": true

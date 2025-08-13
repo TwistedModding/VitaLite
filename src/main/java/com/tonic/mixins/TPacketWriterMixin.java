@@ -155,20 +155,20 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNode(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
-//    @Inject
-//    @Override
-//    public void sendChatPacket(int type, String text) {
-//        if (text.length() >= 80)
-//            text = text.substring(0, 79);
-//        TPacketBufferNode packetBufferNode = sendChat(type, text, null, -1);
-//        if(packetBufferNode != null)
-//        {
-//            this.addNode(packetBufferNode);
-//        }
-//    }
+    @Inject
+    @Override
+    public void sendChatPacket(int type, String text) {
+        if (text.length() >= 80)
+            text = text.substring(0, 79);
+        TPacketBufferNode packetBufferNode = sendChat(type, text, null, -1);
+        if(packetBufferNode != null)
+        {
+            this.addNode(packetBufferNode);
+        }
+    }
 
-//    @Shadow("method10225")
-//    public abstract TPacketBufferNode sendChat(int type, String text, TLanguage language, int unknown);
+    @Shadow("constructChat")
+    public abstract TPacketBufferNode sendChat(int type, String text, TLanguage language, int unknown);
 
     @Inject
     @Override

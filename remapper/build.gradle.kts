@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("maven-publish")
 }
 
 group = "com.tonic"
@@ -9,6 +10,9 @@ repositories {
     mavenCentral()
     maven { url = uri("https://jitpack.io") }
 }
+
+val TaskContainer.publishToMavenLocal: TaskProvider<DefaultTask>
+    get() = named<DefaultTask>("publishToMavenLocal")
 
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
