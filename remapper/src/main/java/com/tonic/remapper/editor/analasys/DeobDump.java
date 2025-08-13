@@ -71,17 +71,17 @@ public class DeobDump
                 System.err.println("Spoon processing failed for " + entry.getKey() + ": " + ex.getMessage());
             }
         }
-        for (Map.Entry<String, String> entry : sources.entrySet()) {
-            try {
-                String cleaned = SpoonPipeline.create()
-                        .add(new SpoonPipeline.paramCleaner())
-                        .run(entry.getKey(), entry.getValue());
-                sources.put(entry.getKey(), cleaned);
-            } catch (Exception ex) {
-                // Keep original source if Spoon fails
-                System.err.println("Spoon processing failed for " + entry.getKey() + ": " + ex.getMessage());
-            }
-        }
+//        for (Map.Entry<String, String> entry : sources.entrySet()) {
+//            try {
+//                String cleaned = SpoonPipeline.create()
+//                        .add(new SpoonPipeline.paramCleaner())
+//                        .run(entry.getKey(), entry.getValue());
+//                sources.put(entry.getKey(), cleaned);
+//            } catch (Exception ex) {
+//                // Keep original source if Spoon fails
+//                System.err.println("Spoon processing failed for " + entry.getKey() + ": " + ex.getMessage());
+//            }
+//        }
         //write class sources to directory
         System.out.println("Writing sources to " + outputDirectory);
         for(var entry : sources.entrySet())

@@ -128,10 +128,14 @@ public class BytecodeRenamer {
     private void buildMappings() {
         System.out.println("Building mappings with hierarchy awareness...");
 
-        // First: map classes
+        // First: map classes (only those with names <= 2 chars and in root package)
         for (ClassNode cn : classes) {
             JClass owner = findClass(cn.name);
-            if (cn.name.length() <= 2) {
+
+            // Only rename if:
+            // 1. Name is 2 chars or less
+            // 2. Class is in root package (no "/" in name)
+            if (cn.name.length() <= 2 && !cn.name.contains("/")) {
                 String newClassName = (owner != null && owner.getName() != null && !owner.getName().isBlank())
                         ? owner.getName()
                         : "class" + (classCounter++);
@@ -144,18 +148,34 @@ public class BytecodeRenamer {
         Map<FieldSignature, Set<String>> fieldOwners = new HashMap<>();
 
         for (ClassNode cn : classes) {
-            if(cn.name.contains("/") )
+            // Skip classes not in root package
+            if (cn.name.contains("/")) {
                 continue;
-            // Collect methods
+            }
+
+            // Collect methods (only those with names <= 2 chars)
             for (MethodNode mn : cn.methods) {
-                if(mn.name.length() > 2)
+                // Skip methods with names longer than 2 chars
+                if (mn.name.length() > 2) {
                     continue;
+                }
+
+                // Skip special methods
+                if (mn.name.equals("<init>") || mn.name.equals("<clinit>")) {
+                    continue;
+                }
+
                 MethodSignature sig = new MethodSignature(mn.name, mn.desc);
                 methodOwners.computeIfAbsent(sig, k -> new HashSet<>()).add(cn.name);
             }
 
-            // Collect fields
+            // Collect fields (only those with names <= 2 chars)
             for (FieldNode fn : cn.fields) {
+                // Skip fields with names longer than 2 chars
+                if (fn.name.length() > 2) {
+                    continue;
+                }
+
                 FieldSignature sig = new FieldSignature(fn.name, fn.desc);
                 fieldOwners.computeIfAbsent(sig, k -> new HashSet<>()).add(cn.name);
             }
@@ -166,6 +186,12 @@ public class BytecodeRenamer {
             MethodSignature sig = entry.getKey();
             Set<String> owners = entry.getValue();
 
+            // Skip if method name is already longer than 2 chars (shouldn't happen but double-check)
+            if (sig.name.length() > 2) {
+                continue;
+            }
+
+            // Never rename main method
             if (sig.name.equals("main")) {
                 continue;
             }
@@ -190,8 +216,11 @@ public class BytecodeRenamer {
 
             globalMethodNames.put(sig, assignedName);
             for (String className : relatedClasses) {
-                methodMapping.computeIfAbsent(className, k -> new HashMap<>())
-                        .put(sig.name + sig.descriptor, assignedName);
+                // Only add mapping for classes in root package
+                if (!className.contains("/")) {
+                    methodMapping.computeIfAbsent(className, k -> new HashMap<>())
+                            .put(sig.name + sig.descriptor, assignedName);
+                }
             }
         }
 
@@ -199,6 +228,11 @@ public class BytecodeRenamer {
         for (Map.Entry<FieldSignature, Set<String>> entry : fieldOwners.entrySet()) {
             FieldSignature sig = entry.getKey();
             Set<String> owners = entry.getValue();
+
+            // Skip if field name is already longer than 2 chars (shouldn't happen but double-check)
+            if (sig.name.length() > 2) {
+                continue;
+            }
 
             Set<String> relatedClasses = findRelatedClasses(owners);
 
@@ -220,8 +254,11 @@ public class BytecodeRenamer {
 
             globalFieldNames.put(sig, assignedName);
             for (String className : relatedClasses) {
-                fieldMapping.computeIfAbsent(className, k -> new HashMap<>())
-                        .put(sig.name, assignedName);
+                // Only add mapping for classes in root package
+                if (!className.contains("/")) {
+                    fieldMapping.computeIfAbsent(className, k -> new HashMap<>())
+                            .put(sig.name, assignedName);
+                }
             }
         }
 
@@ -374,17 +411,58 @@ public class BytecodeRenamer {
         } else if (arg instanceof ConstantDynamic) {
             return remapConstantDynamic((ConstantDynamic) arg);
         } else if (arg instanceof String) {
-            // Sometimes class names are passed as strings
-            String str = (String) arg;
-            if (str.contains("/") && !str.contains(" ")) {
-                String mapped = classMapping.get(str);
-                if (mapped != null) {
-                    return mapped;
-                }
-            }
-            return str;
+            return mapMaybeClassString((String) arg);
         }
         return arg;
+    }
+
+    private String mapMaybeClassString(String s) {
+        if (s == null || s.isEmpty()) return s;
+
+        // Handle descriptor-wrapped form: Lxxx;  (common in indy args)
+        if (s.length() >= 3 && s.charAt(0) == 'L' && s.charAt(s.length() - 1) == ';') {
+            String body = s.substring(1, s.length() - 1); // internal name inside
+            String mappedBody = mapInternalOrInner(body);
+            if (!mappedBody.equals(body)) return 'L' + mappedBody + ';';
+            return s;
+        }
+
+        // Likely an internal or binary name (no spaces, has $ or / or .)
+        if (s.indexOf(' ') < 0 && (s.indexOf('$') >= 0 || s.indexOf('/') >= 0 || s.indexOf('.') >= 0)) {
+            // Try internal first (slashes or dollar)
+            String mapped = mapInternalOrInner(s);
+            if (!mapped.equals(s)) return mapped;
+
+            // Try binary -> internal -> map -> binary (handles dot-qualified)
+            if (s.indexOf('.') >= 0) {
+                String asInternal = s.replace('.', '/');
+                String mappedInternal = mapInternalOrInner(asInternal);
+                if (!mappedInternal.equals(asInternal)) {
+                    return mappedInternal.replace('/', '.');
+                }
+            }
+        }
+
+        return s; // leave normal strings alone
+    }
+
+    // Maps an internal name, and if it’s an inner (contains $), propagates the outer rename.
+    private String mapInternalOrInner(String internal) {
+        // Exact mapping first
+        String direct = classMapping.get(internal);
+        if (direct != null) return direct;
+
+        // Inner propagation: OUTER + $suffix
+        int idx = internal.indexOf('$');
+        if (idx > 0) {
+            String outer = internal.substring(0, idx);
+            String suffix = internal.substring(idx); // includes '$'
+            String mappedOuter = classMapping.get(outer);
+            if (mappedOuter != null) return mappedOuter + suffix;
+        }
+
+        // Nothing to do
+        return internal;
     }
 
     /**
@@ -509,11 +587,34 @@ public class BytecodeRenamer {
     private class HierarchyAwareRemapper extends Remapper {
         @Override
         public String map(String internalName) {
-            return classMapping.getOrDefault(internalName, internalName);
+            // 1) Exact class mapping first (top-level)
+            String direct = classMapping.get(internalName);
+            if (direct != null) return direct;
+
+            // 2) Inner/anonymous propagation: rename OUTER, keep the $suffix intact
+            int idx = internalName.indexOf('$');
+            if (idx > 0) {
+                String outer = internalName.substring(0, idx);
+                String suffix = internalName.substring(idx); // includes '$'
+                String mappedOuter = classMapping.get(outer);
+                if (mappedOuter != null) {
+                    return mappedOuter + suffix; // e.g. aa$1 -> Client$1
+                }
+            }
+
+            // 3) Otherwise, keep as-is
+            return internalName;
         }
 
         @Override
         public String mapFieldName(String owner, String name, String descriptor) {
+            // Don't remap if:
+            // 1. Field name is longer than 2 chars
+            // 2. Owner is not in root package
+            if (name.length() > 2 || owner.contains("/")) {
+                return name;
+            }
+
             // First try direct owner
             Map<String, String> fieldMap = fieldMapping.get(owner);
             if (fieldMap != null) {
@@ -534,6 +635,11 @@ public class BytecodeRenamer {
             Set<String> ancestors = classHierarchy.get(owner);
             if (ancestors != null) {
                 for (String ancestor : ancestors) {
+                    // Skip ancestors not in root package
+                    if (ancestor.contains("/")) {
+                        continue;
+                    }
+
                     fieldMap = fieldMapping.get(ancestor);
                     if (fieldMap != null) {
                         String mapped = fieldMap.get(name);
@@ -550,7 +656,15 @@ public class BytecodeRenamer {
 
         @Override
         public String mapMethodName(String owner, String name, String descriptor) {
+            // Never rename special methods
             if (name.equals("<init>") || name.equals("<clinit>") || name.equals("main")) {
+                return name;
+            }
+
+            // Don't remap if:
+            // 1. Method name is longer than 2 chars
+            // 2. Owner is not in root package
+            if (name.length() > 2 || owner.contains("/")) {
                 return name;
             }
 
@@ -574,6 +688,11 @@ public class BytecodeRenamer {
             Set<String> ancestors = classHierarchy.get(owner);
             if (ancestors != null) {
                 for (String ancestor : ancestors) {
+                    // Skip ancestors not in root package
+                    if (ancestor.contains("/")) {
+                        continue;
+                    }
+
                     methodMap = methodMapping.get(ancestor);
                     if (methodMap != null) {
                         String mapped = methodMap.get(name + descriptor);
@@ -591,6 +710,11 @@ public class BytecodeRenamer {
 
         @Override
         public String mapInvokeDynamicMethodName(String name, String descriptor) {
+            // Don't remap if method name is longer than 2 chars
+            if (name.length() > 2) {
+                return name;
+            }
+
             // Check global method names first
             MethodSignature sig = new MethodSignature(name, descriptor);
             String globalName = globalMethodNames.get(sig);
@@ -598,8 +722,14 @@ public class BytecodeRenamer {
                 return globalName;
             }
 
-            // Check all classes
-            for (Map<String, String> methodMap : methodMapping.values()) {
+            // Check all classes (but only those in root package)
+            for (Map.Entry<String, Map<String, String>> entry : methodMapping.entrySet()) {
+                // Skip classes not in root package
+                if (entry.getKey().contains("/")) {
+                    continue;
+                }
+
+                Map<String, String> methodMap = entry.getValue();
                 String mapped = methodMap.get(name + descriptor);
                 if (mapped != null) {
                     return mapped;

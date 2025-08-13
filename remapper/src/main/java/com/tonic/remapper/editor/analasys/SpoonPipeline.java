@@ -77,7 +77,9 @@ public class SpoonPipeline
         // Add the processed type
         result.append(ctType.prettyprint());
 
-        return result.toString();
+        return ParenCleaner.clean(result.toString()
+                .replace("\r\n", "\n")
+                .replaceAll("(?m)^\\s*\\n", ""));
     }
 
     private SpoonPipeline()
@@ -111,7 +113,6 @@ public class SpoonPipeline
 
     public static class paramCleaner implements SpoonTransformer
     {
-
         @Override
         public void transform(CtExecutable<?> method) {
             method.getBody()
@@ -239,7 +240,7 @@ public class SpoonPipeline
             CtTypeReference<?> declaringTypeRef = execRef.getDeclaringType();
             String className = declaringTypeRef.getSimpleName();
             cleanedMethods.add(className + "." + exec.getSignature());
-            exec.removeParameter(lastParam);
+            //exec.removeParameter(lastParam);
         }
     }
 

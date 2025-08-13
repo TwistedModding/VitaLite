@@ -24,6 +24,9 @@ public final class BatchDecompiler {
     public static Map<String, String> decompile(List<ClassNode> classes, boolean parallel) {
         Map<String, String> results = new ConcurrentHashMap<>();
 
+        //preprocess
+        EnclosureRebuilder.process(classes);
+
         try {
             // Create temporary directories
             Path tempInput = Files.createTempDirectory("fernflower_input");
@@ -66,7 +69,6 @@ public final class BatchDecompiler {
                 }
             }
 
-            // Configure FernFlower
             Map<String, Object> options = new HashMap<>();
             options.put(IFernflowerPreferences.DECOMPILE_GENERIC_SIGNATURES, "1");
             options.put(IFernflowerPreferences.DECOMPILE_INNER, "1");
@@ -77,37 +79,56 @@ public final class BatchDecompiler {
             options.put(IFernflowerPreferences.HIDE_EMPTY_SUPER, "1");
             options.put(IFernflowerPreferences.HIDE_DEFAULT_CONSTRUCTOR, "1");
             options.put(IFernflowerPreferences.FINALLY_DEINLINE, "1");
-            options.put(IFernflowerPreferences.MAX_PROCESSING_METHOD, "60"); // Timeout for complex methods
-            options.put(IFernflowerPreferences.RENAME_ENTITIES, "0"); // Don't rename
-            options.put(IFernflowerPreferences.USER_RENAMER_CLASS, ""); // No renaming
 
-            // ADD THESE FOR BETTER HANDLING OF OBFUSCATED CODE:
-            options.put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1");
-            options.put(IFernflowerPreferences.BOOLEAN_TRUE_ONE, "1");
+// ADD THESE SPECIFIC OPTIONS FOR INNER CLASS HANDLING:
+// Force inline simple lambdas and anonymous classes
+            options.put(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "0");
+            options.put(IFernflowerPreferences.DECOMPILE_INNER, "1");
+
+// Better synthetic member handling
             options.put(IFernflowerPreferences.SYNTHETIC_NOT_SET, "1");
-            options.put(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT, "1");
+
+// Try to inline nested classes where possible
+            options.put(IFernflowerPreferences.INLINE_SIMPLE_LAMBDAS, "1");
+
+// Better variable name inference
             options.put(IFernflowerPreferences.USE_DEBUG_VAR_NAMES, "1");
             options.put(IFernflowerPreferences.USE_METHOD_PARAMETERS, "1");
+            options.put(IFernflowerPreferences.REMOVE_EMPTY_RANGES, "1");
+
+// Handle anonymous/local classes better
+            options.put(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1"); // Change from "0" to "1"
+            options.put(IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1");
+
+// Pattern matching for better reconstruction
+            options.put(IFernflowerPreferences.PATTERN_MATCHING, "1");
+            options.put(IFernflowerPreferences.TRY_LOOP_FIX, "1");
+
+// Ensure proper naming
+            options.put(IFernflowerPreferences.RENAME_ENTITIES, "0");
+            options.put(IFernflowerPreferences.USER_RENAMER_CLASS, "");
+
+// Additional options that might help
+            options.put(IFernflowerPreferences.ASCII_STRING_CHARACTERS, "1");
+            options.put(IFernflowerPreferences.BOOLEAN_TRUE_ONE, "1");
+            options.put(IFernflowerPreferences.UNDEFINED_PARAM_TYPE_OBJECT, "1");
             options.put(IFernflowerPreferences.LITERALS_AS_IS, "0");
             options.put(IFernflowerPreferences.UNIT_TEST_MODE, "0");
 
-            // For handling weird constructor patterns:
-            options.put(IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1");
-            options.put(IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "0");
+// Timeouts for complex methods
+            options.put(IFernflowerPreferences.MAX_PROCESSING_METHOD, "10000");
 
-            // Increase timeout for complex methods
-            options.put(IFernflowerPreferences.MAX_PROCESSING_METHOD, "10000"); // Increase from 60
-
-            // Better variable naming
-            options.put(IFernflowerPreferences.REMOVE_EMPTY_RANGES, "1");
+// Better synchronized block handling
             options.put(IFernflowerPreferences.ENSURE_SYNCHRONIZED_MONITOR, "1");
 
-            // Pattern matching improvements
+// Disable features that might interfere
             options.put(IFernflowerPreferences.IDEA_NOT_NULL_ANNOTATION, "0");
-            options.put(IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "0");
             options.put(IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "0");
-            options.put(IFernflowerPreferences.PATTERN_MATCHING, "1");
-            options.put(IFernflowerPreferences.TRY_LOOP_FIX, "1");
+
+            options.put(IFernflowerPreferences.REMOVE_SYNTHETIC, "1");
+            options.put(IFernflowerPreferences.REMOVE_BRIDGE, "1");
+            options.put(IFernflowerPreferences.DECOMPILE_INNER, "1");
+            options.put(IFernflowerPreferences.RENAME_ENTITIES, "0");
 
             // Create custom decompiler
             FernFlowerDecompiler decompiler = new FernFlowerDecompiler(tempOutput, options);
