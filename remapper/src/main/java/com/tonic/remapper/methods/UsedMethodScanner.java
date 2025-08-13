@@ -31,6 +31,9 @@ public class UsedMethodScanner {
      * @return set of MethodKeys considered "used"
      */
     public static Set<MethodKey> findUsedMethods(List<ClassNode> classNodes) {
+        return findUsedMethods(classNodes, false);
+    }
+    public static Set<MethodKey> findUsedMethods(List<ClassNode> classNodes, boolean skipLongNames) {
         preloadQueue.clear();
         used.clear();
 
@@ -61,6 +64,13 @@ public class UsedMethodScanner {
                 if ((mn.access & Opcodes.ACC_ABSTRACT) != 0) {
                     if (VERBOSE) System.out.printf("SEED SKIP %s (abstract)%n", key);
                     continue;
+                }
+                if(skipLongNames && mn.name.length() > 3) {
+                    if (!preloadQueue.contains(key)) {
+                        preloadQueue.add(key);
+                        if (VERBOSE) System.out.printf("SEED ADD %s%n", key);
+                    }
+                    continue; // skip long names
                 }
                 if (!fromSuper(mn)) {
                     if (VERBOSE) System.out.printf("SEED SKIP %s (fromSuper false)%n", key);

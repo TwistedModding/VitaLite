@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PacketMapReader
@@ -115,6 +116,117 @@ public class PacketMapReader
                 return (int) buffer.readFloat();
             default:
                 return -1;
+        }
+    }
+
+    public static PacketBuffer createBuffer(MapEntry entry, Map<String,Object> args)
+    {
+        PacketBuffer buffer = new PacketBuffer(entry.getPacket().getId(), entry.getPacket().getLength());
+        for(int i = 0; i < entry.getWrites().size(); i++)
+        {
+            if (args.get(entry.getArgs().get(i)) != null)
+            {
+                Object object = args.get(entry.getArgs().get(i));
+                if(object instanceof Integer)
+                {
+                    int number = (int) object;
+                    doWrite(buffer, entry.getWrites().get(i), number);
+                }
+                else if(object instanceof String)
+                {
+                    String string = (String) object;
+                    doWriteStr(buffer, entry.getWrites().get(i), string);
+                }
+
+            }
+            else if(isParsableAsNumber(entry.getArgs().get(i)))
+            {
+                doWrite(buffer, entry.getWrites().get(i), Integer.parseInt(entry.getArgs().get(i)));
+            }
+            else if(entry.getArgs().get(i).equals("true") || entry.getArgs().get(i).equals("false"))
+            {
+                doWrite(buffer, entry.getWrites().get(i), (entry.getArgs().get(i).equals("true") ? 1 : 0));
+            }
+        }
+        return buffer;
+    }
+
+    private static void doWriteStr(PacketBuffer buffer, String method, String value) {
+        switch (method) {
+            case "writeStringCp1252NullTerminated":
+                buffer.writeStringCp1252NullTerminated(value);
+                break;
+            case "writeStringCp1252NullCircumfixed":
+                buffer.writeStringCp1252NullCircumfixed(value);
+                break;
+            case "writeCESU8":
+                buffer.writeCESU8(value);
+                break;
+        }
+    }
+
+    private static void doWrite(PacketBuffer buffer, String method, int value) {
+        switch (method) {
+            case "writeByte":
+                buffer.writeByte(value);
+                break;
+            case "writeByteAdd":
+                buffer.writeByteAdd(value);
+                break;
+            case "writeByteNeg":
+                buffer.writeByteNeg(value);
+                break;
+            case "writeByteSub":
+                buffer.writeByteSub(value);
+                break;
+            case "writeLengthByte":
+                buffer.writeLengthByte(value);
+                break;
+            case "writeShort":
+                buffer.writeShort(value);
+                break;
+            case "writeShortAdd":
+                buffer.writeShortAdd(value);
+                break;
+            case "writeShortLE":
+                buffer.writeShortLE(value);
+                break;
+            case "writeShortAddLE":
+                buffer.writeShortAddLE(value);
+                break;
+            case "writeLengthShort":
+                buffer.writeLengthShort(value);
+                break;
+            case "writeMedium":
+                buffer.writeMedium(value);
+                break;
+            case "writeInt":
+                buffer.writeInt(value);
+                break;
+            case "writeIntME":
+                buffer.writeIntME(value);
+                break;
+            case "writeIntLE":
+                buffer.writeIntLE(value);
+                break;
+            case "writeIntIME":
+                buffer.writeIntIME(value);
+                break;
+            case "writeVarInt":
+                buffer.writeVarInt(value);
+                break;
+            case "writeLengthInt":
+                buffer.writeLengthInt(value);
+                break;
+            case "writeLong":
+                buffer.writeLong(value);
+                break;
+            case "writeFloat":
+                buffer.writeFloat(value);
+                break;
+            default:
+                // Optionally handle the default case
+                break;
         }
     }
 

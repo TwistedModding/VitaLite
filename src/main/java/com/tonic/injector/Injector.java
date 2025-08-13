@@ -86,7 +86,11 @@ public class Injector {
                 }
                 if(AnnotationUtil.hasAnnotation(method, Shadow.class))
                 {
-                    //TODO: implement
+                    ShadowTransformer.patch(mixin, method);
+                }
+                if(AnnotationUtil.hasAnnotation(method, Construct.class))
+                {
+                    ConstructTransformer.patch(mixin, method);
                 }
             }
         }

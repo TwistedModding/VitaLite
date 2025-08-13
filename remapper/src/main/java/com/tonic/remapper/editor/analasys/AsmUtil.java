@@ -11,7 +11,8 @@ import java.io.StringWriter;
 public class AsmUtil
 {
     public static String prettyPrint(MethodNode mn) {
-        mn.invisibleAnnotations.clear();
+        if(mn.invisibleAnnotations != null)
+            mn.invisibleAnnotations.clear();
         Textifier printer = new Textifier();
         TraceMethodVisitor tmv = new TraceMethodVisitor(printer);
         mn.accept(tmv);

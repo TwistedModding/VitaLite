@@ -1,7 +1,6 @@
 package com.tonic.mixins;
 
-import com.tonic.api.TClient;
-import com.tonic.api.TPacketWriter;
+import com.tonic.api.*;
 import com.tonic.injector.Mappings;
 import com.tonic.injector.annotations.*;
 import com.tonic.services.CallStackFilter;
@@ -9,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Mixin("Client")
-public class TClientMixin implements TClient
+public abstract class TClientMixin implements TClient
 {
     @Shadow("packetWriter")
     private TPacketWriter packetWriter;
@@ -20,6 +19,12 @@ public class TClientMixin implements TClient
     {
         return packetWriter;
     }
+
+    @Override
+    public abstract TClientPacket newClientPacket(int id, int length);
+
+    @Shadow("getPacketBufferNode")
+    public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
 
     @MethodOverride("callStackCheck")
     public static String callStackVerifier(long j)

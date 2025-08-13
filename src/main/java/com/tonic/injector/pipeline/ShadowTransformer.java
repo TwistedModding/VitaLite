@@ -2,7 +2,10 @@ package com.tonic.injector.pipeline;
 
 import com.tonic.dto.JClass;
 import com.tonic.dto.JField;
+import com.tonic.dto.JMethod;
+import com.tonic.injector.Injector;
 import com.tonic.injector.MappingProvider;
+import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import com.tonic.util.AnnotationUtil;
@@ -14,6 +17,131 @@ import java.util.List;
 
 public class ShadowTransformer
 {
+    public static void patch(ClassNode mixin, MethodNode method) {
+        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        String name = AnnotationUtil.getAnnotation(method, Shadow.class, "value");
+        JClass jClass = MappingProvider.getClass(gamepackName);
+        JMethod jMethod = MappingProvider.getMethod(jClass, name);
+
+        if( jMethod == null ) {
+            System.out.println("No mapping found for " + gamepackName + "." + name + " // " + mixin.name + "." + method.name + method.desc);
+            System.exit(0);
+            return;
+        }
+
+        ClassNode gamepack = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
+        ClassNode injectionSite = Injector.gamepack.get(jClass.getObfuscatedName());
+
+        MethodNode toShadow = gamepack.methods.stream()
+                .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
+                .findFirst()
+                .orElse(null);
+
+        Number multiplier = jMethod.getGarbageValue();
+        InsnList instructions = new InsnList();
+
+        Type shadowReturnType = Type.getReturnType(method.desc);
+        Type[] shadowParams = Type.getArgumentTypes(method.desc);
+        Type[] toShadowParams = Type.getArgumentTypes(toShadow.desc);
+
+        // Check if the TARGET method is static
+        boolean isTargetStatic = (toShadow.access & Opcodes.ACC_STATIC) != 0;
+        boolean isShadowStatic = (method.access & Opcodes.ACC_STATIC) != 0;
+
+        // Start loading parameters
+        int localVarIndex = isShadowStatic ? 0 : 1; // Skip 'this' if shadow method is not static
+
+        // If target is not static, load 'this' first
+        if (!isTargetStatic) {
+            instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        }
+
+        // Load all shadow method parameters
+        for (int i = 0; i < shadowParams.length; i++) {
+            Type paramType = shadowParams[i];
+            instructions.add(new VarInsnNode(paramType.getOpcode(Opcodes.ILOAD), localVarIndex));
+
+            // Cast to the expected type if needed
+            if (i < toShadowParams.length) {
+                Type expectedType = toShadowParams[i];
+                if (!paramType.equals(expectedType)) {
+                    if (expectedType.getSort() == Type.OBJECT || expectedType.getSort() == Type.ARRAY) {
+                        instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, expectedType.getInternalName()));
+                    }
+                }
+            }
+
+            localVarIndex += paramType.getSize();
+        }
+
+        // Add garbage value if it exists and is expected
+        if (multiplier != null && toShadowParams.length > shadowParams.length) {
+            // The last parameter in toShadow should be the garbage value
+            Type garbageType = toShadowParams[toShadowParams.length - 1];
+
+            if (multiplier instanceof Integer) {
+                instructions.add(new LdcInsnNode(multiplier.intValue()));
+                // Convert if needed
+                if (garbageType.getSort() == Type.BYTE) {
+                    instructions.add(new InsnNode(Opcodes.I2B));
+                } else if (garbageType.getSort() == Type.SHORT) {
+                    instructions.add(new InsnNode(Opcodes.I2S));
+                } else if (garbageType.getSort() == Type.CHAR) {
+                    instructions.add(new InsnNode(Opcodes.I2C));
+                }
+                // If it's just int, the LDC is enough
+            } else if (multiplier instanceof Long) {
+                instructions.add(new LdcInsnNode(multiplier.longValue()));
+            } else if (multiplier instanceof Float) {
+                instructions.add(new LdcInsnNode(multiplier.floatValue()));
+            } else if (multiplier instanceof Double) {
+                instructions.add(new LdcInsnNode(multiplier.doubleValue()));
+            } else {
+                // Default to int if type is unclear
+                instructions.add(new LdcInsnNode(multiplier.intValue()));
+            }
+        }
+
+        // Invoke the target method
+        int invokeOpcode = isTargetStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL;
+        instructions.add(new MethodInsnNode(
+                invokeOpcode,
+                gamepack.name,
+                toShadow.name,
+                toShadow.desc,
+                false
+        ));
+
+        // Handle return
+        Type toShadowReturnType = Type.getReturnType(toShadow.desc);
+        if (shadowReturnType.getSort() == Type.VOID) {
+            instructions.add(new InsnNode(Opcodes.RETURN));
+        } else {
+            // Cast return type if needed
+            if (!toShadowReturnType.equals(shadowReturnType)) {
+                if (shadowReturnType.getSort() == Type.OBJECT || shadowReturnType.getSort() == Type.ARRAY) {
+                    instructions.add(new TypeInsnNode(Opcodes.CHECKCAST, shadowReturnType.getInternalName()));
+                }
+            }
+            instructions.add(new InsnNode(shadowReturnType.getOpcode(Opcodes.IRETURN)));
+        }
+
+        // Update the method
+        method.access &= ~Opcodes.ACC_ABSTRACT;
+        method.instructions = instructions;
+
+        // Create and add the injected method
+        MethodNode injectedMethod = new MethodNode(
+                method.access,
+                method.name,
+                method.desc,
+                method.signature,
+                method.exceptions != null ? method.exceptions.toArray(new String[0]) : null
+        );
+        injectedMethod.instructions = instructions;
+
+        injectionSite.methods.add(injectedMethod);
+    }
     public static void patch(ClassNode mixin, FieldNode field) {
         try
         {
