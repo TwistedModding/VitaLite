@@ -1,5 +1,7 @@
 package com.tonic.remapper.editor;
 
+import org.objectweb.asm.Opcodes;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +113,10 @@ public class MethodFieldTable extends AbstractTableModel {
             MethodRecord mr = current.methods.get(idx);
             switch (col) {
                 case 0:
-                    return mr.node.name + mr.node.desc;
+                    String prefix = (mr.node.access & Opcodes.ACC_STATIC) != 0
+                            ? "static "
+                            : "";
+                    return prefix + mr.node.name + mr.node.desc;
                 case 1:
                     return mr.newName;
                 case 2:
@@ -123,7 +128,10 @@ public class MethodFieldTable extends AbstractTableModel {
             FieldRecord fr = current.fields.get(idx);
             switch (col) {
                 case 0:
-                    return fr.node.name + " " + fr.node.desc;
+                    String prefix = (fr.node.access & Opcodes.ACC_STATIC) != 0
+                            ? "static "
+                            : "";
+                    return prefix + fr.node.name + " " + fr.node.desc;
                 case 1:
                     return fr.newName;
                 case 2:

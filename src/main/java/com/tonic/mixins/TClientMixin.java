@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public abstract class TClientMixin implements TClient
 {
     @Shadow("packetWriter")
-    private TPacketWriter packetWriter;
+    private static TPacketWriter packetWriter;
 
     @Inject
     @Override
@@ -20,6 +20,7 @@ public abstract class TClientMixin implements TClient
     }
 
     @Override
+    @Construct("ClientPacket")
     public abstract TClientPacket newClientPacket(int id, int length);
 
     @Shadow("getPacketBufferNode")

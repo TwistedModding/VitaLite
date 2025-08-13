@@ -74,8 +74,10 @@ public class ConstructTransformer
         ));
 
         instructions.add(new InsnNode(Opcodes.ARETURN));
+        Type returnType = Type.getReturnType(method.desc);
+
         String returnDesc = Type.getMethodDescriptor(
-                Type.getObjectType(constructTarget.name),
+                returnType,  // Use the original return type (TClientPacket)
                 paramTypes
         );
 
@@ -89,6 +91,7 @@ public class ConstructTransformer
         );
 
         factoryMethod.instructions = instructions;
+        factoryMethod.access &= ~Opcodes.ACC_ABSTRACT;
 
         injectionTarget.methods.add(factoryMethod);
     }

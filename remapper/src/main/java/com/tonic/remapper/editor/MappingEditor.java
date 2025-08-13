@@ -275,6 +275,8 @@ public class MappingEditor extends JFrame {
         return "/* \n * Class  : " + cn.name + '\n' +
                 " * Method : " + mn.name + mn.desc + '\n' +
                 " * Access : 0x" + Integer.toHexString(mn.access) + '\n' +
+                " * Signature: " + mn.signature + '\n' +
+                " * Exceptions: " + (mn.exceptions == null ? "[]" : mn.exceptions) + '\n' +
                 " * MaxLocals  = " + mn.maxLocals +
                 ",  MaxStack = " + mn.maxStack + "\n" +
                 " */\n";

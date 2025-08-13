@@ -19,6 +19,13 @@ public class InjectTransformer
     {
         if(method.name.equals("<init>") && method.desc.equals("()V"))
             return;
+
+        boolean methodExists = gamepack.methods.stream()
+                .anyMatch(m -> m.name.equals(method.name) && m.desc.equals(method.desc));
+
+        if(methodExists)
+            return;
+
         MethodNode copyMethod = MethodUtil.copyMethod(method, method.name, mixin, gamepack);
         gamepack.methods.add(copyMethod);
     }
@@ -31,6 +38,10 @@ public class InjectTransformer
      */
     public static void patch(ClassNode gamepack, FieldNode field)
     {
+        boolean fieldExists = gamepack.fields.stream()
+                .anyMatch(f -> f.name.equals(field.name) && f.desc.equals(field.desc));
+        if(fieldExists)
+            return;
         FieldNode copyField = FieldUtil.copyField(field);
         gamepack.fields.add(copyField);
     }
