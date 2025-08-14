@@ -4,6 +4,8 @@ import com.tonic.api.TClient;
 import com.tonic.model.RuneLite;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class Static
 {
@@ -12,19 +14,17 @@ public class Static
     private static Object EVENT_BUS;
     private static RuneLite RL;
 
-    public static <T> T getClient()
-    {
-        return (T) RL_CLIENT;
-    }
-
     public static TClient getTClient()
     {
         return T_CLIENT;
     }
-
     public static <T> T getEventBus()
     {
         return (T) EVENT_BUS;
+    }
+    public static <T> T getClient()
+    {
+        return (T) RL_CLIENT;
     }
 
     public static RuneLite getRuneLite()
@@ -54,28 +54,28 @@ public class Static
         }
     }
 
-//    /**
-//     * invoke on client thread with return
-//     *
-//     * @param supplier runnable block
-//     * @return return value
-//     */
-//    public static <T> T invoke(Supplier<T> supplier) {
-//        if (!RL_CLIENT.isClientThread()) {
-//            CompletableFuture<T> future = new CompletableFuture<>();
-//            Runnable runnable = () -> future.complete(supplier.get());
-//            invoke(runnable);
-//            return future.join();
-//        } else {
-//            return supplier.get();
-//        }
-//    }
-//
-//    public static void invoke(Runnable runnable) {
-//        if (!RL_CLIENT.isClientThread()) {
-//            CLIENT_THREAD.invoke(runnable);
-//        } else {
-//            runnable.run();
-//        }
-//    }
+    /**
+     * invoke on client thread with return
+     *
+     * @param supplier runnable block
+     * @return return value
+     */
+    public static <T> T invoke(Supplier<T> supplier) {
+        if (!T_CLIENT.isClientThread()) {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            Runnable runnable = () -> future.complete(supplier.get());
+            invoke(runnable);
+            return future.join();
+        } else {
+            return supplier.get();
+        }
+    }
+
+    public static void invoke(Runnable runnable) {
+        if (!T_CLIENT.isClientThread()) {
+            getRuneLite().getClientThread().invoke(runnable);
+        } else {
+            runnable.run();
+        }
+    }
 }

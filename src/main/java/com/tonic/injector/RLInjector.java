@@ -29,6 +29,7 @@ public class RLInjector
             DisableTelemetryTransformer.patch(node);
             PatchDevToolsPluginManagerTransformer.patch(node);
             RuneliteModuleBindingsTransformer.patch(node);
+            RuneLiteObjectStoreTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {
@@ -45,19 +46,19 @@ public class RLInjector
                     bytes
             );
 
-//            List<String> toDump = List.of(
-//                    "net.runelite.client.RuneLite",
-//                    "net.runelite.client.RuneLiteModule",
-//                    "net.runelite.client.plugins.PluginManager"
-//            );
-//            if(toDump.contains(name))
-//            {
-//                ClassFileUtil.writeClass(
-//                        name,
-//                        bytes,
-//                        Path.of("C:/test/dumper/")
-//                );
-//            }
+            List<String> toDump = List.of(
+                    "net.runelite.client.RuneLite",
+                    "net.runelite.client.RuneLiteModule",
+                    "net.runelite.client.plugins.PluginManager"
+            );
+            if(toDump.contains(name))
+            {
+                ClassFileUtil.writeClass(
+                        name,
+                        bytes,
+                        Path.of("C:/test/dumper/")
+                );
+            }
         }
     }
 }

@@ -904,4 +904,14 @@ public class BytecodeBuilder {
         ));
         return this;
     }
+
+    public BytecodeBuilder newArray(String type) {
+        insnList.add(new TypeInsnNode(ANEWARRAY, type));
+        return this;
+    }
+
+    public BytecodeBuilder arrayLoad(int type) {
+        insnList.add(new InsnNode(type));
+        return this;
+    }
 }

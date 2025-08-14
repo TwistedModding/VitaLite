@@ -34,12 +34,18 @@ public abstract class TPacketWriterMixin implements TPacketWriter
     @Inject
     public static void onAddNode2(TPacketWriter packetWriter, TPacketBufferNode node)
     {
-        onAddNode(node);
+        addNodeHook(node);
     }
 
-    @MethodHook("addNode")
+//    @MethodHook("addNode")
+//    @Inject
+//    public static void onAddNode1(TPacketBufferNode node)
+//    {
+//        addNodeHook(node);
+//    }
+
     @Inject
-    public static void onAddNode(TPacketBufferNode node)
+    public static void addNodeHook(TPacketBufferNode node)
     {
         if(node == null ||  node.getClientPacket() == null)
             return;

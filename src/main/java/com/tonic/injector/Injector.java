@@ -68,7 +68,7 @@ public class Injector {
 
             for(MethodNode method : mixin.methods)
             {
-                if(AnnotationUtil.hasAnnotation(method, Inject.class))
+                if(AnnotationUtil.hasAnnotation(method, Inject.class) || !AnnotationUtil.hasAnyAnnotation(method))
                 {
                     InjectTransformer.patch(gamepackClass, mixin, method);
                 }
