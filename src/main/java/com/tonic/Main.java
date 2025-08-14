@@ -41,7 +41,7 @@ public class Main {
     {
         try
         {
-            File[] jarfiles = RUNELITE_REPOSITORY_DIR.toFile().listFiles(f -> f.getName().endsWith(".jar"));
+            File[] jarfiles = RUNELITE_REPOSITORY_DIR.toFile().listFiles(f -> f.getName().endsWith(".jar")); // && !f.getName().startsWith("runelite-api-"));
             if(jarfiles == null)
                 throw new Exception();
             URLS = new URL[jarfiles.length];

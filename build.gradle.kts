@@ -68,7 +68,9 @@ tasks {
 
     // Regular jar task - not really needed since you're using shadowJar
     jar {
-        enabled = false // Disable regular jar since you're using shadow
+        manifest {
+            attributes(mutableMapOf("Main-Class" to "com.tonic.Main"))
+        }
     }
 
     shadowJar {
@@ -126,6 +128,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.google.inject:guice:5.1.0")
+
+    compileOnly("net.runelite:api:latest.release")
 }
 
 tasks.test {

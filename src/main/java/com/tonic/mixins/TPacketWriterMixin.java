@@ -9,6 +9,8 @@ import com.tonic.services.packets.PacketBuffer;
 import com.tonic.services.packets.PacketMapReader;
 import com.tonic.services.packets.types.MapEntry;
 import lombok.Getter;
+import net.runelite.api.widgets.WidgetInfo;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +88,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Override
     @Inject
-    public void widgetAction(int type, int widgetId, int childId, int itemId)
+    public void widgetActionPacket(int type, int widgetId, int childId, int itemId)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_ACTION");
         Map<String,Object> args = new HashMap<>();
@@ -99,7 +101,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void resumeCountDialogue(int count)
+    public void resumeCountDialoguePacket(int count)
     {
         MapEntry entry = PacketMapReader.get("OP_RESUME_COUNTDIALOG");
         Map<String,Object> args = new HashMap<>();
@@ -109,11 +111,11 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Shadow("resumePauseWidget")
     @Override
-    public abstract void resumePauseWidget(int widgetID, int optionIndex);
+    public abstract void resumePauseWidgetPacket(int widgetID, int optionIndex);
 
     @Inject
     @Override
-    public void resumeObjectDialogue(int id) {
+    public void resumeObjectDialoguePacket(int id) {
         MapEntry entry = PacketMapReader.get("OP_RESUME_OBJDIALOG");
         Map<String,Object> args = new HashMap<>();
         args.put("id", id);
@@ -122,7 +124,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void doWalk(int worldX, int worldY, boolean ctrl)
+    public void walkPacket(int worldX, int worldY, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WALK");
         Map<String,Object> args = new HashMap<>();
@@ -134,7 +136,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void click(int mouseButton, int mouseX, int mouseY)
+    public void clickPacket(int mouseButton, int mouseX, int mouseY)
     {
         int mouseInfo = (32767 << 1) + (mouseButton);
         MapEntry entry = PacketMapReader.get("OP_MOUSE_CLICK");
@@ -147,7 +149,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void sendChatPacket(int type, String text) {
+    public void chatPacket(int type, String text) {
         if (text.length() >= 80)
             text = text.substring(0, 79);
         TPacketBufferNode packetBufferNode = sendChat(type, text, null, -1);
@@ -162,7 +164,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void sendWidgetTargetOnGameObjectPacket(int selectedWidgetId, int itemId, int slot, int identifier, int worldX, int worldY, boolean ctrl)
+    public void widgetTargetOnGameObjectPacket(int selectedWidgetId, int itemId, int slot, int identifier, int worldX, int worldY, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_GAME_OBJECT");
         Map<String,Object> args = new HashMap<>();
@@ -178,7 +180,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void sendWidgetTargetOnNpcPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean ctrl)
+    public void widgetTargetOnNpcPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_NPC");
         Map<String,Object> args = new HashMap<>();
@@ -192,7 +194,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void sendWidgetTargetOnPlayerPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean ctrl)
+    public void widgetTargetOnPlayerPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_PLAYER");
         Map<String,Object> args = new HashMap<>();
@@ -206,17 +208,8 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void resumeStringDialogue(String text)
+    public void resumeStringDialoguePacket(String text)
     {
-//        RSClientPacket packet = client.newClientPacket(3, -1);
-//        RSPacketBufferNode packetBufferNode = client.getPacketBufferNode(packet, getIsaacCipher());
-//        if(packetBufferNode != null)
-//        {
-//            packetBufferNode.getPacketBuffer().writeByte(text.length() + 1);
-//            packetBufferNode.getPacketBuffer().writeStringCp1252NullTerminated(text);
-//            addNode(packetBufferNode);
-//        }
-
         MapEntry entry = PacketMapReader.get("OP_RESUME_STRINGDIALOG");
         Map<String,Object> args = new HashMap<>();
         args.put("length", text.length());
@@ -226,16 +219,8 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
-    public void resumeNameDialogue(String text)
+    public void resumeNameDialoguePacket(String text)
     {
-//        RSClientPacket packet = client.newClientPacket(31, -1);
-//        RSPacketBufferNode packetBufferNode = client.getPacketBufferNode(packet, getIsaacCipher());
-//        if(packetBufferNode != null)
-//        {
-//            packetBufferNode.getPacketBuffer().writeByte(text.length() + 1);
-//            packetBufferNode.getPacketBuffer().writeStringCp1252NullTerminated(text);
-//            addNode(packetBufferNode);
-//        }
         MapEntry entry = PacketMapReader.get("OP_RESUME_NAMEDIALOG");
         Map<String,Object> args = new HashMap<>();
         args.put("length", text.length());
@@ -243,8 +228,9 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
+    @Inject
     @Override
-    public void sendObjectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl)
+    public void objectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl)
     {
         StringBuilder name = new StringBuilder("OP_GAME_OBJECT_ACTION_");
         name.append(type);
@@ -264,8 +250,9 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
+    @Inject
     @Override
-    public void sendWidgetOnWidgetPacket(int selectedWidgetId, int itemId, int slot, int targetWidgetId, int itemId2, int slot2)
+    public void widgetOnWidgetPacket(int selectedWidgetId, int itemId, int slot, int targetWidgetId, int itemId2, int slot2)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_WIDGET");
         Map<String,Object> args = new HashMap<>();
@@ -278,8 +265,9 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
+    @Inject
     @Override
-    public void sendWidgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl)
+    public void widgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_WIDGET_TARGET_ON_GROUND_ITEM");
         Map<String,Object> args = new HashMap<>();
@@ -293,11 +281,46 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
+    @Inject
     @Override
-    public void sendInterfaceClosePacket()
+    public void interfaceClosePacket()
     {
         MapEntry entry = PacketMapReader.get("OP_INTERFACE_CLOSE");
         Map<String,Object> args = new HashMap<>();
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
+    }
+
+    @Inject
+    @Override
+    public void itemOnNpcPacket(int itemId, int slot, int npcIndex, boolean run)
+    {
+        widgetTargetOnNpcPacket(npcIndex, WidgetInfo.INVENTORY.getId(), itemId, slot, run);
+    }
+
+    @Inject
+    @Override
+    public void itemOnPlayerPacket(int itemId, int slot, int playerIndex, boolean run)
+    {
+        widgetTargetOnPlayerPacket(playerIndex, WidgetInfo.INVENTORY.getId(), itemId, slot, run);
+    }
+
+    @Inject
+    @Override
+    public void itemOnGameObjectPacket(int itemID, int slot, int objectID, int worldX, int worldY, boolean run)
+    {
+        widgetTargetOnGameObjectPacket(WidgetInfo.INVENTORY.getId(), itemID, slot, objectID, worldX, worldY, run);
+    }
+
+    @Inject
+    @Override
+    public void itemOnItemPacket(int itemId, int slot, int itemId2, int slot2)
+    {
+        widgetOnWidgetPacket(WidgetInfo.INVENTORY.getId(), itemId, slot, WidgetInfo.INVENTORY.getId(), itemId2, slot2);
+    }
+
+    @Inject
+    @Override
+    public void itemActionPacket(int slot, int id, int action) {
+        widgetActionPacket(action, WidgetInfo.INVENTORY.getId(), slot, id);
     }
 }

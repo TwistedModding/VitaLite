@@ -1,8 +1,6 @@
 package com.tonic.injector;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
