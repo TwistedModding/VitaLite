@@ -1,6 +1,8 @@
 package com.tonic;
 
 import com.tonic.api.TClient;
+import com.tonic.model.RuneLite;
+
 import java.util.Objects;
 
 public class Static
@@ -8,6 +10,7 @@ public class Static
     private static Object RL_CLIENT;
     private static TClient T_CLIENT;
     private static Object EVENT_BUS;
+    private static RuneLite RL;
 
     public static <T> T getClient()
     {
@@ -24,6 +27,11 @@ public class Static
         return (T) EVENT_BUS;
     }
 
+    public static RuneLite getRuneLite()
+    {
+        return RL;
+    }
+
     public static void set(Object object, String name)
     {
         switch (name)
@@ -36,6 +44,10 @@ public class Static
                 break;
             case "EVENT_BUS":
                 EVENT_BUS = Objects.requireNonNull(object, "EVENT_BUS cannot be null");
+                break;
+            case "RL":
+                RL = (RuneLite) Objects.requireNonNull(object, "RL cannot be null");
+                System.out.println("RuneLite instance set: " + RL);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown class name: " + name);

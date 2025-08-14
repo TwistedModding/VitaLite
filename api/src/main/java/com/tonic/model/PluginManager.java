@@ -1,12 +1,9 @@
-package com.tonic.runelite.model;
+package com.tonic.model;
 
-import com.tonic.Main;
 import com.tonic.util.ReflectUtil;
 import lombok.SneakyThrows;
-
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class PluginManager
@@ -42,7 +39,7 @@ public class PluginManager
     @SneakyThrows
     public Object startPlugin(Object plugin)
     {
-        Class<?> pluginClass = Main.CLASSLOADER.forName("net.runelite.client.plugins.Plugin");
+        Class<?> pluginClass = instance.getClass().getClassLoader().loadClass("net.runelite.client.plugins.Plugin");
         return ReflectUtil.getMethod(
                 instance,
                 "startPlugin",

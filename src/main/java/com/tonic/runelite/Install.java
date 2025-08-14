@@ -1,15 +1,12 @@
 package com.tonic.runelite;
 
 import com.google.common.io.ByteStreams;
-import com.google.inject.Injector;
 import com.tonic.Main;
 import com.tonic.Static;
-import com.tonic.api.TClient;
-import com.tonic.runelite.model.Guice;
-import com.tonic.runelite.model.PluginManager;
-import com.tonic.runelite.model.RuneLite;
+import com.tonic.model.Guice;
+import com.tonic.model.PluginManager;
+import com.tonic.model.RuneLite;
 import com.tonic.services.CallStackFilter;
-import net.runelite.api.Client;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;

@@ -24,6 +24,7 @@ dependencies {
     compileOnly("org.jetbrains:annotations:26.0.2")
     implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.google.code.gson:gson:2.8.9")
+    compileOnly("com.google.inject:guice:5.1.0")
 }
 
 val apiFilePatterns = mapOf(

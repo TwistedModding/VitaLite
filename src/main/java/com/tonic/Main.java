@@ -5,7 +5,7 @@ import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
 import com.tonic.runelite.Install;
 import com.tonic.runelite.jvm.JvmParams;
-import com.tonic.runelite.model.RuneLite;
+import com.tonic.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
@@ -23,8 +23,6 @@ public class Main {
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
 
-    private static RuneLite RUNELITE;
-
     public static void main(String[] args) throws Exception
     {
         args = optionsParser.parse(args);
@@ -36,7 +34,7 @@ public class Main {
         Injector.patch();
         RLInjector.patch();
         CLASSLOADER.launch(args);
-        Install.setupStaticApi(RUNELITE);
+        Install.setupStaticApi(Static.getRuneLite());
     }
 
     public static void loadArtifacts()
@@ -62,13 +60,5 @@ public class Main {
         CLASSLOADER = new RLClassLoader(URLS);
         CTX_CLASSLOADER = new RLClassLoader(URLS);
         UIManager.put("ClassLoader", CLASSLOADER);
-    }
-
-    public static void setRunelite(RuneLite runelite) {
-        RUNELITE = runelite;
-    }
-
-    public static RuneLite getRunelite() {
-        return RUNELITE;
     }
 }
