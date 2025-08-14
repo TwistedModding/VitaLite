@@ -1,4 +1,4 @@
-package com.tonic.services.packets;
+package com.tonic.packets;
 
 import com.tonic.api.TClient;
 import com.tonic.api.TClientPacket;

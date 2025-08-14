@@ -1,9 +1,9 @@
-package com.tonic.services.packets;
+package com.tonic.packets;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.tonic.services.packets.types.MapEntry;
+import com.tonic.packets.types.MapEntry;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

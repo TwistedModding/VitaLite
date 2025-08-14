@@ -1,4 +1,4 @@
-package com.tonic.services.packets.types;
+package com.tonic.packets.types;
 
 import com.google.gson.annotations.Expose;
 import lombok.Data;

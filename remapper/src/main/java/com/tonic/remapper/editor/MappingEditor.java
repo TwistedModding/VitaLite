@@ -230,7 +230,8 @@ public class MappingEditor extends JFrame {
 
                         ClassNode  cn = mr.owner.classNode;
                         MethodNode mn = mr.node;
-                        mn.invisibleAnnotations.clear();
+                        if(mn.invisibleAnnotations != null)
+                            mn.invisibleAnnotations.clear();
                         String src = DecompilerUtil.decompile(cn, mn, true);
                         String sb = generateHeader(cn, mn) + src;
 

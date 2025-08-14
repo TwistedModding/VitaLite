@@ -1,10 +1,15 @@
 package com.tonic.runelite;
 
 import com.google.common.io.ByteStreams;
+import com.google.inject.Injector;
 import com.tonic.Main;
+import com.tonic.Static;
+import com.tonic.api.TClient;
+import com.tonic.runelite.model.Guice;
 import com.tonic.runelite.model.PluginManager;
 import com.tonic.runelite.model.RuneLite;
 import com.tonic.services.CallStackFilter;
+import net.runelite.api.Client;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -131,5 +136,14 @@ public class Install
         }
 
         return classes;
+    }
+
+    public static void setupStaticApi(RuneLite runeLite)
+    {
+        Guice injector = runeLite.getInjector();
+        Static.set(injector.getByClassName("net.runelite.api.Client"), "RL_CLIENT");
+        Static.set(injector.getByClassName("com.tonic.api.TClient"), "T_CLIENT");
+        Static.set(injector.getByClassName("net.runelite.client.eventbus.EventBus"), "EVENT_BUS");
+        System.out.println("Done!");
     }
 }

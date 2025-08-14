@@ -1,4 +1,4 @@
-package com.tonic.services.packets;
+package com.tonic.packets;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

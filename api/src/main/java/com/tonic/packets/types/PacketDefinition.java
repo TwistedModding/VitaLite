@@ -1,6 +1,6 @@
-package com.tonic.services.packets.types;
+package com.tonic.packets.types;
 
-import com.tonic.services.packets.PacketBuffer;
+import com.tonic.packets.PacketBuffer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

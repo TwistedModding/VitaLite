@@ -3,6 +3,7 @@ package com.tonic;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
+import com.tonic.runelite.Install;
 import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.runelite.model.RuneLite;
 import com.tonic.injector.Injector;
@@ -35,6 +36,7 @@ public class Main {
         Injector.patch();
         RLInjector.patch();
         CLASSLOADER.launch(args);
+        Install.setupStaticApi(RUNELITE);
     }
 
     public static void loadArtifacts()

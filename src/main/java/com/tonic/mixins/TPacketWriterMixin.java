@@ -5,9 +5,9 @@ import com.tonic.injector.annotations.Inject;
 import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
-import com.tonic.services.packets.PacketBuffer;
-import com.tonic.services.packets.PacketMapReader;
-import com.tonic.services.packets.types.MapEntry;
+import com.tonic.packets.PacketBuffer;
+import com.tonic.packets.PacketMapReader;
+import com.tonic.packets.types.MapEntry;
 import lombok.Getter;
 import net.runelite.api.widgets.WidgetInfo;
 

@@ -11,7 +11,6 @@ group = "com.tonic"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         url = uri("https://repo.runelite.net")
@@ -23,8 +22,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.20")
     compileOnly("com.intellij:annotations:12.0")          // org.intellij.lang.annotations.MagicConstant :contentReference[oaicite:0]{index=0}
     compileOnly("org.jetbrains:annotations:26.0.2")
-    compileOnly("net.runelite:api:latest.release")
-    compileOnly("net.runelite:client:latest.release")
+    implementation("io.netty:netty-all:5.0.0.Alpha2")
+    implementation("com.google.code.gson:gson:2.8.9")
 }
 
 val apiFilePatterns = mapOf(

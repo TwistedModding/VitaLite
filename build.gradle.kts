@@ -14,6 +14,9 @@ repositories {
     maven {
         url = URI("https://repo.runelite.net")
     }
+    maven {
+        url = uri("https://maven.google.com")
+    }
 }
 
 // Publishing configuration for root project
@@ -119,7 +122,6 @@ dependencies {
     implementation("org.ow2.asm:asm-util:9.2")
     implementation("org.ow2.asm:asm-commons:9.2")
 
-    implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.google.code.gson:gson:2.8.9")
 
     implementation(project(":api"))
@@ -128,8 +130,6 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.google.inject:guice:5.1.0")
-
-    compileOnly("net.runelite:api:latest.release")
 }
 
 tasks.test {
