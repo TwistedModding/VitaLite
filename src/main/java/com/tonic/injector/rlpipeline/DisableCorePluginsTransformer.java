@@ -16,9 +16,7 @@ public class DisableCorePluginsTransformer
     private static List<String> allowed = new ArrayList<>()
     {{
         add("net.runelite.client.plugins.config");
-        add("net.runelite.client.plugins.devtools");
         add("net.runelite.client.plugins.lowmemory");
-        add("net.runelite.client.plugins.screenshot");
         add("net.runelite.client.plugins.loginscreen");
     }};
 
