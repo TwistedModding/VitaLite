@@ -28,15 +28,10 @@ public class InjectSideLoadCallTransformer
 
         AbstractInsnNode insertionPoint = null;
 
-        int i = 0;
         for (AbstractInsnNode insn : main.instructions) {
 
-            if (insn.getOpcode() == Opcodes.ASTORE) {
-                i++;
-                if(i != 2)
-                    continue;
+            if (insn.getOpcode() == Opcodes.ASTORE && ((VarInsnNode)insn).var == 2) {
                 insertionPoint = insn.getNext();
-                break;
             }
         }
 
