@@ -5,10 +5,10 @@ import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
 import com.tonic.runelite.Install;
 import com.tonic.runelite.jvm.JvmParams;
-import com.tonic.model.RuneLite;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
+
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
@@ -34,10 +34,11 @@ public class Main {
         Injector.patch();
         RLInjector.patch();
         CLASSLOADER.launch(args);
-        Install.setupStaticApi(Static.getRuneLite());
+        Install.install();
+
     }
 
-    public static void loadArtifacts()
+    private static void loadArtifacts()
     {
         try
         {

@@ -36,7 +36,7 @@ public class ReflectUtil
             return method.invoke(object);
         }
 
-        method = object.getClass().getMethod(methodName, argTypes);
+        method = object.getClass().getDeclaredMethod(methodName, argTypes);
         method.setAccessible(true);
         return method.invoke(object, values);
     }

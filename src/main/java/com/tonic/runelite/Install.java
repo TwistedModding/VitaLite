@@ -4,11 +4,13 @@ import com.google.common.io.ByteStreams;
 import com.tonic.Main;
 import com.tonic.Static;
 import com.tonic.model.Guice;
-import com.tonic.model.PluginManager;
+import com.tonic.model.NavButton;
 import com.tonic.model.RuneLite;
 import com.tonic.services.CallStackFilter;
+import com.tonic.util.ResourceUtil;
+import com.tonic.util.SystemUtil;
 
-import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +27,7 @@ public class Install
      * Don't remove, call is injected see @{InjectSideLoadCallTransformer}
      * @param plugins list of plugin classes to load
      */
-    public void start(List<Class<?>> plugins) {
+    public void injectSideLoadPlugins(List<Class<?>> plugins) {
         List<ClassByte> pending = findJars().stream()
                 .flatMap(jar -> listFilesInJar(jar).stream())
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -52,11 +54,18 @@ public class Install
         }
     }
 
-    public static void setupStaticApi(RuneLite runeLite)
-    {
-        Guice injector = runeLite.getInjector();
+    public static void install() {
+        Guice injector = Static.getRuneLite().getInjector();
         Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
         Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
+
+        BufferedImage icon = ResourceUtil.getImage(Main.class, "nav_icon.png");
+        NavButton.builder()
+                .icon(icon)
+                .tooltip("VitaLite Discord")
+                .onClick(() -> SystemUtil.openURL("https://discord.gg/A4S4Fh4gzr"))
+                .priority(Integer.MAX_VALUE)
+                .build();
     }
 
     private List<Path> findJars() {

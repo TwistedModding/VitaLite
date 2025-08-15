@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import com.tonic.util.ReflectUtil;
 import lombok.Getter;
 
-import java.util.Map;
-
 @Getter
 public class RuneLite
 {
@@ -15,6 +13,7 @@ public class RuneLite
     private final PluginManager pluginManager;
     private final RLClientThread clientThread;
     private final RLEventBus eventBus;
+    private final RLClientUI clientUI;
     private final String USER_AGENT;
 
     public RuneLite(Class<?> runeLiteMain) throws Exception {
@@ -23,6 +22,7 @@ public class RuneLite
         this.pluginManager = new PluginManager(injector);
         this.clientThread = new RLClientThread(runeLiteMain);
         this.eventBus = new RLEventBus(injector);
+        this.clientUI = new RLClientUI(runeLiteMain);
         this.USER_AGENT = (String) ReflectUtil.getStaticField(runeLiteMain, "USER_AGENT");
     }
 }

@@ -123,7 +123,6 @@ public class Remapper {
         Map<FieldKey, Set<MethodKey>> oldFieldUses = FieldUsage.build(oldClasses);
         Map<FieldKey, Set<MethodKey>> newFieldUses = FieldUsage.build(newClasses);
 
-        // ===== ADD THIS NEW SECTION =====
         // 8.5 Analyze field access patterns for better primitive matching
         System.out.println("Analyzing field access patterns...");
         Map<FieldKey, FieldAccessAnalyzer.FieldAccessProfile> oldFieldProfiles =
@@ -241,7 +240,7 @@ public class Remapper {
         Map<String,JClass> remappedClasses = buildDtoClassesForNewJar(newClasses, newMethods, newFieldNodesAll);
         List<JClass> dtoClasses;
         try (Reader r = new InputStreamReader(new FileInputStream(oldMappings), StandardCharsets.UTF_8)) {
-            //Backwards compatability bc im dumb
+            //Backwards compatibility bc im dumb
             try
             {
                 dtoClasses = gson.fromJson(r, new TypeToken<List<JClass>>(){}.getType());
@@ -273,7 +272,7 @@ public class Remapper {
                         .collect(Collectors.toMap(
                                 m -> m.getObfuscatedName() + m.getDescriptor(),
                                 m -> m,
-                                (a, b) -> a));                                 // ignore dups
+                                (a, b) -> a)); // ignore dups
 
                 Map<String, JField>  newFieldsBySig  = newClsDto.getFields()
                         .stream()
@@ -313,7 +312,7 @@ public class Remapper {
                             oldF.getObfuscatedName(),
                             oldF.getDescriptor());
 
-                    FieldKey newFKey = bestFieldMap.get(oldFKey);              // match produced earlier
+                    FieldKey newFKey = bestFieldMap.get(oldFKey);
                     if (newFKey == null) continue;
 
                     JField target = newFieldsBySig.get(newFKey.name + " " + newFKey.desc);
@@ -431,7 +430,7 @@ public class Remapper {
 
 
 
-// Print summary of unmapped items
+        // Print summary of unmapped items
         System.out.println("\n=== UNMAPPED NAMED MAPPINGS SUMMARY ===");
         if (!unmappedClasses.isEmpty()) {
             System.out.println("\nUnmapped Classes (" + unmappedClasses.size() + "):");
@@ -456,9 +455,9 @@ public class Remapper {
 
         int totalUnmapped = unmappedClasses.size() + unmappedMethods.size() + unmappedFields.size();
         if (totalUnmapped == 0) {
-            System.out.println("\n✓ All named mappings were successfully remapped!");
+            System.out.println("\n+ All named mappings were successfully remapped!");
         } else {
-            System.out.println("\n⚠ Total unmapped items: " + totalUnmapped);
+            System.out.println("\n- Total unmapped items: " + totalUnmapped);
             System.out.println("These mappings from the old version could not be found in the new version.");
         }
         System.out.println("========================================\n");

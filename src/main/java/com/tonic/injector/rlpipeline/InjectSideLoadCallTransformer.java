@@ -78,7 +78,7 @@ public class InjectSideLoadCallTransformer
                 .castToType("com/tonic/runelite/Install")
                 .loadLocal(2, Opcodes.ALOAD)
                 .invokeVirtual("com/tonic/runelite/Install",
-                        "start",
+                        "injectSideLoadPlugins",
                         "(Ljava/util/List;)V")
                 .build();
 

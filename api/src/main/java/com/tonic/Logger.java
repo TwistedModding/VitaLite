@@ -14,8 +14,4 @@ public class Logger {
             System.out.println("[VitaX DEBUG] " + message);
         }
     }
-
-    public static void warn(String message) {
-        System.out.println("[VitaX WARNING] " + message);
-    }
 }

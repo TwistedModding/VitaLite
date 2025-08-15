@@ -3,9 +3,7 @@ package com.tonic.injector.rlpipeline;
 import com.tonic.Main;
 import com.tonic.model.ConditionType;
 import com.tonic.util.BytecodeBuilder;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-
 import java.util.ArrayList;
 import java.util.List;
 

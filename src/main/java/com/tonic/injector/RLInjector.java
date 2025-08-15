@@ -50,7 +50,8 @@ public class RLInjector
             List<String> toDump = List.of(
                     "net.runelite.client.RuneLite",
                     "net.runelite.client.RuneLiteModule",
-                    "net.runelite.client.plugins.PluginManager"
+                    "net.runelite.client.plugins.PluginManager",
+                    "net.runelite.client.ui.ClientUI"
             );
             if(toDump.contains(name))
             {
