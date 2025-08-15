@@ -34,7 +34,7 @@ public class ClientUIUpdater
             frame.setTitle("VitaLite");
 
             JPanel wrapper = new JPanel(new BorderLayout());
-            JTextArea console = Logger.getConsole();
+            JTextPane console = Logger.getConsole();
             JScrollPane scrollPane = new JScrollPane(console);
             scrollPane.setPreferredSize(new Dimension(0, 100));
             scrollPane.setBorder(BorderFactory.createLineBorder(new Color(30, 30, 30), 5));

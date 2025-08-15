@@ -37,6 +37,7 @@ public class Main {
         CLASSLOADER.launch(args);
         Install.install();
         ClientUIUpdater.inject();
+        Logger.norm("VitaLite started.");
     }
 
     private static void loadArtifacts()
