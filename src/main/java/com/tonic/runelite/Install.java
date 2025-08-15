@@ -23,67 +23,46 @@ public class Install
 {
     /**
      * Don't remove, call is injected see @{InjectSideLoadCallTransformer}
-     * @param runeLite the RuneLite wrapper instance
+     * @param plugins list of plugin classes to load
      */
-    public void start(RuneLite runeLite) {
-        Runnable task = () -> {
-            try {
-                PluginManager pluginManager = runeLite.getPluginManager();
+    public void start(List<Class<?>> plugins) {
+        List<ClassByte> pending = findJars().stream()
+                .flatMap(jar -> listFilesInJar(jar).stream())
+                .collect(Collectors.toCollection(ArrayList::new));
 
-                /* ---------- gather classes from every plugin jar ---------- */
-                List<ClassByte> pending = findJars().stream()
-                        .flatMap(jar -> listFilesInJar(jar).stream())
-                        .collect(Collectors.toCollection(ArrayList::new));
+        while (!pending.isEmpty()) {
+            int loadedThisPass = 0;
 
-                List<Class<?>> plugins = new ArrayList<>();
-
-                while (!pending.isEmpty()) {
-                    int loadedThisPass = 0;
-
-                    for (Iterator<ClassByte> it = pending.iterator(); it.hasNext(); ) {
-                        ClassByte cb  = it.next();
-                        Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
-                        if (cls == null) continue;
-                        CallStackFilter.processName(cls.getName());
-                        it.remove();
-                        loadedThisPass++;
-                        Class<?> parent = cls.getSuperclass();
-                        if (parent != null && parent.getName().endsWith(".Plugin")) {
-                            System.out.println("Loaded: " + cls.getName());
-                            plugins.add(cls);
-                        }
-                    }
-                    if (loadedThisPass == 0) {
-                        break;
-                    }
+            for (Iterator<ClassByte> it = pending.iterator(); it.hasNext(); ) {
+                ClassByte cb  = it.next();
+                Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
+                if (cls == null) continue;
+                CallStackFilter.processName(cls.getName());
+                it.remove();
+                loadedThisPass++;
+                Class<?> parent = cls.getSuperclass();
+                if (parent != null && parent.getName().endsWith(".Plugin")) {
+                    System.out.println("Loaded: " + cls.getName());
+                    plugins.add(cls);
                 }
-
-                List<?> instances = pluginManager.loadPlugins(plugins).stream()
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-                SwingUtilities.invokeAndWait(() -> instances.forEach(p -> {
-                    try {
-                        pluginManager.loadDefaultPluginConfiguration(Collections.singleton(p));
-                        pluginManager.startPlugin(p);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(0);
             }
-        };
-
-        new Thread(task, "plugin-installer").start();
+            if (loadedThisPass == 0) {
+                break;
+            }
+        }
     }
 
-    public List<Path> findJars() {
+    public static void setupStaticApi(RuneLite runeLite)
+    {
+        Guice injector = runeLite.getInjector();
+        Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
+        Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
+    }
+
+    private List<Path> findJars() {
         Path external   = Main.RUNELITE_DIR.resolve("externalplugins");
         Path sideloaded = Main.RUNELITE_DIR.resolve("sideloaded-plugins");
 
-        // ensure dirs exist
         try {
             Files.createDirectories(external);
             Files.createDirectories(sideloaded);
@@ -102,7 +81,7 @@ public class Install
                 .collect(Collectors.toList());
     }
 
-    public List<ClassByte> listFilesInJar(Path jarPath) {
+    private List<ClassByte> listFilesInJar(Path jarPath) {
         List<ClassByte> classes = new ArrayList<>();
 
         try (JarFile jar = new JarFile(jarPath.toFile())) {
@@ -133,12 +112,5 @@ public class Install
         }
 
         return classes;
-    }
-
-    public static void setupStaticApi(RuneLite runeLite)
-    {
-        Guice injector = runeLite.getInjector();
-        Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
-        Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
     }
 }

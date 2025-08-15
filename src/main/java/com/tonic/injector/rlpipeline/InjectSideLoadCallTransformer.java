@@ -12,11 +12,11 @@ import org.objectweb.asm.tree.*;
 public class InjectSideLoadCallTransformer
 {
     public static void patch(ClassNode classNode) {
-        if(!classNode.name.equals("net/runelite/client/RuneLite"))
+        if(!classNode.name.equals("net/runelite/client/plugins/PluginManager"))
             return;
 
         MethodNode main = classNode.methods.stream()
-                .filter(method -> method.name.equals("start") && method.desc.equals("()V"))
+                .filter(method -> method.name.equals("loadCorePlugins") && method.desc.equals("()V"))
                 .findFirst()
                 .orElse(null);
 
@@ -28,19 +28,20 @@ public class InjectSideLoadCallTransformer
 
         AbstractInsnNode insertionPoint = null;
 
+        int i = 0;
         for (AbstractInsnNode insn : main.instructions) {
-            if (insn.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-                MethodInsnNode m = (MethodInsnNode) insn;
-                if (m.owner.equals("net/runelite/client/plugins/PluginManager")
-                        && m.name.equals("loadSideLoadPlugins")
-                        && m.desc.equals("()V")) {
-                    insertionPoint = insn.getNext();
-                    break;
-                }
+
+            if (insn.getOpcode() == Opcodes.ASTORE) {
+                i++;
+                if(i != 2)
+                    continue;
+                insertionPoint = insn.getNext();
+                break;
             }
         }
+
         if (insertionPoint == null) {
-            System.out.println("Couldn’t locate RuneLite.start() call");
+            System.out.println("Couldn’t locate loadCorePlugins() call (2)");
             return;
         }
 
@@ -71,39 +72,19 @@ public class InjectSideLoadCallTransformer
                         "(Ljava/lang/Object;Ljava/lang/String;)V"
                 )
 
-                // RuneLite.injector.getInstance(Install.class).start(RUNELITE);
-                .getStaticField("net/runelite/client/RuneLite",
-                        "injector",
-                        "Lcom/google/inject/Injector;")
+                // RuneLite.injector.getInstance(Install.class).start(plugins);
+                .invokeStatic("com/tonic/Static",
+                        "getInjector",
+                        "()Lcom/google/inject/Injector;")
                 .pushClass("com/tonic/runelite/Install")
                 .invokeInterface("com/google/inject/Injector",
                         "getInstance",
                         "(Ljava/lang/Class;)Ljava/lang/Object;")
                 .castToType("com/tonic/runelite/Install")
-                .invokeStatic("com/tonic/Static",
-                        "getRuneLite",
-                        "()Lcom/tonic/model/RuneLite;")
+                .loadLocal(2, Opcodes.ALOAD)
                 .invokeVirtual("com/tonic/runelite/Install",
                         "start",
-                        "(Lcom/tonic/model/RuneLite;)V")
-
-                // RuneLite.injector.getInstance(net.runelite.client.eventbus.EventBus.class)
-                //      .post(new net.runelite.client.events.ExternalPluginsChanged());
-                .pushThis()
-                .getField("net/runelite/client/RuneLite",
-                        "eventBus",
-                        "Lnet/runelite/client/eventbus/EventBus;")
-                .newInstance("net/runelite/client/events/ExternalPluginsChanged")
-                .dup()
-                .invokeSpecial(
-                        "net/runelite/client/events/ExternalPluginsChanged",
-                        "<init>",
-                        "()V"
-                )
-                .castToType("java/lang/Object")
-                .invokeVirtual("net/runelite/client/eventbus/EventBus",
-                        "post",
-                        "(Ljava/lang/Object;)V")
+                        "(Ljava/util/List;)V")
                 .build();
 
 

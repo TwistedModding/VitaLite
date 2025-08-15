@@ -1,5 +1,6 @@
 package com.tonic;
 
+import com.google.inject.Injector;
 import com.tonic.api.TClient;
 import com.tonic.model.RuneLite;
 import java.util.Objects;
@@ -23,6 +24,11 @@ public class Static
     public static RuneLite getRuneLite()
     {
         return RL;
+    }
+
+    public static Injector getInjector()
+    {
+        return RL.getInjector().getInjector();
     }
 
     public static void set(Object object, String name)
