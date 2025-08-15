@@ -1,6 +1,9 @@
 package com.tonic.util;
 
+import com.tonic.Static;
 import com.tonic.util.reflection.*;
+import lombok.SneakyThrows;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -12,6 +15,27 @@ public class ReflectBuilder
     public static ReflectBuilder of(Object start)
     {
         return new ReflectBuilder(start);
+    }
+
+    public static ReflectBuilder ofClass(String classFqdn)
+    {
+        try
+        {
+            Class<?> navButtonClass = Static.getRuneLite()
+                    .getRuneLiteMain()
+                    .getClassLoader()
+                    .loadClass("net.runelite.client.ui.NavigationButton");
+            return new ReflectBuilder(navButtonClass);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException("Failed to load class: " + classFqdn, e);
+        }
+    }
+
+    public static ReflectBuilder runelite()
+    {
+        return new ReflectBuilder(Static.getRuneLite().getRuneLiteMain());
     }
 
     private ReflectBuilder(Object start)

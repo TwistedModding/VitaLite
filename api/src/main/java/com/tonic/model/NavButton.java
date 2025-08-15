@@ -13,15 +13,14 @@ public class NavButton
 
     public static NavButton builder() {
         try {
-            return new NavButton(Static.getRuneLite().getRuneLiteMain());
+            return new NavButton();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private NavButton(Class<?> main) throws ClassNotFoundException {
-        Class<?> navButtonClass = main.getClassLoader().loadClass("net.runelite.client.ui.NavigationButton");
-        navBuilder = ReflectBuilder.of(navButtonClass)
+    NavButton() throws ClassNotFoundException {
+        navBuilder = ReflectBuilder.ofClass("net.runelite.client.ui.NavigationButton")
                 .staticMethod("builder", null, null)
                 .get();
     }

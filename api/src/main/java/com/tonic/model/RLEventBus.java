@@ -7,7 +7,7 @@ public class RLEventBus
 {
     private final Object eventBus;
 
-    public RLEventBus(Guice injector) {
+    RLEventBus(Guice injector) {
         this.eventBus = injector.getBinding("net.runelite.client.eventbus.EventBus");
     }
 

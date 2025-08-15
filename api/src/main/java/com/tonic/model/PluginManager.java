@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 public class PluginManager
 {
     private final Object instance;
-    public PluginManager(Guice injector)
+    PluginManager(Guice injector)
     {
         this.instance = injector.getBinding("net.runelite.client.plugins.PluginManager");
     }

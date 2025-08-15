@@ -38,20 +38,13 @@ public class RLClientThread {
             clientThread = getClientThread();
         }
 
-        if (clientThread != null)
+        try
         {
-            try
-            {
-                clientThread.getClass().getMethod(method, Runnable.class).invoke(clientThread, runnable);
-            }
-            catch (Exception e)
-            {
-                System.out.println("Failed to " + method + " runnable on ClientThread: " + e.getMessage());
-            }
+            clientThread.getClass().getMethod(method, Runnable.class).invoke(clientThread, runnable);
         }
-        else
+        catch (Exception e)
         {
-            System.out.println("ClientThread is not available.");
+            System.out.println("Failed to " + method + " runnable on ClientThread: " + e.getMessage());
         }
     }
 
@@ -59,7 +52,7 @@ public class RLClientThread {
     {
         try
         {
-            return ReflectBuilder.of(main)
+            return ReflectBuilder.runelite()
                     .staticField("rlInstance")
                     .field("clientUI")
                     .field("clientThreadProvider")
@@ -67,9 +60,7 @@ public class RLClientThread {
                     .get();
         }
         catch (Exception e) {
-            System.out.println("Failed to get ClientThread: " + e.getClass().getName() + " - " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Failed to get ClientThread", e);
         }
-        return null;
     }
 }

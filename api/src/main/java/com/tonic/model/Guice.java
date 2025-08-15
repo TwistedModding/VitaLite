@@ -15,7 +15,7 @@ public class Guice
     private final Injector injector;
     private final Map<String,Object> BINDINGS;
 
-    public Guice(Injector injector) {
+    Guice(Injector injector) {
         this.injector = injector;
         this.BINDINGS = dumpBindings();
     }
