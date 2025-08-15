@@ -92,6 +92,10 @@ public class Injector {
                 {
                     ConstructTransformer.patch(mixin, method);
                 }
+                if(AnnotationUtil.hasAnnotation(method, Disable.class))
+                {
+                    DisableTransformer.patch(mixin, method);
+                }
             }
         }
     }

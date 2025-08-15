@@ -3,12 +3,18 @@ package com.tonic;
 import com.google.inject.Injector;
 import com.tonic.api.TClient;
 import com.tonic.model.RuneLite;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class Static
 {
+    @Setter
+    @Getter
+    private static boolean headless = false;
     private static Object RL_CLIENT;
     private static TClient T_CLIENT;
     private static RuneLite RL;

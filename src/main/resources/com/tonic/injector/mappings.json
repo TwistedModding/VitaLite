@@ -6075,10 +6075,12 @@
         "isStatic": true
       },
       {
+        "name": "graphicsTick",
         "obfuscatedName": "bx",
         "owner": "GameEngine",
         "ownerObfuscatedName": "bv",
         "descriptor": "(B)V",
+        "garbageValue": -78,
         "isStatic": false
       },
       {

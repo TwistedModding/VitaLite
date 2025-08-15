@@ -18,4 +18,10 @@ public class VitaLiteOptions extends OptionsParser
             description = "[Optional] Disables loading of core plugins"
     )
     private boolean noPlugins = false;
+
+    @CLIArgument(
+            name = "incognito",
+            description = "[Optional] Visually display as 'RuneLite' instead of 'VitaLite'"
+    )
+    private boolean incognito = false;
 }

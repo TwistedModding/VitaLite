@@ -83,7 +83,7 @@ public class ReflectBuilder
         return this;
     }
 
-    public Object get()
+    public <T> T get()
     {
         Object start = this.start;
         try
@@ -93,7 +93,7 @@ public class ReflectBuilder
                 Element element = reflectionChain.poll();
                 start = element.get(start);
             }
-            return start;
+            return (T) start;
         }
         catch (Exception e)
         {

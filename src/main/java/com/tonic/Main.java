@@ -4,6 +4,7 @@ import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
 import com.tonic.runelite.Install;
+import com.tonic.runelite.ClientUIUpdater;
 import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
@@ -35,7 +36,7 @@ public class Main {
         RLInjector.patch();
         CLASSLOADER.launch(args);
         Install.install();
-
+        ClientUIUpdater.inject();
     }
 
     private static void loadArtifacts()

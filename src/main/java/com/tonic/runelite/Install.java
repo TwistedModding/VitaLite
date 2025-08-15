@@ -59,12 +59,21 @@ public class Install
         Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
         Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
 
+        if(Main.optionsParser.isIncognito())
+            return;
         BufferedImage icon = ResourceUtil.getImage(Main.class, "nav_icon.png");
         NavButton.builder()
                 .icon(icon)
                 .tooltip("VitaLite Discord")
                 .onClick(() -> SystemUtil.openURL("https://discord.gg/A4S4Fh4gzr"))
-                .priority(Integer.MAX_VALUE)
+                .priority(20)
+                .build();
+
+        BufferedImage icon2 = ResourceUtil.getImage(Main.class, "headless.png");
+        NavButton.builder()
+                .icon(icon2)
+                .tooltip("Toggle Headless")
+                .onClick(() -> Static.setHeadless(!Static.isHeadless()))
                 .build();
     }
 
