@@ -11,7 +11,7 @@ public class PluginManager
     private final Object instance;
     public PluginManager(Guice injector)
     {
-        this.instance = injector.getByClassName("net.runelite.client.plugins.PluginManager");
+        this.instance = injector.getBinding("net.runelite.client.plugins.PluginManager");
     }
 
     @SneakyThrows

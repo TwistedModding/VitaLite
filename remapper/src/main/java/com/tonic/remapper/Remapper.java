@@ -239,9 +239,9 @@ public class Remapper {
                 .create();
 
         Map<String,JClass> remappedClasses = buildDtoClassesForNewJar(newClasses, newMethods, newFieldNodesAll);
+        List<JClass> dtoClasses;
         try (Reader r = new InputStreamReader(new FileInputStream(oldMappings), StandardCharsets.UTF_8)) {
             //Backwards compatability bc im dumb
-            List<JClass> dtoClasses;
             try
             {
                 dtoClasses = gson.fromJson(r, new TypeToken<List<JClass>>(){}.getType());
@@ -353,6 +353,115 @@ public class Remapper {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+        // Track unmapped named mappings
+        System.out.println("\n--- Checking for unmapped named mappings ---");
+        List<String> unmappedClasses = new ArrayList<>();
+        List<String> unmappedMethods = new ArrayList<>();
+        List<String> unmappedFields = new ArrayList<>();
+
+        for(JClass oldClass : dtoClasses)
+        {
+
+            //is the class mapped over?
+            if(oldClass.getName() != null && !oldClass.getName().isBlank())
+            {
+                boolean found = false;
+                for(JClass newClass : remapped)
+                {
+                    if(oldClass.getName().equals(newClass.getName()))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if(!found)
+                {
+                    unmappedClasses.add(oldClass.getObfuscatedName() + " (" + oldClass.getName() + ")");
+                }
+            }
+
+            for(JMethod oldMethod : oldClass.getMethods())
+            {
+                if(oldMethod.getName() == null || oldMethod.getName().isBlank()) continue;
+
+                JMethod newMethod = remapped.stream()
+                        .flatMap(c -> c.getMethods().stream())
+                        .filter(m -> oldMethod.getName().equals(m.getName()))
+                        .findFirst()
+                        .orElse(null);
+
+                if(oldMethod.getName().equals("resumePauseWidget"))
+                {
+                    System.out.println("Old resumePauseWidget: " + oldMethod.getOwnerObfuscatedName() + "." + oldMethod.getObfuscatedName() + " (" + oldMethod.getName() + ")");
+                    System.out.println("New resumePauseWidget: " + (newMethod == null ? "null" : newMethod.getOwnerObfuscatedName() + "." + newMethod.getObfuscatedName() + " (" + newMethod.getName() + ")"));
+                }
+
+                if(newMethod == null)
+                {
+                    unmappedMethods.add(
+                            oldMethod.getOwnerObfuscatedName() + "." +
+                            oldMethod.getObfuscatedName() + " (" +
+                            oldMethod.getName() + ")"
+                    );
+                }
+            }
+
+            for(JField oldField : oldClass.getFields())
+            {
+                if(oldField.getName() == null || oldField.getName().isBlank()) continue;
+
+                JField newField = remapped.stream()
+                        .flatMap(c -> c.getFields().stream())
+                        .filter(f -> oldField.getName().equals(f.getName()))
+                        .findFirst()
+                        .orElse(null);
+
+                if(newField == null)
+                {
+                    unmappedFields.add(
+                            oldField.getOwnerObfuscatedName() + "." +
+                            oldField.getObfuscatedName() + " (" +
+                            oldField.getName() + ")"
+                    );
+                }
+            }
+        }
+
+
+
+// Print summary of unmapped items
+        System.out.println("\n=== UNMAPPED NAMED MAPPINGS SUMMARY ===");
+        if (!unmappedClasses.isEmpty()) {
+            System.out.println("\nUnmapped Classes (" + unmappedClasses.size() + "):");
+            for (String cls : unmappedClasses) {
+                System.out.println("  - " + cls);
+            }
+        }
+
+        if (!unmappedMethods.isEmpty()) {
+            System.out.println("\nUnmapped Methods (" + unmappedMethods.size() + "):");
+            for (String method : unmappedMethods) {
+                System.out.println("  - " + method);
+            }
+        }
+
+        if (!unmappedFields.isEmpty()) {
+            System.out.println("\nUnmapped Fields (" + unmappedFields.size() + "):");
+            for (String field : unmappedFields) {
+                System.out.println("  - " + field);
+            }
+        }
+
+        int totalUnmapped = unmappedClasses.size() + unmappedMethods.size() + unmappedFields.size();
+        if (totalUnmapped == 0) {
+            System.out.println("\n✓ All named mappings were successfully remapped!");
+        } else {
+            System.out.println("\n⚠ Total unmapped items: " + totalUnmapped);
+            System.out.println("These mappings from the old version could not be found in the new version.");
+        }
+        System.out.println("========================================\n");
     }
 
     @NotNull

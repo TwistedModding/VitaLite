@@ -138,9 +138,7 @@ public class Install
     public static void setupStaticApi(RuneLite runeLite)
     {
         Guice injector = runeLite.getInjector();
-        Static.set(injector.getByClassName("net.runelite.api.Client"), "RL_CLIENT");
-        Static.set(injector.getByClassName("com.tonic.api.TClient"), "T_CLIENT");
-        Static.set(injector.getByClassName("net.runelite.client.eventbus.EventBus"), "EVENT_BUS");
-        System.out.println("Done!");
+        Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
+        Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
     }
 }

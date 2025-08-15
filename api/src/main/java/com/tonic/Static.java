@@ -2,7 +2,6 @@ package com.tonic;
 
 import com.tonic.api.TClient;
 import com.tonic.model.RuneLite;
-
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -11,22 +10,16 @@ public class Static
 {
     private static Object RL_CLIENT;
     private static TClient T_CLIENT;
-    private static Object EVENT_BUS;
     private static RuneLite RL;
 
     public static TClient getTClient()
     {
         return T_CLIENT;
     }
-    public static <T> T getEventBus()
-    {
-        return (T) EVENT_BUS;
-    }
     public static <T> T getClient()
     {
         return (T) RL_CLIENT;
     }
-
     public static RuneLite getRuneLite()
     {
         return RL;
@@ -42,12 +35,8 @@ public class Static
             case "T_CLIENT":
                 T_CLIENT = (TClient) Objects.requireNonNull(object, "T_CLIENT cannot be null");
                 break;
-            case "EVENT_BUS":
-                EVENT_BUS = Objects.requireNonNull(object, "EVENT_BUS cannot be null");
-                break;
             case "RL":
                 RL = (RuneLite) Objects.requireNonNull(object, "RL cannot be null");
-                System.out.println("RuneLite instance set: " + RL);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown class name: " + name);
@@ -77,5 +66,10 @@ public class Static
         } else {
             runnable.run();
         }
+    }
+
+    public static void post(Object event)
+    {
+        getRuneLite().getEventBus().post(event);
     }
 }

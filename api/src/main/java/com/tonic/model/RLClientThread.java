@@ -15,51 +15,22 @@ public class RLClientThread {
         this.main = main;
     }
 
-    private Object getClientThread()
+    public void invokeAtTickEnd(Runnable r)
     {
-        try
-        {
-            // Get RuneLite instance
-            Object runelite = ReflectUtil.getStaticField(main, "rlInstance");
+        invoke(r, "invokeAtTickEnd");
+    }
 
-            // Get ClientUI from RuneLite's clientUI field
-            Field clientUIField = runelite.getClass().getDeclaredField("clientUI");
-            clientUIField.setAccessible(true);
-            Object clientUI = clientUIField.get(runelite);
-
-            // Get the clientThreadProvider field from ClientUI (it's private)
-            Field providerField = clientUI.getClass().getDeclaredField("clientThreadProvider");
-            providerField.setAccessible(true);  // It's private
-            Object provider = providerField.get(clientUI);
-
-            // Call get() on the Provider to get the ClientThread instance
-            Method getMethod = provider.getClass().getMethod("get");
-            getMethod.setAccessible(true);
-            Object clientThread = getMethod.invoke(provider);
-
-            System.out.println("Successfully got ClientThread: " + clientThread);
-            return clientThread;
-        }
-        catch (NoSuchFieldException e) {
-            System.out.println("Field not found: " + e.getMessage());
-        }
-        catch (NoSuchMethodException e) {
-            System.out.println("Method not found: " + e.getMessage());
-        }
-        catch (IllegalAccessException e) {
-            System.out.println("Access denied: " + e.getMessage());
-        }
-        catch (InvocationTargetException e) {
-            System.out.println("Invocation failed: " + e.getTargetException().getMessage());
-        }
-        catch (Exception e) {
-            System.out.println("Failed to get ClientThread: " + e.getClass().getName() + " - " + e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
+    public void invokeLater(Runnable runnable)
+    {
+        invoke(runnable, "invokeLater");
     }
 
     public void invoke(Runnable runnable)
+    {
+        invoke(runnable, "invoke");
+    }
+
+    private void invoke(Runnable runnable, String method)
     {
         if (clientThread == null)
         {
@@ -70,16 +41,32 @@ public class RLClientThread {
         {
             try
             {
-                clientThread.getClass().getMethod("invoke", Runnable.class).invoke(clientThread, runnable);
+                clientThread.getClass().getMethod(method, Runnable.class).invoke(clientThread, runnable);
             }
             catch (Exception e)
             {
-                System.out.println("Failed to invoke runnable on ClientThread: " + e.getMessage());
+                System.out.println("Failed to " + method + " runnable on ClientThread: " + e.getMessage());
             }
         }
         else
         {
             System.out.println("ClientThread is not available.");
         }
+    }
+
+    private Object getClientThread()
+    {
+        try
+        {
+            Object runelite = ReflectUtil.getStaticField(main, "rlInstance");
+            Object clientUI = ReflectUtil.getField(runelite, "clientUI");
+            Object provider = ReflectUtil.getField(clientUI, "clientThreadProvider");
+            return ReflectUtil.getMethod(provider, "get", new Class[]{}, new Object[]{});
+        }
+        catch (Exception e) {
+            System.out.println("Failed to get ClientThread: " + e.getClass().getName() + " - " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
     }
 }
