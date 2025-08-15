@@ -115,9 +115,16 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
-    @Shadow("resumePauseWidget")
+    @Inject
     @Override
-    public abstract void resumePauseWidgetPacket(int widgetID, int optionIndex);
+    public void resumePauseWidgetPacket(int widgetID, int optionIndex)
+    {
+        MapEntry entry = PacketMapReader.get("OP_RESUME_PAUSEBUTTON");
+        Map<String,Object> args = new HashMap<>();
+        args.put("widgetID", widgetID);
+        args.put("optionIndex", optionIndex);
+        this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
+    }
 
     @Inject
     @Override

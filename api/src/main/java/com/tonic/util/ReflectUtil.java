@@ -19,11 +19,11 @@ public class ReflectUtil
         return injectorField.get(object);
     }
 
-    public static void getStaticMethod(Class<?> clazz, String methodName, Class<?>[] argTypes, Object[] values) throws Exception
+    public static Object getStaticMethod(Class<?> clazz, String methodName, Class<?>[] argTypes, Object[] values) throws Exception
     {
         Method method = clazz.getMethod(methodName, argTypes);
         method.setAccessible(true);
-        method.invoke(null, values);
+        return method.invoke(null, values);
     }
 
     public static Object getMethod(Object object, String methodName, Class<?>[] argTypes, Object[] values) throws Exception

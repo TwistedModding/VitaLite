@@ -30,6 +30,7 @@ public class RLInjector
             PatchDevToolsPluginManagerTransformer.patch(node);
             RuneliteModuleBindingsTransformer.patch(node);
             RuneLiteObjectStoreTransformer.patch(node);
+            DisableCorePluginsTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {

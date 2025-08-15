@@ -26,7 +26,6 @@ public class DisableTelemetryTransformer {
 
         // Remove the method body to make it a no-op
         provideTelemetry.instructions.clear();
-        provideTelemetry.instructions.clear();
         provideTelemetry.instructions.add(new InsnNode(Opcodes.ACONST_NULL)); // push null
         provideTelemetry.instructions.add(new InsnNode(Opcodes.ARETURN));
         provideTelemetry.tryCatchBlocks.clear();

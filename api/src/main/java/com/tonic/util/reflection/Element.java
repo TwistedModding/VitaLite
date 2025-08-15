@@ -2,5 +2,5 @@ package com.tonic.util.reflection;
 
 public interface Element
 {
-    Object get();
+    Object get(Object o) throws Exception;
 }

@@ -12,4 +12,10 @@ public class VitaLiteOptions extends OptionsParser
             description = "[Optional] Path to dump the gamepack to"
     )
     private String rsdump = null;
+
+    @CLIArgument(
+            name = "noPlugins",
+            description = "[Optional] Disables loading of core plugins"
+    )
+    private boolean noPlugins = false;
 }

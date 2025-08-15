@@ -1,5 +1,6 @@
 package com.tonic.model;
 
+import com.tonic.util.ReflectBuilder;
 import com.tonic.util.ReflectUtil;
 import lombok.SneakyThrows;
 import java.util.Collection;

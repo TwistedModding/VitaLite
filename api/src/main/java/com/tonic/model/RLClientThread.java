@@ -1,5 +1,6 @@
 package com.tonic.model;
 
+import com.tonic.util.ReflectBuilder;
 import com.tonic.util.ReflectUtil;
 
 import java.lang.reflect.Field;
@@ -58,10 +59,12 @@ public class RLClientThread {
     {
         try
         {
-            Object runelite = ReflectUtil.getStaticField(main, "rlInstance");
-            Object clientUI = ReflectUtil.getField(runelite, "clientUI");
-            Object provider = ReflectUtil.getField(clientUI, "clientThreadProvider");
-            return ReflectUtil.getMethod(provider, "get", new Class[]{}, new Object[]{});
+            return ReflectBuilder.of(main)
+                    .staticField("rlInstance")
+                    .field("clientUI")
+                    .field("clientThreadProvider")
+                    .method("get", null, null)
+                    .get();
         }
         catch (Exception e) {
             System.out.println("Failed to get ClientThread: " + e.getClass().getName() + " - " + e.getMessage());
