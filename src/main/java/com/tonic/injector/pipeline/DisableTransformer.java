@@ -10,6 +10,7 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.model.ConditionType;
 import com.tonic.util.AnnotationUtil;
 import com.tonic.util.BytecodeBuilder;
+import com.tonic.util.InsnUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -116,7 +117,10 @@ public class DisableTransformer
                 .ifBlock(
                         ConditionType.NOT_EQUALS,
                         b -> b.appendInsnList(call).pushInt(0),
-                        b -> b.returnVoid()
+                        b -> {
+                            InsnList returnInsnList = InsnUtil.generateDefaultReturn(toHook);
+                            b.appendInsnList(returnInsnList);
+                        }
                 ).build();
 
         AbstractInsnNode injectionPoint = null;

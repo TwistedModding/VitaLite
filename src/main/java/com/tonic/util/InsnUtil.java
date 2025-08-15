@@ -1,7 +1,9 @@
 package com.tonic.util;
 
-import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class InsnUtil
 {
@@ -12,7 +14,7 @@ public class InsnUtil
                 LdcInsnNode ldc = (LdcInsnNode) node;
                 if (!(ldc.cst instanceof String)) {
                     MethodInsnNode toStringCall = new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
+                            INVOKESTATIC,
                             "java/lang/String",
                             "valueOf",
                             "(Ljava/lang/Object;)Ljava/lang/String;",
@@ -22,11 +24,11 @@ public class InsnUtil
                 }
             } else if (node instanceof IntInsnNode || node instanceof InsnNode) {
                 int opcode = node.getOpcode();
-                if ((opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) ||
-                        opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH ||
-                        opcode == Opcodes.LDC) {
+                if ((opcode >= ICONST_M1 && opcode <= ICONST_5) ||
+                        opcode == BIPUSH || opcode == SIPUSH ||
+                        opcode == LDC) {
                     MethodInsnNode toStringCall = new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
+                            INVOKESTATIC,
                             "java/lang/Integer",
                             "toString",
                             "(I)Ljava/lang/String;",
@@ -36,11 +38,11 @@ public class InsnUtil
                 }
             } else if (node instanceof VarInsnNode) {
                 VarInsnNode varInsn = (VarInsnNode) node;
-                if (varInsn.getOpcode() == Opcodes.ILOAD ||
-                        varInsn.getOpcode() == Opcodes.LLOAD ||
-                        varInsn.getOpcode() == Opcodes.FLOAD ||
-                        varInsn.getOpcode() == Opcodes.DLOAD ||
-                        varInsn.getOpcode() == Opcodes.ALOAD) {
+                if (varInsn.getOpcode() == ILOAD ||
+                        varInsn.getOpcode() == LLOAD ||
+                        varInsn.getOpcode() == FLOAD ||
+                        varInsn.getOpcode() == DLOAD ||
+                        varInsn.getOpcode() == ALOAD) {
                     MethodInsnNode toStringCall = generateToStringCast(varInsn);
 
                     insnList.insert(varInsn, toStringCall);
@@ -52,27 +54,27 @@ public class InsnUtil
     private static MethodInsnNode generateToStringCast(VarInsnNode varInsn) {
         String owner, method, descriptor;
         switch (varInsn.getOpcode()) {
-            case Opcodes.ILOAD:
+            case ILOAD:
                 owner = "java/lang/Integer";
                 method = "toString";
                 descriptor = "(I)Ljava/lang/String;";
                 break;
-            case Opcodes.LLOAD:
+            case LLOAD:
                 owner = "java/lang/Long";
                 method = "toString";
                 descriptor = "(J)Ljava/lang/String;";
                 break;
-            case Opcodes.FLOAD:
+            case FLOAD:
                 owner = "java/lang/Float";
                 method = "toString";
                 descriptor = "(F)Ljava/lang/String;";
                 break;
-            case Opcodes.DLOAD:
+            case DLOAD:
                 owner = "java/lang/Double";
                 method = "toString";
                 descriptor = "(D)Ljava/lang/String;";
                 break;
-            case Opcodes.ALOAD:
+            case ALOAD:
             default:
                 owner = "java/lang/String";
                 method = "valueOf";
@@ -81,7 +83,7 @@ public class InsnUtil
         }
 
         return new MethodInsnNode(
-                Opcodes.INVOKESTATIC,
+                INVOKESTATIC,
                 owner,
                 method,
                 descriptor,
@@ -91,6 +93,47 @@ public class InsnUtil
 
     public static boolean isReturn(InsnNode node)
     {
-        return node.getOpcode() >= Opcodes.IRETURN && node.getOpcode() <= Opcodes.RETURN;
+        return node.getOpcode() >= IRETURN && node.getOpcode() <= RETURN;
+    }
+
+    public static InsnList generateDefaultReturn(MethodNode method) {
+        Type returnType = Type.getReturnType(method.desc);
+        BytecodeBuilder builder = BytecodeBuilder.create();
+
+        switch (returnType.getSort()) {
+            case Type.VOID:
+                builder.returnVoid();
+                break;
+
+            case Type.BOOLEAN:
+            case Type.CHAR:
+            case Type.BYTE:
+            case Type.SHORT:
+            case Type.INT:
+                builder.pushInt(0).returnValue(IRETURN);
+                break;
+
+            case Type.LONG:
+                builder.pushLong(0L).returnValue(LRETURN);
+                break;
+
+            case Type.FLOAT:
+                builder.pushFloat(0.0f).returnValue(FRETURN);
+                break;
+
+            case Type.DOUBLE:
+                builder.pushDouble(0.0).returnValue(DRETURN);
+                break;
+
+            case Type.ARRAY:
+            case Type.OBJECT:
+                builder.pushNull().returnValue(ARETURN);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unexpected return type: " + returnType);
+        }
+
+        return builder.build();
     }
 }

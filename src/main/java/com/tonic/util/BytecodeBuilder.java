@@ -60,6 +60,22 @@ public class BytecodeBuilder {
     }
 
     /**
+     * Pushes a double onto the stack.
+     * @param value the double value
+     * @return the BytecodeBuilder
+     */
+    public BytecodeBuilder pushDouble(double value) {
+        if (value == 0.0) {
+            insnList.add(new InsnNode(DCONST_0));
+        } else if (value == 1.0) {
+            insnList.add(new InsnNode(DCONST_1));
+        } else {
+            insnList.add(new LdcInsnNode(value));
+        }
+        return this;
+    }
+
+    /**
      * Pushes a float onto the stack.
      * @param value the float value
      * @return the BytecodeBuilder

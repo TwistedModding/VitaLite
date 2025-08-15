@@ -5,11 +5,9 @@ import com.tonic.Main;
 import com.tonic.Static;
 import com.tonic.model.Guice;
 import com.tonic.model.NavButton;
-import com.tonic.model.RuneLite;
 import com.tonic.services.CallStackFilter;
 import com.tonic.util.ResourceUtil;
 import com.tonic.util.SystemUtil;
-
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
