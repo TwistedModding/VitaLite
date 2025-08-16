@@ -1,8 +1,9 @@
 package com.tonic.model;
 
 import com.tonic.Static;
+import com.tonic.model.pluginpanel.PluginPanelConverter;
+import com.tonic.model.pluginpanel.VPluginPanel;
 import com.tonic.util.ReflectBuilder;
-import lombok.SneakyThrows;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -65,7 +66,17 @@ public class NavButton
         return this;
     }
 
-    public Object build() {
+    public NavButton panel(VPluginPanel panel)
+    {
+        Object pluginPanel = PluginPanelConverter.toPluginPanel(panel);
+        Class<?> panelClass = ReflectBuilder.lookupClass("net.runelite.client.ui.PluginPanel");
+        ReflectBuilder.of(navBuilder)
+                .method("panel", new Class<?>[]{panelClass}, new Object[]{pluginPanel})
+                .get();
+        return this;
+    }
+
+    public Object addToNavigation() {
         Object button = ReflectBuilder.of(navBuilder)
                 .method("build", null, null)
                 .get();

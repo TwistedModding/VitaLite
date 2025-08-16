@@ -33,6 +33,21 @@ public class ReflectBuilder
         }
     }
 
+    public static Class<?> lookupClass(String classFqdn)
+    {
+        try
+        {
+            return Static.getRuneLite()
+                    .getRuneLiteMain()
+                    .getClassLoader()
+                    .loadClass(classFqdn);
+        }
+        catch (ClassNotFoundException e)
+        {
+            throw new RuntimeException("Failed to load class: " + classFqdn, e);
+        }
+    }
+
     public static ReflectBuilder runelite()
     {
         return new ReflectBuilder(Static.getRuneLite().getRuneLiteMain());
@@ -41,6 +56,26 @@ public class ReflectBuilder
     private ReflectBuilder(Object start)
     {
         this.start = start;
+    }
+
+    public static ReflectBuilder newInstance(String classFqdn, Class<?>[] parameterTypes, Object[] args)
+    {
+        try
+        {
+            Class<?> clazz = Static.getRuneLite()
+                    .getRuneLiteMain()
+                    .getClassLoader()
+                    .loadClass(classFqdn);
+
+            if(parameterTypes== null || parameterTypes.length == 0)
+                return new ReflectBuilder(clazz.getDeclaredConstructor().newInstance());
+            else
+                return new ReflectBuilder(clazz.getDeclaredConstructor(parameterTypes).newInstance(args));
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Failed to create instance of class: " + classFqdn, e);
+        }
     }
 
     public ReflectBuilder staticField(String name)

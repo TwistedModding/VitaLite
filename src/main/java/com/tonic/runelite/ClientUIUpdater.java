@@ -2,8 +2,12 @@ package com.tonic.runelite;
 
 import com.tonic.Logger;
 import com.tonic.Main;
+import com.tonic.Static;
+import com.tonic.model.NavButton;
+import com.tonic.model.pluginpanel.VitaLiteInfoPanel;
 import com.tonic.util.ReflectBuilder;
 import com.tonic.util.ResourceUtil;
+import com.tonic.util.SystemUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +20,8 @@ public class ClientUIUpdater
         if(Main.optionsParser.isIncognito())
             return;
         SwingUtilities.invokeLater(() -> {
+            addNavigation();
+
             Object clientUI = ReflectBuilder.runelite()
                     .staticField("rlInstance")
                     .field("clientUI")
@@ -44,6 +50,25 @@ public class ClientUIUpdater
 
             frame.setContentPane(wrapper);
             frame.revalidate();
+            frame.repaint();
         });
+    }
+
+    private static void addNavigation()
+    {
+        BufferedImage headless_icon = ResourceUtil.getImage(Main.class, "headless.png");
+        NavButton.builder()
+                .icon(headless_icon)
+                .tooltip("Toggle Headless")
+                .onClick(() -> Static.setHeadless(!Static.isHeadless()))
+                .addToNavigation();
+
+        BufferedImage icon = ResourceUtil.getImage(Main.class, "icon.png");
+        NavButton.builder()
+                .icon(icon)
+                .priority(1000)
+                .tooltip("VitaLite Info")
+                .panel(new VitaLiteInfoPanel())
+                .addToNavigation();
     }
 }

@@ -1,5 +1,6 @@
 package com.tonic.util;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -39,5 +40,21 @@ public class ReflectUtil
         method = object.getClass().getDeclaredMethod(methodName, argTypes);
         method.setAccessible(true);
         return method.invoke(object, values);
+    }
+
+    public static Object newInstance(Class<?> clazz, Class<?>[] argTypes, Object[] values) throws Exception
+    {
+        if(argTypes == null || argTypes.length == 0)
+        {
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
+        }
+        else
+        {
+            Constructor<?> constructor = clazz.getDeclaredConstructor(argTypes);
+            constructor.setAccessible(true);
+            return constructor.newInstance(values);
+        }
     }
 }

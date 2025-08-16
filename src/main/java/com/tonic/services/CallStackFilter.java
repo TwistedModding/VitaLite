@@ -1,5 +1,6 @@
 package com.tonic.services;
 
+import com.tonic.classloader.ProxyClassProvider;
 import lombok.Getter;
 
 import java.util.HashSet;
@@ -12,6 +13,7 @@ public class CallStackFilter
 
     static {
         ignored.add("com.tonic");
+        ignored.add(ProxyClassProvider.PROXY_CLASS_PACKAGE);
     }
 
     public static void processName(String name)

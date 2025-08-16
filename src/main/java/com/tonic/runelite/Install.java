@@ -4,11 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.tonic.Main;
 import com.tonic.Static;
 import com.tonic.model.Guice;
-import com.tonic.model.NavButton;
 import com.tonic.services.CallStackFilter;
-import com.tonic.util.ResourceUtil;
-import com.tonic.util.SystemUtil;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,23 +52,6 @@ public class Install
         Guice injector = Static.getRuneLite().getInjector();
         Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
         Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
-
-        if(Main.optionsParser.isIncognito())
-            return;
-        BufferedImage icon = ResourceUtil.getImage(Main.class, "nav_icon.png");
-        NavButton.builder()
-                .icon(icon)
-                .tooltip("VitaLite Discord")
-                .onClick(() -> SystemUtil.openURL("https://discord.gg/A4S4Fh4gzr"))
-                .priority(20)
-                .build();
-
-        BufferedImage icon2 = ResourceUtil.getImage(Main.class, "headless.png");
-        NavButton.builder()
-                .icon(icon2)
-                .tooltip("Toggle Headless")
-                .onClick(() -> Static.setHeadless(!Static.isHeadless()))
-                .build();
     }
 
     private List<Path> findJars() {

@@ -3,6 +3,7 @@ package com.tonic.classloader;
 import com.tonic.Main;
 import com.tonic.api.TClient;
 import com.tonic.model.Libs;
+
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -57,7 +58,16 @@ public class RLClassLoader extends URLClassLoader
                 return loadedClass;
             }
 
-            byte[] bytes = Main.LIBS.gamepackByName(name);
+            byte[] bytes;
+            if(ProxyClassProvider.PROXY_CLASSES.containsKey(name))
+            {
+                bytes = ProxyClassProvider.PROXY_CLASSES.get(name);
+                loadedClass = loadArtifactClass(name, bytes);
+                if(loadedClass != null)
+                    return loadedClass;
+            }
+
+            bytes = Main.LIBS.gamepackByName(name);
             if (!name.startsWith("net.runelite.") && bytes == null) {
                 return super.loadClass(name);
             }
@@ -76,6 +86,7 @@ public class RLClassLoader extends URLClassLoader
     private Class<?> loadArtifactClass(String name, byte[] bytes)
     {
         Class<?> loadedClass;
+        name = name.replace("/", ".");
         if(bytes != null)
         {
             try {
