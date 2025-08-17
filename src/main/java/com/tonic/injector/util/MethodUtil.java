@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.injector.util;
 
 import com.tonic.injector.types.CopyMethodVisitor;
 import org.objectweb.asm.Opcodes;

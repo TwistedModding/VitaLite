@@ -20,7 +20,8 @@ public class MethodElement implements Element
     public Object get(Object o) throws Exception {
         if(isStatic)
         {
-            return ReflectUtil.getStaticMethod((Class<?>)o, name, params, args);
+            Class<?> clazz = o instanceof Class<?> ? (Class<?>)o : o.getClass();
+            return ReflectUtil.getStaticMethod(clazz, name, params, args);
         }
         else
         {

@@ -1,6 +1,6 @@
 package com.tonic.injector.rlpipeline;
 
-import com.tonic.util.BytecodeBuilder;
+import com.tonic.injector.util.BytecodeBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 

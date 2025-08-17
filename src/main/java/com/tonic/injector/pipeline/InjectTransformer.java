@@ -1,7 +1,7 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.util.FieldUtil;
-import com.tonic.util.MethodUtil;
+import com.tonic.injector.util.FieldUtil;
+import com.tonic.injector.util.MethodUtil;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;

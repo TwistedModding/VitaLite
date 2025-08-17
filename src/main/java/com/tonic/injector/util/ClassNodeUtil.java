@@ -1,6 +1,6 @@
-package com.tonic.util;
+package com.tonic.injector.util;
 
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.injector.types.GamepackClassWriter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;

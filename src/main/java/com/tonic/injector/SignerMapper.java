@@ -1,8 +1,7 @@
 package com.tonic.injector;
 
-import com.tonic.Main;
-import com.tonic.util.ClassNodeUtil;
-import lombok.Getter;
+import com.tonic.vitalite.Main;
+import com.tonic.injector.util.ClassNodeUtil;
 import org.objectweb.asm.tree.*;
 
 import java.util.HashSet;

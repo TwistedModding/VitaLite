@@ -6,6 +6,8 @@ import com.tonic.events.PacketSent;
 import com.tonic.model.ui.componants.OptionPanel;
 import com.tonic.model.ui.componants.ToggleSlider;
 import com.tonic.model.ui.componants.VPluginPanel;
+import com.tonic.util.ReflectBuilder;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -97,6 +99,7 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         contentPanel.add(Box.createVerticalStrut(20));
         contentPanel.add(createSeparator());
         contentPanel.add(Box.createVerticalStrut(20));
+
 
         add(contentPanel);
     }

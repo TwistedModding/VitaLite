@@ -1,7 +1,7 @@
 package com.tonic.util;
 
 
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

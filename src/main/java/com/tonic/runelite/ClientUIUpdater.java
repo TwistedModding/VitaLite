@@ -1,7 +1,7 @@
 package com.tonic.runelite;
 
 import com.tonic.Logger;
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.model.NavButton;
 import com.tonic.model.ui.VitaLiteInfoPanel;
 import com.tonic.model.ui.VitaLiteOptionsPanel;

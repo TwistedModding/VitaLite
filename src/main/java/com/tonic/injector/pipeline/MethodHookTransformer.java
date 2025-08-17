@@ -6,7 +6,7 @@ import com.tonic.injector.Injector;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
-import com.tonic.util.AnnotationUtil;
+import com.tonic.injector.util.AnnotationUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;

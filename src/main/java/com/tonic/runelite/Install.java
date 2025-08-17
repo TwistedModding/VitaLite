@@ -1,7 +1,7 @@
 package com.tonic.runelite;
 
 import com.google.common.io.ByteStreams;
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.Static;
 import com.tonic.model.Guice;
 import com.tonic.services.CallStackFilter;

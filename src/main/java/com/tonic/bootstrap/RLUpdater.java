@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.tonic.bootstrap.beans.Artifact;
 import com.tonic.bootstrap.beans.Bootstrap;
 import com.tonic.bootstrap.beans.Diff;
-import com.tonic.runelite.jvm.JvmParams;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,7 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import static com.tonic.Main.RUNELITE_REPOSITORY_DIR;
+import static com.tonic.vitalite.Main.RUNELITE_REPOSITORY_DIR;
 
 public class RLUpdater
 {

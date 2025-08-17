@@ -1,13 +1,10 @@
 package com.tonic.injector.rlpipeline;
 
-import com.tonic.Main;
-import com.tonic.util.BytecodeBuilder;
-import com.tonic.util.LdcRewriter;
+import com.tonic.vitalite.Main;
+import com.tonic.injector.util.BytecodeBuilder;
+import com.tonic.injector.util.LdcRewriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PatchSplashScreenTransformer
 {
@@ -58,7 +55,7 @@ public class PatchSplashScreenTransformer
         }
 
         int strCount = LdcRewriter.rewriteString(constructor, "runelite_splash.png", "icon_splash.png");
-        int clsCount = LdcRewriter.rewriteClassRef(constructor, "net/runelite/client/ui/SplashScreen", "com/tonic/Main");
+        int clsCount = LdcRewriter.rewriteClassRef(constructor, "net/runelite/client/ui/SplashScreen", "com/tonic/vitalite/Main");
 
         System.out.println("Strings Replaced: " + strCount);
         System.out.println("Class References Replaced: " + clsCount);

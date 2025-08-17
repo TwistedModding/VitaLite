@@ -1,11 +1,12 @@
 package com.tonic.injector;
 
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.dto.JClass;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.pipeline.*;
-import com.tonic.util.AnnotationUtil;
-import com.tonic.util.ClassNodeUtil;
+import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.BootstrapAttributeCopier;
+import com.tonic.injector.util.ClassNodeUtil;
 import com.tonic.util.JarDumper;
 import com.tonic.util.PackageUtil;
 import org.objectweb.asm.tree.ClassNode;
@@ -65,6 +66,8 @@ public class Injector {
                     ShadowTransformer.patch(mixin, field);
                 }
             }
+
+            BootstrapAttributeCopier.copyBootstrapAttributesAndCallsites(mixin, gamepackClass);
 
             for(MethodNode method : mixin.methods)
             {

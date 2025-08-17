@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.injector.util;
 
 import java.io.IOException;
 import java.nio.file.Files;

@@ -1,9 +1,9 @@
 package com.tonic.injector;
 
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.injector.rlpipeline.*;
-import com.tonic.util.ClassFileUtil;
-import com.tonic.util.ClassNodeUtil;
+import com.tonic.injector.util.ClassFileUtil;
+import com.tonic.injector.util.ClassNodeUtil;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.nio.file.Path;

@@ -1,7 +1,8 @@
 package com.tonic.util;
 
 import com.tonic.injector.annotations.Mixin;
-import org.objectweb.asm.ClassReader;
+import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.ClassNodeUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
@@ -16,7 +17,6 @@ public class PackageUtil
     /**
      * Fetch a map of all valid pairings of mixin class and interface
      * @param mixinPackage package where the mixin classes are
-     * @param interfacePackage package where the interface classes are
      * @return HashMap(Mixin,IFace)
      */
     public static HashMap<ClassNode,ClassNode> getPairs(String mixinPackage)

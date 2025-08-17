@@ -205,6 +205,27 @@ public class MappingEditor extends JFrame {
                     }
                 });
 
+                menu.add(new AbstractAction("Dump to file (ASM)") {
+                    @Override public void actionPerformed(ActionEvent ev) {
+
+                        ClassNode  cn = mr.owner.classNode;
+                        MethodNode mn = mr.node;
+                        String sb = generateHeader(cn, mn) + AsmUtil.prettyPrint(mn);
+
+                        JFileChooser chooser = new JFileChooser();
+                        chooser.setCurrentDirectory(new File("C:/test/remap/"));
+                        chooser.setSelectedFile(new File(mn.name + ".txt"));
+                        if (chooser.showSaveDialog(MappingEditor.this) != JFileChooser.APPROVE_OPTION) return;
+                        File outFile = chooser.getSelectedFile();
+                        try (Writer w = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+                            w.write(sb);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            JOptionPane.showMessageDialog(MappingEditor.this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+
                 menu.add(new AbstractAction("Show ASM info (Source)") {
                     @Override public void actionPerformed(ActionEvent ev) {
 

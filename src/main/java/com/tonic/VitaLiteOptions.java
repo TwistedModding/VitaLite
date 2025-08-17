@@ -24,4 +24,10 @@ public class VitaLiteOptions extends OptionsParser
             description = "[Optional] Visually display as 'RuneLite' instead of 'VitaLite'"
     )
     private boolean incognito = false;
+
+    @CLIArgument(
+            name = "safeLaunch",
+            description = "Flag to ensure proper Launching from Launcher class."
+    )
+    private boolean safeLaunch = false;
 }

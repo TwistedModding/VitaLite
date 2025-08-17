@@ -12,8 +12,19 @@ public class CallStackFilter
     private static Set<String> ignored = new HashSet<>();
 
     static {
-        ignored.add("com.tonic");
+        ignored.add("com.tonic.");
         ignored.add(ProxyClassProvider.PROXY_CLASS_PACKAGE);
+    }
+
+    public static boolean shouldFilter(String packageName) {
+        if (packageName == null) return false;
+
+        for (String prefix : ignored) {
+            if (packageName.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void processName(String name)
@@ -28,5 +39,4 @@ public class CallStackFilter
         int idx = fullName.lastIndexOf('.');
         return idx == -1 ? "" : fullName.substring(0, idx);
     }
-
 }

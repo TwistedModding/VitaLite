@@ -1,6 +1,6 @@
 package com.tonic.classloader;
 
-import com.tonic.Main;
+import com.tonic.vitalite.Main;
 import com.tonic.api.TClient;
 import com.tonic.model.Libs;
 
@@ -19,7 +19,7 @@ public class RLClassLoader extends URLClassLoader
 
     public RLClassLoader(URL[] urls)
     {
-        super(urls, TClient.class.getClassLoader());
+        super(urls, Main.class.getClassLoader());
     }
 
     public Class<?> getMain() throws ClassNotFoundException {

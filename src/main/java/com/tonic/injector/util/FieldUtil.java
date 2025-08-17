@@ -1,4 +1,4 @@
-package com.tonic.util;
+package com.tonic.injector.util;
 
 import org.objectweb.asm.tree.*;
 import java.util.ArrayList;

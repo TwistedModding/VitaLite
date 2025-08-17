@@ -13,7 +13,8 @@ public class FieldElement implements Element
     public Object get(Object o) throws Exception {
         if(isStatic)
         {
-            return ReflectUtil.getStaticField((Class<?>) o, name);
+            Class<?> clazz = o instanceof Class ? (Class<?>) o : o.getClass();
+            return ReflectUtil.getStaticField(clazz, name);
         }
         else
         {

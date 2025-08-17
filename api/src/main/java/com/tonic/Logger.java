@@ -147,7 +147,10 @@ public class Logger {
     public static void error(String data)
     {
         if(INSTANCE == null)
+        {
+            System.err.println(data);
             return;
+        }
         INSTANCE._error(data);
     }
 
@@ -159,7 +162,10 @@ public class Logger {
     {
         throwable.printStackTrace();
         if(INSTANCE == null)
+        {
+            throwable.printStackTrace();
             return;
+        }
         INSTANCE._error(throwable.getMessage());
     }
 

@@ -72,7 +72,7 @@ tasks {
     // Regular jar task - not really needed since you're using shadowJar
     jar {
         manifest {
-            attributes(mutableMapOf("Main-Class" to "com.tonic.Main"))
+            attributes(mutableMapOf("Main-Class" to "com.tonic.VitaLite"))
         }
     }
 
@@ -82,7 +82,7 @@ tasks {
 
         manifest {
             attributes(
-                "Main-Class" to "com.tonic.Main",
+                "Main-Class" to "com.tonic.VitaLite",
                 "Multi-Release" to "true"
             )
         }

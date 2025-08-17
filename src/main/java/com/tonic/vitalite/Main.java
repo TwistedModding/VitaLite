@@ -1,5 +1,7 @@
-package com.tonic;
+package com.tonic.vitalite;
 
+import com.tonic.Logger;
+import com.tonic.VitaLiteOptions;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
 import com.tonic.injector.SignerMapper;
@@ -27,6 +29,11 @@ public class Main {
     public static void main(String[] args) throws Exception
     {
         args = optionsParser.parse(args);
+        if(!optionsParser.isSafeLaunch())
+        {
+            System.err.println("Safe launch not satisfied, VitaLite will not start.");
+            System.exit(0);
+        }
         JvmParams.set();
         RLUpdater.run();
         loadArtifacts();
