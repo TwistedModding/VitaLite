@@ -75,17 +75,17 @@ public class ClientUIUpdater
 
     private static void addNavigation()
     {
-        BufferedImage icon = ResourceUtil.getImage(Main.class, "icon.png");
+        BufferedImage info = ResourceUtil.getImage(Main.class, "info.png");
         NavButton.builder()
-                .icon(icon)
+                .icon(info)
                 .priority(1000)
                 .tooltip("VitaLite Info")
                 .panel(new VitaLiteInfoPanel())
                 .addToNavigation();
 
-        BufferedImage settings_icon = ResourceUtil.getImage(Main.class, "settings.png");
+        BufferedImage settings = ResourceUtil.getImage(Main.class, "settings.png");
         NavButton.builder()
-                .icon(settings_icon)
+                .icon(settings)
                 .priority(999)
                 .tooltip("VitaLite Info")
                 .panel(VitaLiteOptionsPanel.getInstance())
