@@ -1,6 +1,5 @@
 package com.tonic;
 
-import com.tonic.util.TextUtil;
 import lombok.SneakyThrows;
 import javax.inject.Singleton;
 import javax.swing.*;
@@ -210,6 +209,7 @@ public class Logger {
         console.setBackground(Color.BLACK);
         console.setForeground(Color.GREEN);
         fontFactory(console);
+        addFullContextMenu(console);
 
         CONSOLE = new SimpleAttributeSet();
         StyleConstants.setForeground(CONSOLE, Color.LIGHT_GRAY);
@@ -225,6 +225,29 @@ public class Logger {
 
         ERROR = new SimpleAttributeSet();
         StyleConstants.setForeground(ERROR, Color.RED);
+    }
+
+    private void addFullContextMenu(JTextPane textPane) {
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        // Clear option
+        JMenuItem clearItem = new JMenuItem("Clear");
+        clearItem.addActionListener(e -> textPane.setText(""));
+
+        // Copy option
+        JMenuItem copyItem = new JMenuItem("Copy");
+        copyItem.addActionListener(e -> textPane.copy());
+
+        // Select All option
+        JMenuItem selectAllItem = new JMenuItem("Select All");
+        selectAllItem.addActionListener(e -> textPane.selectAll());
+
+        popupMenu.add(copyItem);
+        popupMenu.add(selectAllItem);
+        popupMenu.addSeparator();
+        popupMenu.add(clearItem);
+
+        textPane.setComponentPopupMenu(popupMenu);  // Even simpler way!
     }
 
     private static void fontFactory(JTextPane console)

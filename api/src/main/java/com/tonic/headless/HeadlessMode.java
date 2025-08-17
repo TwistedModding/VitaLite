@@ -51,7 +51,6 @@ public class HeadlessMode {
             clientPanel.setSize(RestoreSize.HIDDEN);
             clientPanel.setMaximumSize(RestoreSize.HIDDEN);
             clientPanel.setMinimumSize(RestoreSize.HIDDEN);
-
         }
         else
         {

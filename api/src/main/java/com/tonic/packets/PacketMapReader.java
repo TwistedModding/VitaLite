@@ -40,11 +40,17 @@ public class PacketMapReader
 
     public static String prettify(PacketBuffer buffer)
     {
-        MapEntry entry = idToEntryMap.get(buffer.getPacketId());
-        if(entry == null)
+        if(defs == null)
+        {
+            fillMaps();
+        }
+
+        if(!idToEntryMap.containsKey(buffer.getPacketId()))
         {
             return "[UNKNOWN(" + buffer.getPacketId() + ")] " + buffer;
         }
+
+        MapEntry entry = idToEntryMap.get(buffer.getPacketId());
 
         StringBuilder out = new StringBuilder("[" + entry.getName() + "(" + entry.getPacket().getId() + ")] ");
         long num;
@@ -262,6 +268,7 @@ public class PacketMapReader
                             e -> e,
                             (e1, e2) -> e1
                     ));
+            System.out.println("Loaded " + defs.size() + " packet definitions.");
         }
         catch (IOException e)
         {

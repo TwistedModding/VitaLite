@@ -2,7 +2,6 @@ package com.tonic.runelite;
 
 import com.tonic.Logger;
 import com.tonic.Main;
-import com.tonic.Static;
 import com.tonic.model.NavButton;
 import com.tonic.model.ui.VitaLiteInfoPanel;
 import com.tonic.model.ui.VitaLiteOptionsPanel;
@@ -15,6 +14,8 @@ import java.awt.image.BufferedImage;
 
 public class ClientUIUpdater
 {
+    private static JPanel wrapper;
+    private static JScrollPane scrollPane;
     public static void inject()
     {
         if(Main.optionsParser.isIncognito())
@@ -39,10 +40,10 @@ public class ClientUIUpdater
             frame.setIconImage(icon);
             frame.setTitle("VitaLite");
 
-            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper = new JPanel(new BorderLayout());
             JTextPane console = Logger.getConsole();
-            JScrollPane scrollPane = new JScrollPane(console);
-            scrollPane.setPreferredSize(new Dimension(0, 100));
+            scrollPane = new JScrollPane(console);
+            scrollPane.setPreferredSize(new Dimension(0, 150));
             scrollPane.setBorder(BorderFactory.createLineBorder(new Color(30, 30, 30), 5));
 
             wrapper.add(originalContent, BorderLayout.CENTER);
@@ -51,6 +52,24 @@ public class ClientUIUpdater
             frame.setContentPane(wrapper);
             frame.revalidate();
             frame.repaint();
+        });
+    }
+
+    public static void toggleLogger(boolean remove)
+    {
+        if(wrapper == null || scrollPane == null)
+            return;
+        SwingUtilities.invokeLater(() -> {
+            if(remove)
+            {
+                wrapper.remove(scrollPane);
+            }
+            else
+            {
+                wrapper.add(scrollPane, BorderLayout.SOUTH);
+            }
+            wrapper.revalidate();
+            wrapper.repaint();
         });
     }
 
@@ -73,6 +92,10 @@ public class ClientUIUpdater
                 .addToNavigation();
     }
 
+    /**
+     * Patches the splash screen of the client. don't remove, call is injected.
+     * @param jFrame SplashScreen jframe
+     */
     public static void patchSplashScreen(JFrame jFrame)
     {
         jFrame.setTitle("VitaLite Launcher");
