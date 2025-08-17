@@ -16,6 +16,7 @@ public class PacketMapReader
 {
     private static List<MapEntry> defs;
     private static final Gson gson = new GsonBuilder().create();
+    private static Map<Integer, MapEntry> idToEntryMap;
 
     public static List<MapEntry> get()
     {
@@ -39,9 +40,7 @@ public class PacketMapReader
 
     public static String prettify(PacketBuffer buffer)
     {
-        MapEntry entry = get().stream()
-                .filter(e -> e.getPacket().getId() == buffer.getPacketId())
-                .findFirst().orElse(null);
+        MapEntry entry = idToEntryMap.get(buffer.getPacketId());
         if(entry == null)
         {
             return "[UNKNOWN(" + buffer.getPacketId() + ")] " + buffer;
@@ -230,13 +229,20 @@ public class PacketMapReader
         }
     }
 
-    public static boolean isParsableAsNumber(String str) {
-        try {
-            Integer.parseInt(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
+    private static boolean isParsableAsNumber(String str) {
+        if (str == null || str.isEmpty()) return false;
+
+        int start = 0;
+        if (str.charAt(0) == '-') {
+            if (str.length() == 1) return false;
+            start = 1;
         }
+
+        for (int i = start; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (c < '0' || c > '9') return false;
+        }
+        return true;
     }
 
     public static void fillMaps()
@@ -249,6 +255,13 @@ public class PacketMapReader
                 String fileContent = bufferedReader.lines().collect(Collectors.joining(System.lineSeparator()));
                 defs = gson.fromJson(fileContent, new TypeToken<ArrayList<MapEntry>>(){}.getType());
             }
+
+            idToEntryMap = defs.stream()
+                    .collect(Collectors.toMap(
+                            e -> e.getPacket().getId(),
+                            e -> e,
+                            (e1, e2) -> e1
+                    ));
         }
         catch (IOException e)
         {

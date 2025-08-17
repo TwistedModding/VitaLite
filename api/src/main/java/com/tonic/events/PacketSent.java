@@ -16,17 +16,7 @@ public class PacketSent {
     public String toString()
     {
         PacketBuffer pb = new PacketBuffer(id, payload);
-        String out;
-
-        try
-        {
-            out = PacketMapReader.prettify(pb);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            out = "[oops]";
-        }
+        String out = PacketMapReader.prettify(pb);
         pb.dispose();
         return out;
     }
