@@ -3,6 +3,8 @@ package com.tonic.util;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.util.Objects;
+
 import static org.objectweb.asm.Opcodes.*;
 
 public class InsnUtil

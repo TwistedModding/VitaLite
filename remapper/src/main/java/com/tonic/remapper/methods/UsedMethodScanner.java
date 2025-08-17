@@ -49,6 +49,11 @@ public class UsedMethodScanner {
             for (MethodNode mn : cn.methods) {
                 MethodKey key = new MethodKey(cn.name, mn.name, mn.desc);
                 allMethods.put(key, mn);
+                if(mn.desc.startsWith("(IIIIIILjava/lang/String;Ljava/lang/String;II"))
+                {
+                    used.add(key);
+                    System.out.println("doAction: " + cn.name + "." + mn.name + mn.desc);
+                }
             }
         }
 

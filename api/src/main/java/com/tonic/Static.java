@@ -2,6 +2,7 @@ package com.tonic;
 
 import com.google.inject.Injector;
 import com.tonic.api.TClient;
+import com.tonic.headless.HeadlessMode;
 import com.tonic.model.RuneLite;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,6 @@ import java.util.function.Supplier;
 
 public class Static
 {
-    @Setter
     @Getter
     private static boolean headless = false;
     private static Object RL_CLIENT;
@@ -83,5 +83,10 @@ public class Static
     public static void post(Object event)
     {
         getRuneLite().getEventBus().post(event);
+    }
+
+    public static void setHeadless(boolean headless) {
+        Static.headless = headless;
+        HeadlessMode.toggleHeadless(headless);
     }
 }

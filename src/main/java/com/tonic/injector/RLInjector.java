@@ -31,6 +31,7 @@ public class RLInjector
             RuneliteModuleBindingsTransformer.patch(node);
             RuneLiteObjectStoreTransformer.patch(node);
             DisableCorePluginsTransformer.patch(node);
+            PatchSplashScreenTransformer.patch(node);
         }
 
         for (var entry : runelite.entrySet()) {
@@ -51,7 +52,8 @@ public class RLInjector
                     "net.runelite.client.RuneLite",
                     "net.runelite.client.RuneLiteModule",
                     "net.runelite.client.plugins.PluginManager",
-                    "net.runelite.client.ui.ClientUI"
+                    "net.runelite.client.ui.ClientUI",
+                    "net.runelite.client.ui.SplashScreen"
             );
             if(toDump.contains(name))
             {

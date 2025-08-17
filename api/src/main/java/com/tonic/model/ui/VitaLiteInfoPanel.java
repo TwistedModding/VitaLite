@@ -1,4 +1,7 @@
-package com.tonic.model.pluginpanel;
+package com.tonic.model.ui;
+
+import com.tonic.events.PacketSent;
+import com.tonic.model.ui.componants.VPluginPanel;
 
 import javax.swing.*;
 import javax.swing.border.*;

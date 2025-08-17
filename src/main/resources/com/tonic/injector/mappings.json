@@ -15641,6 +15641,13 @@
         "isStatic": false
       },
       {
+        "obfuscatedName": "abe",
+        "owner": "Client",
+        "ownerObfuscatedName": "client",
+        "descriptor": "(IIIIIILjava/lang/String;Ljava/lang/String;II)V",
+        "isStatic": true
+      },
+      {
         "obfuscatedName": "ly",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -15688,6 +15695,13 @@
         "ownerObfuscatedName": "client",
         "descriptor": "()I",
         "isStatic": false
+      },
+      {
+        "obfuscatedName": "abz",
+        "owner": "Client",
+        "ownerObfuscatedName": "client",
+        "descriptor": "(IIIIIILjava/lang/String;Ljava/lang/String;II)V",
+        "isStatic": true
       },
       {
         "obfuscatedName": "ky",
@@ -15758,13 +15772,6 @@
         "ownerObfuscatedName": "client",
         "descriptor": "(IZI)Z",
         "isStatic": false
-      },
-      {
-        "obfuscatedName": "ys",
-        "owner": "Client",
-        "ownerObfuscatedName": "client",
-        "descriptor": "(Lxz;IIIIIILjava/lang/String;Ljava/lang/String;)Lrl4;",
-        "isStatic": true
       },
       {
         "obfuscatedName": "bd",
@@ -42723,12 +42730,6 @@
         "isStatic": false
       },
       {
-        "obfuscatedName": "ah",
-        "ownerObfuscatedName": "iy",
-        "descriptor": "(Liy;)V",
-        "isStatic": true
-      },
-      {
         "obfuscatedName": "setMinLevel",
         "ownerObfuscatedName": "iy",
         "descriptor": "(I)V",
@@ -42756,12 +42757,6 @@
         "obfuscatedName": "bu",
         "ownerObfuscatedName": "iy",
         "descriptor": "(Ljava/util/BitSet;IIII)Z",
-        "isStatic": false
-      },
-      {
-        "obfuscatedName": "cr",
-        "ownerObfuscatedName": "iy",
-        "descriptor": "()V",
         "isStatic": false
       },
       {
@@ -54815,7 +54810,7 @@
         "owner": "ClientPacket",
         "ownerObfuscatedName": "mi",
         "descriptor": "I",
-        "getter": 1592024691,
+        "getter": -1642840655,
         "setter": 1361570641,
         "isStatic": false
       },
@@ -83288,12 +83283,6 @@
         "obfuscatedName": "cq",
         "ownerObfuscatedName": "vi",
         "descriptor": "(ILng;I)Lng;",
-        "isStatic": false
-      },
-      {
-        "obfuscatedName": "cj",
-        "ownerObfuscatedName": "vi",
-        "descriptor": "(IILng;Lng;I)V",
         "isStatic": false
       },
       {

@@ -1,17 +1,18 @@
 package com.tonic.mixins;
 
+import com.tonic.Static;
 import com.tonic.api.*;
+import com.tonic.events.PacketSent;
 import com.tonic.injector.annotations.Inject;
 import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
-import com.tonic.packets.PacketBuffer;
+import com.tonic.model.ui.VitaLiteOptionsPanel;
 import com.tonic.packets.PacketMapReader;
 import com.tonic.packets.types.MapEntry;
 import lombok.Getter;
 import net.runelite.api.widgets.WidgetInfo;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,33 +51,6 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         if(node == null ||  node.getClientPacket() == null)
             return;
 
-        PacketBuffer pb = getPB(node);
-        String out;
-
-        try
-        {
-            out = PacketMapReader.prettify(pb);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            out = "[oops]";
-        }
-        if (!out.startsWith("[UNKNOWN(")) {
-            System.out.println(out);
-        }
-        pb.dispose();
-    }
-
-    @Inject
-    private void addNodeSwitch(TPacketBufferNode node)
-    {
-        this.addNode(node);
-        //this.addNode(node);
-    }
-
-    @Inject
-    private static PacketBuffer getPB(TPacketBufferNode node) {
         TPacketBuffer buffer = node.getPacketBuffer();
         TClientPacket packet = node.getClientPacket();
 
@@ -84,12 +58,25 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         int id = packet.getId();
         int len = packet.getLength();
 
-        byte[] bytes = buffer.getArray();
-        byte[] payload = Arrays.copyOfRange(
-                bytes, 1, (len > 0) ? (1 + len) : offset
-        );
+        if(len > 100)
+            return;
 
-        return new PacketBuffer(id, payload);
+        byte[] bytes = buffer.getArray();
+        int payloadSize = (len > 0) ? len : (offset - 1);
+        byte[] payload = new byte[payloadSize];
+        System.arraycopy(bytes, 1, payload, 0, payloadSize);
+
+        PacketSent packetSent = new PacketSent(id, payload);
+        Static.post(packetSent);
+        VitaLiteOptionsPanel.INSTANCE.onPacketSent(packetSent);
+    }
+
+    @Inject
+
+    private void addNodeSwitch(TPacketBufferNode node)
+    {
+        this.addNode(node);
+        //this.addNode(node);
     }
 
     @Override
