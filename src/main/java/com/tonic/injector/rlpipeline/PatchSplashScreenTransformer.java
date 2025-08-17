@@ -6,6 +6,9 @@ import com.tonic.util.LdcRewriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PatchSplashScreenTransformer
 {
     public static void patch(ClassNode classNode) {
@@ -46,6 +49,13 @@ public class PatchSplashScreenTransformer
                 target,
                 code
         );
+
+        for(AbstractInsnNode insn : constructor.instructions) {
+            if (insn.getOpcode() == Opcodes.GETSTATIC && ((FieldInsnNode)insn).name.equals("BRAND_ORANGE")) {
+                FieldInsnNode fin = (FieldInsnNode) insn;
+                fin.name = "GRAND_EXCHANGE_LIMIT";
+            }
+        }
 
         int strCount = LdcRewriter.rewriteString(constructor, "runelite_splash.png", "icon-splash.png");
         int clsCount = LdcRewriter.rewriteClassRef(constructor, "net/runelite/client/ui/SplashScreen", "com/tonic/Main");

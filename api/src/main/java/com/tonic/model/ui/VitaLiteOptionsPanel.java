@@ -3,29 +3,32 @@ package com.tonic.model.ui;
 import com.tonic.Logger;
 import com.tonic.Static;
 import com.tonic.events.PacketSent;
+import com.tonic.model.ui.componants.OptionPanel;
 import com.tonic.model.ui.componants.ToggleSlider;
 import com.tonic.model.ui.componants.VPluginPanel;
-
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class VitaLiteOptionsPanel extends VPluginPanel {
 
-    public static final VitaLiteOptionsPanel INSTANCE = new VitaLiteOptionsPanel();
+    private static VitaLiteOptionsPanel INSTANCE;
+
+    public static VitaLiteOptionsPanel getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new VitaLiteOptionsPanel();
+        }
+        return INSTANCE;
+    }
+
     private static final Color BACKGROUND_GRADIENT_START = new Color(45, 45, 50);
     private static final Color BACKGROUND_GRADIENT_END = new Color(35, 35, 40);
-    private static final Color ACCENT_COLOR = new Color(64, 169, 211);
     private static final Color ACCENT_GLOW = new Color(64, 169, 211, 30);
-    private static final Color TEXT_COLOR = new Color(200, 200, 205);
-    private static final Color HEADER_COLOR = new Color(245, 245, 250);
-    private static final Color CARD_BACKGROUND = new Color(55, 55, 60);
+    private static final Color HEADER_COLOR  = new Color(245, 245, 250);
     private static final Color SEPARATOR_COLOR = new Color(70, 70, 75);
-
-    private ToggleSlider headlessToggle;
-    private ToggleSlider logPacketsToggle;
+    private static final Color CARD_BACKGROUND = new Color(55, 55, 60);
+    private static final Color ACCENT_COLOR = new Color(64, 169, 211);
+    private final ToggleSlider headlessToggle;
+    private final ToggleSlider logPacketsToggle;
 
     private VitaLiteOptionsPanel() {
         super(true);
@@ -52,35 +55,32 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         contentPanel.add(Box.createVerticalStrut(10));
 
         // Create header panel with glow effect
-        JPanel headerPanel = createGlowPanel();
-        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        JPanel titlePanel = createGlowPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
 
-        JLabel headerLabel = new JLabel("VitaLite Settings");
-        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        headerLabel.setForeground(HEADER_COLOR);
-        headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        headerPanel.add(Box.createVerticalStrut(15));
-        headerPanel.add(headerLabel);
+        JLabel titleLabel = new JLabel("Settings");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLabel.setForeground(HEADER_COLOR);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titlePanel.add(Box.createVerticalStrut(10));
+        titlePanel.add(titleLabel);
 
-        JLabel subtitleLabel = new JLabel("Configure your experience");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        subtitleLabel.setForeground(ACCENT_COLOR);
-        subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        headerPanel.add(subtitleLabel);
-        headerPanel.add(Box.createVerticalStrut(15));
+        JLabel taglineLabel = new JLabel("Enhanced RuneLite Experience");
+        taglineLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        taglineLabel.setForeground(ACCENT_COLOR);
+        taglineLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titlePanel.add(taglineLabel);
+        titlePanel.add(Box.createVerticalStrut(10));
 
-        contentPanel.add(headerPanel);
-        contentPanel.add(Box.createVerticalStrut(20));
-        contentPanel.add(createSeparator());
-        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(titlePanel);
+        contentPanel.add(Box.createVerticalStrut(10));
 
         // Headless toggle
         headlessToggle = new ToggleSlider();
         contentPanel.add(createToggleOption(
                 "Headless Mode",
-                "Run without GUI rendering",
+                "Run without rendering",
                 headlessToggle,
-                "headless",
                 () -> Static.setHeadless(headlessToggle.isSelected())
         ));
         contentPanel.add(Box.createVerticalStrut(12));
@@ -89,9 +89,8 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         logPacketsToggle = new ToggleSlider();
         contentPanel.add(createToggleOption(
                 "Log Packets",
-                "Enable packet logging for debugging",
+                "Enable packet logging",
                 logPacketsToggle,
-                "logPackets",
                 () -> {}
         ));
 
@@ -102,67 +101,9 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         add(contentPanel);
     }
 
-    private JPanel createToggleOption(String title, String description, ToggleSlider toggle, String settingKey, Runnable onClick) {
-        JPanel optionPanel = new JPanel() {
-            private boolean isHovered = false;
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                if (isHovered) {
-                    g2d.setColor(new Color(60, 60, 65));
-                } else {
-                    g2d.setColor(CARD_BACKGROUND);
-                }
-                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
-
-                g2d.setColor(SEPARATOR_COLOR);
-                g2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-            }
-        };
-
-        optionPanel.setLayout(new BorderLayout(10, 0));
-        optionPanel.setOpaque(false);
-        optionPanel.setBorder(new EmptyBorder(12, 15, 12, 15));
-        optionPanel.setMaximumSize(new Dimension(PANEL_WIDTH - 40, 60));
-
-        JPanel textPanel = new JPanel();
-        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
-        textPanel.setOpaque(false);
-
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        titleLabel.setForeground(HEADER_COLOR);
-        textPanel.add(titleLabel);
-
-        JLabel descLabel = new JLabel(description);
-        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        descLabel.setForeground(TEXT_COLOR);
-        textPanel.add(descLabel);
-
-        optionPanel.add(textPanel, BorderLayout.CENTER);
-        optionPanel.add(toggle, BorderLayout.EAST);
-
-        optionPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                //isHovered = true;
-                optionPanel.repaint();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                //isHovered = false;
-                optionPanel.repaint();
-            }
-        });
-
-        // Add action listener to toggle
-        toggle.addActionListener(e -> onClick.run());
-
+    private JPanel createToggleOption(String title, String description, ToggleSlider toggle, Runnable onClick) {
+        OptionPanel optionPanel = new OptionPanel();
+        optionPanel.init(title, description, toggle, onClick);
         return optionPanel;
     }
 
@@ -188,7 +129,7 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
             }
         };
         panel.setOpaque(false);
-        panel.setMaximumSize(new Dimension(PANEL_WIDTH - 20, 80));
+        panel.setMaximumSize(new Dimension(PANEL_WIDTH - 20, 65));
         return panel;
     }
 

@@ -65,7 +65,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
         PacketSent packetSent = new PacketSent(id, payload);
         Static.post(packetSent);
-        VitaLiteOptionsPanel.INSTANCE.onPacketSent(packetSent);
+        VitaLiteOptionsPanel.getInstance().onPacketSent(packetSent);
     }
 
     @Inject

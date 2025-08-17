@@ -87,26 +87,6 @@ public class VitaLiteInfoPanel extends VPluginPanel
         contentPanel.add(createSeparator());
         contentPanel.add(Box.createVerticalStrut(15));
 
-        JPanel authorCard = createCard();
-        authorCard.setLayout(new BoxLayout(authorCard, BoxLayout.Y_AXIS));
-
-        JLabel authorTitle = new JLabel("Created by");
-        authorTitle.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        authorTitle.setForeground(TEXT_COLOR);
-        authorTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        authorCard.add(Box.createVerticalStrut(5));
-        authorCard.add(authorTitle);
-
-        JLabel authorName = new JLabel("TonicBox");
-        authorName.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        authorName.setForeground(HEADER_COLOR);
-        authorName.setAlignmentX(Component.CENTER_ALIGNMENT);
-        authorCard.add(authorName);
-        authorCard.add(Box.createVerticalStrut(5));
-
-        contentPanel.add(authorCard);
-        contentPanel.add(Box.createVerticalStrut(15));
-
         JLabel connectLabel = new JLabel("Connect & Contribute");
         connectLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
         connectLabel.setForeground(HEADER_COLOR);
@@ -128,12 +108,36 @@ public class VitaLiteInfoPanel extends VPluginPanel
                 "https://discord.gg/A4S4Fh4gzr"
         ));
 
+        JPanel authorCard = createCard();
+        authorCard.setLayout(new BoxLayout(authorCard, BoxLayout.Y_AXIS));
+
+        contentPanel.add(Box.createVerticalStrut(15));
+        contentPanel.add(createSeparator());
+        contentPanel.add(Box.createVerticalStrut(15));
+
+        JLabel authorTitle = new JLabel("Created by");
+        authorTitle.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        authorTitle.setForeground(TEXT_COLOR);
+        authorTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+        authorCard.add(Box.createVerticalStrut(5));
+        authorCard.add(authorTitle);
+
+        JLabel authorName = new JLabel("TonicBox");
+        authorName.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        authorName.setForeground(HEADER_COLOR);
+        authorName.setAlignmentX(Component.CENTER_ALIGNMENT);
+        authorCard.add(authorName);
+        authorCard.add(Box.createVerticalStrut(5));
+
+        contentPanel.add(authorCard);
+
         contentPanel.add(Box.createVerticalGlue());
 
         JLabel footerLabel = new JLabel("Made with <3");
         footerLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         footerLabel.setForeground(new Color(150, 150, 155));
         footerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         contentPanel.add(Box.createVerticalStrut(10));
         contentPanel.add(footerLabel);
         contentPanel.add(Box.createVerticalStrut(10));
