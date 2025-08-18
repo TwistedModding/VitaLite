@@ -1,13 +1,10 @@
 package com.tonic.injector;
 
-import com.tonic.injector.util.BootstrapPoisonInjector;
+import com.tonic.injector.util.*;
 import com.tonic.vitalite.Main;
 import com.tonic.dto.JClass;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.pipeline.*;
-import com.tonic.injector.util.AnnotationUtil;
-import com.tonic.injector.util.BootstrapAttributeCopier;
-import com.tonic.injector.util.ClassNodeUtil;
 import com.tonic.util.JarDumper;
 import com.tonic.util.PackageUtil;
 import org.objectweb.asm.tree.ClassNode;
@@ -54,6 +51,7 @@ public class Injector {
     private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) {
         for (ClassNode mixin : pairs.keySet()) {
             BootstrapPoisonInjector.obliterateDecompilers(mixin);
+            StripLvtInfo.run(mixin);
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             JClass jClass = MappingProvider.getClass(gamepackName);
             ClassNode gamepackClass = gamepack.get(jClass.getObfuscatedName());

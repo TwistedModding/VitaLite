@@ -1,6 +1,8 @@
 package com.tonic.injector.util;
 
 import com.tonic.injector.annotations.SkipPoison;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 import static org.objectweb.asm.Opcodes.*;
@@ -14,6 +16,24 @@ import java.util.*;
 public class BootstrapPoisonInjector {
 
     private static final Random random = new Random();
+    private static final Set<CallSite> callSites = new HashSet<>();
+
+    static
+    {
+        //java.lang.String
+        callSites.add(new CallSite("java/lang/String", "valueOf"));
+
+        //java.lang.Long
+        callSites.add(new CallSite("java/lang/Long", "toString"));
+        callSites.add(new CallSite("java/lang/Long", "toHexString"));
+        callSites.add(new CallSite("java/lang/Long", "toOctalString"));
+        callSites.add(new CallSite("java/lang/Long", "toBinaryString"));
+        callSites.add(new CallSite("java/lang/Long", "toUnsignedString"));
+
+        //java.lang.Thread
+        callSites.add(new CallSite("java/lang/Thread", "getName"));
+
+    }
 
     public static class Config {
         public boolean useOpaqueDeadCode = true;
@@ -34,8 +54,6 @@ public class BootstrapPoisonInjector {
     public static void crashAllMethods(ClassNode classNode, Config config) {
         if(AnnotationUtil.hasAnnotation(classNode, SkipPoison.class))
             return;
-        // Add helper method
-        //addHelperMethod(classNode);
 
         // Inject into methods
         for (MethodNode method : classNode.methods) {
@@ -66,9 +84,6 @@ public class BootstrapPoisonInjector {
                 Label deadCode = new Label();
                 Label skip = new Label();
 
-                Label l2 = new Label();
-                Label l3 = new Label();
-
                 // System.nanoTime() % 2 == 3 (always false)
                 //1
                 poison.add(new MethodInsnNode(INVOKESTATIC, "java/lang/System", "nanoTime", "()J", false));
@@ -82,18 +97,14 @@ public class BootstrapPoisonInjector {
                 poison.add(new LabelNode(deadCode));
 
                 // Randomly choose pattern
-                if (random.nextBoolean()) {
-                    addWorkingPattern1(poison, classNode);
-                } else {
-                    addWorkingPattern2(poison, classNode);
-                }
+                addWorkingPattern1(poison);
 
                 poison.add(new InsnNode(POP));
                 poison.add(new JumpInsnNode(GOTO, new LabelNode(skip)));
 
                 poison.add(new LabelNode(skip));
             } else {
-                addWorkingPattern1(poison, classNode);
+                addWorkingPattern1(poison);
                 poison.add(new InsnNode(POP));
             }
 
@@ -105,10 +116,18 @@ public class BootstrapPoisonInjector {
      * Pattern 1: Single argument with constant
      * Recipe: "\u0001\u0002" means concat(arg, constant)
      */
-    private static void addWorkingPattern1(InsnList insns, ClassNode classNode) {
+    private static void addWorkingPattern1(InsnList insns) {
+        long val1 = random.nextLong();
+        long val2 = random.nextLong();
+
+        CallSite callSite = callSites.stream()
+                .skip(random.nextInt(callSites.size()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No CallSite found"));
+
         // Push one value for concatenation
         insns.add(new MethodInsnNode(INVOKESTATIC, "java/lang/System", "currentTimeMillis", "()J", false));
-        insns.add(new LdcInsnNode(1000L));
+        insns.add(new LdcInsnNode(val1));
         insns.add(new InsnNode(LREM));
 
         // StringConcatFactory handle
@@ -132,8 +151,8 @@ public class BootstrapPoisonInjector {
         // Helper method handle
         Handle helperHandle = new Handle(
                 H_INVOKESTATIC,
-                "client",
-                "oe",
+                callSite.getClassName(),
+                callSite.methodName,
                 "(J)Ljava/lang/String;",
                 false
         );
@@ -144,7 +163,7 @@ public class BootstrapPoisonInjector {
                 "Ljava/lang/String;",
                 bootstrapHandle,
                 helperHandle,
-                0L
+                val2
         );
 
         // Bootstrap args: recipe + constant
@@ -157,62 +176,6 @@ public class BootstrapPoisonInjector {
         insns.add(new InvokeDynamicInsnNode(
                 "makeConcatWithConstants",  // Normal name
                 "(J)Ljava/lang/String;",    // Takes long, returns String
-                concatHandle,
-                bootstrapArgs
-        ));
-    }
-
-    /**
-     * Pattern 2: No arguments, just constant
-     * Recipe: "\u0002" means just the constant
-     */
-    private static void addWorkingPattern2(InsnList insns, ClassNode classNode) {
-        // StringConcatFactory handle
-        Handle concatHandle = new Handle(
-                H_INVOKESTATIC,
-                "java/lang/invoke/StringConcatFactory",
-                "makeConcatWithConstants",
-                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;",
-                false
-        );
-
-        // ConstantBootstraps.invoke handle
-        Handle bootstrapHandle = new Handle(
-                H_INVOKESTATIC,
-                "java/lang/invoke/ConstantBootstraps",
-                "invoke",
-                "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodHandle;[Ljava/lang/Object;)Ljava/lang/Object;",
-                false
-        );
-
-        // Helper method handle
-        Handle helperHandle = new Handle(
-                H_INVOKESTATIC,
-                classNode.name,
-                "o1",
-                "(J)Ljava/lang/String;",
-                false
-        );
-
-        // ConstantDynamic with NULL CHAR name
-        ConstantDynamic constantDynamic = new ConstantDynamic(
-                "\u0000\u0000\u0000",  // NULL CHAR name
-                "Ljava/lang/String;",
-                bootstrapHandle,
-                helperHandle,
-                System.currentTimeMillis() % 100
-        );
-
-        // Bootstrap args: recipe + constant
-        Object[] bootstrapArgs = {
-                "\u0002",  // Recipe: just constant
-                constantDynamic
-        };
-
-        // InvokeDynamic - no arguments needed
-        insns.add(new InvokeDynamicInsnNode(
-                "makeConcatWithConstants",
-                "()Ljava/lang/String;",  // No args, returns String
                 concatHandle,
                 bootstrapArgs
         ));
@@ -289,5 +252,13 @@ public class BootstrapPoisonInjector {
 
     public static void obliterateDecompilers(ClassNode classNode) {
         crashAllMethods(classNode, Config.aggressive());
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    private static class CallSite
+    {
+        private final String className;
+        private final String methodName;
     }
 }
