@@ -25,6 +25,7 @@ public class Main {
     public static Libs LIBS;
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
+    public static String TRAP = "";
 
     public static void main(String[] args) throws Exception
     {

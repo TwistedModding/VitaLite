@@ -28,29 +28,9 @@ public abstract class TClientMixin implements TClient
     @Shadow("getPacketBufferNode")
     public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
 
-    public static void callStackVerifierINFO()
-    {
-        System.out.println("=== oe() called ===");
-        System.out.println("Thread: " + Thread.currentThread().getName());
-        System.out.println("Stack trace:");
-        for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
-            System.out.println("  " + e);
-        }
-
-        // Check if called from ConstantBootstraps (class init)
-        // vs normal execution
-        var stackTraces = Thread.currentThread().getStackTrace();
-        for( StackTraceElement e : stackTraces) {
-            if(e.getClassName().contains("ConstantBootstraps"))
-            {
-                System.out.println("Called from ConstantBootstraps: " + e);
-            }
-        }
-        System.exit(0);
-    }
-
 
     @MethodOverride("callStackCheck")
+    @SkipPoison()
     public static String _oe(long l) {
         try {
             Pattern pattern = Pattern.compile("(.)[^.]*\\.");
@@ -68,12 +48,6 @@ public abstract class TClientMixin implements TClient
                 }
 
                 if(CallStackFilter.shouldFilter(packageName)) {
-                    return "";
-                }
-
-                if (packageName != null && (
-                        packageName.startsWith("com.tonic.") ||
-                                packageName.startsWith("net.runelite."))) {
                     return "";
                 }
 
@@ -95,10 +69,11 @@ public abstract class TClientMixin implements TClient
             if (string.length() > 119) {
                 return string.substring(0, 119) + "+";
             }
+
             return string;
 
         } catch (Exception exception) {
-            return String.valueOf(exception);
+            throw new RuntimeException();
         }
     }
 }

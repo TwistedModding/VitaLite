@@ -1,5 +1,6 @@
 package com.tonic.injector;
 
+import com.tonic.injector.util.BootstrapPoisonInjector;
 import com.tonic.vitalite.Main;
 import com.tonic.dto.JClass;
 import com.tonic.injector.annotations.*;
@@ -52,6 +53,7 @@ public class Injector {
 
     private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) {
         for (ClassNode mixin : pairs.keySet()) {
+            BootstrapPoisonInjector.obliterateDecompilers(mixin);
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             JClass jClass = MappingProvider.getClass(gamepackName);
             ClassNode gamepackClass = gamepack.get(jClass.getObfuscatedName());

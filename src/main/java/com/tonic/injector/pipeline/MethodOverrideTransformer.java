@@ -23,8 +23,6 @@ public class MethodOverrideTransformer {
      * @param method The MethodNode from the mixin that contains the new bytecode.
      */
     public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
-        InjectTransformer.patch(gamepack, mixin, method);
-
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, MethodOverride.class, "value");
         JClass jClass = MappingProvider.getClass(gamepackName);
