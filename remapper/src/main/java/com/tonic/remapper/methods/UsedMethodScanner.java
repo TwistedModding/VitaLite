@@ -1,5 +1,6 @@
 package com.tonic.remapper.methods;
 
+import com.tonic.remapper.misc.AnnotationUtil;
 import org.bouncycastle.tls.DefaultTlsClient;
 import org.bouncycastle.tls.TlsAuthentication;
 import org.bouncycastle.tls.TlsClient;
@@ -49,10 +50,10 @@ public class UsedMethodScanner {
             for (MethodNode mn : cn.methods) {
                 MethodKey key = new MethodKey(cn.name, mn.name, mn.desc);
                 allMethods.put(key, mn);
-                if(mn.desc.startsWith("(IIIIIILjava/lang/String;Ljava/lang/String;II"))
+                if(AnnotationUtil.hasAnnotation(mn, "javax/inject/Inject"))
                 {
-                    used.add(key);
-                    System.out.println("doAction: " + cn.name + "." + mn.name + mn.desc);
+                    System.out.println("Found @Inject method: " + cn.name + "." + mn.name + mn.desc);
+                    used.add(key); // always add methods with @Inject
                 }
             }
         }

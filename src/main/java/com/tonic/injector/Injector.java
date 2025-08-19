@@ -109,7 +109,11 @@ public class Injector {
             {
                 ClassNode api = entry.getValue();
                 if(api == null)
+                {
+                    System.out.println("Skipping null API class: " + entry.getKey().name);
                     continue;
+                }
+                System.out.println("Applying interface: " + api.name);
                 ClassNode mixin = entry.getKey();
                 String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
                 JClass clazz = MappingProvider.getClass(gamepackName);

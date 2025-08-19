@@ -7,9 +7,12 @@ import com.tonic.model.ui.componants.OptionPanel;
 import com.tonic.model.ui.componants.ToggleSlider;
 import com.tonic.model.ui.componants.VPluginPanel;
 import com.tonic.util.ReflectBuilder;
+import com.tonic.util.ReflectUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class VitaLiteOptionsPanel extends VPluginPanel {
 
@@ -100,8 +103,32 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         contentPanel.add(createSeparator());
         contentPanel.add(Box.createVerticalStrut(20));
 
+        JButton checkButton = new JButton("Check Platform Info");
+        checkButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        checkButton.addActionListener(e -> {
+            checkShit();
+            Logger.info("Platform info checked and logged.");
+        });
+        checkButton.setMaximumSize(new Dimension(PANEL_WIDTH - 40, 30));
+        checkButton.setBackground(ACCENT_COLOR);
+        checkButton.setForeground(Color.WHITE);
+        checkButton.setFocusPainted(false);
+        checkButton.setBorderPainted(false);
+        checkButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        checkButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        contentPanel.add(checkButton);
+
 
         add(contentPanel);
+    }
+
+    private void checkShit()
+    {
+        Object platInfo = ReflectBuilder.ofClass("cl")
+                .staticField("wo")
+                .get();
+
+        ReflectUtil.inspectNonStaticFields(platInfo);
     }
 
     private JPanel createToggleOption(String title, String description, ToggleSlider toggle, Runnable onClick) {

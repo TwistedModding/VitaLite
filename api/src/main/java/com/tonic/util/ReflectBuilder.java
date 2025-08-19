@@ -24,7 +24,7 @@ public class ReflectBuilder
             Class<?> navButtonClass = Static.getRuneLite()
                     .getRuneLiteMain()
                     .getClassLoader()
-                    .loadClass("net.runelite.client.ui.NavigationButton");
+                    .loadClass(classFqdn);
             return new ReflectBuilder(navButtonClass);
         }
         catch (ClassNotFoundException e)
@@ -134,5 +134,9 @@ public class ReflectBuilder
         {
             throw new RuntimeException("Failed to get value from reflection chain", e);
         }
+    }
+
+    public String getAsString() {
+        return String.valueOf((Object) get());
     }
 }

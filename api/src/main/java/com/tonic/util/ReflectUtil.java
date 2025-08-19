@@ -3,6 +3,7 @@ package com.tonic.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class ReflectUtil
 {
@@ -55,6 +56,25 @@ public class ReflectUtil
             Constructor<?> constructor = clazz.getDeclaredConstructor(argTypes);
             constructor.setAccessible(true);
             return constructor.newInstance(values);
+        }
+    }
+
+    public static void inspectNonStaticFields(Object obj) {
+        Class<?> clazz = obj.getClass();
+
+        for (Field field : clazz.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
+
+            field.setAccessible(true);
+
+            try {
+                Object value = field.get(obj);
+                System.out.println(field.getName() + " = " + value);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

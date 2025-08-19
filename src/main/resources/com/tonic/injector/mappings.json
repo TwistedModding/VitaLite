@@ -11577,7 +11577,7 @@
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "packedCallStack1",
         "obfuscatedName": "am",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -13249,7 +13249,7 @@
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "packedCallStack2",
         "obfuscatedName": "dm",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -15641,13 +15641,6 @@
         "isStatic": false
       },
       {
-        "obfuscatedName": "abe",
-        "owner": "Client",
-        "ownerObfuscatedName": "client",
-        "descriptor": "(IIIIIILjava/lang/String;Ljava/lang/String;II)V",
-        "isStatic": true
-      },
-      {
         "obfuscatedName": "ly",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -15697,13 +15690,6 @@
         "isStatic": false
       },
       {
-        "obfuscatedName": "abz",
-        "owner": "Client",
-        "ownerObfuscatedName": "client",
-        "descriptor": "(IIIIIILjava/lang/String;Ljava/lang/String;II)V",
-        "isStatic": true
-      },
-      {
         "obfuscatedName": "ky",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -15746,6 +15732,7 @@
         "isStatic": true
       },
       {
+        "name": "callStackCombiner",
         "obfuscatedName": "nj",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -15772,6 +15759,13 @@
         "ownerObfuscatedName": "client",
         "descriptor": "(IZI)Z",
         "isStatic": false
+      },
+      {
+        "obfuscatedName": "ys",
+        "owner": "Client",
+        "ownerObfuscatedName": "client",
+        "descriptor": "(Lxz;IIIIIILjava/lang/String;Ljava/lang/String;)Lrl4;",
+        "isStatic": true
       },
       {
         "obfuscatedName": "bd",
@@ -16180,6 +16174,15 @@
         "isStatic": false
       },
       {
+        "name": "callStackPacker2",
+        "obfuscatedName": "pq",
+        "owner": "Client",
+        "ownerObfuscatedName": "client",
+        "descriptor": "()V",
+        "isStatic": false
+      },
+      {
+        "name": "",
         "obfuscatedName": "rk",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -16369,6 +16372,7 @@
         "isStatic": false
       },
       {
+        "name": "trunicator",
         "obfuscatedName": "ok",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -16642,6 +16646,7 @@
         "isStatic": true
       },
       {
+        "name": "callStackPacker1",
         "obfuscatedName": "rk",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -42730,6 +42735,12 @@
         "isStatic": false
       },
       {
+        "obfuscatedName": "ah",
+        "ownerObfuscatedName": "iy",
+        "descriptor": "(Liy;)V",
+        "isStatic": true
+      },
+      {
         "obfuscatedName": "setMinLevel",
         "ownerObfuscatedName": "iy",
         "descriptor": "(I)V",
@@ -42757,6 +42768,12 @@
         "obfuscatedName": "bu",
         "ownerObfuscatedName": "iy",
         "descriptor": "(Ljava/util/BitSet;IIII)Z",
+        "isStatic": false
+      },
+      {
+        "obfuscatedName": "cr",
+        "ownerObfuscatedName": "iy",
+        "descriptor": "()V",
         "isStatic": false
       },
       {
@@ -81487,11 +81504,13 @@
     ]
   },
   {
+    "name": "PlatformInfo",
     "obfuscatedName": "ut",
     "fields": [
       {
         "name": "",
         "obfuscatedName": "ch",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "[I",
         "isStatic": false
@@ -81499,13 +81518,15 @@
       {
         "name": "",
         "obfuscatedName": "bu",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
       },
       {
-        "name": "",
+        "name": "clientName",
         "obfuscatedName": "cv",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81513,6 +81534,7 @@
       {
         "name": "",
         "obfuscatedName": "ah",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81520,6 +81542,7 @@
       {
         "name": "",
         "obfuscatedName": "al",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81527,6 +81550,7 @@
       {
         "name": "",
         "obfuscatedName": "ag",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81534,6 +81558,7 @@
       {
         "name": "",
         "obfuscatedName": "aa",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81541,6 +81566,7 @@
       {
         "name": "",
         "obfuscatedName": "cl",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81548,6 +81574,7 @@
       {
         "name": "",
         "obfuscatedName": "ae",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81555,6 +81582,7 @@
       {
         "name": "",
         "obfuscatedName": "by",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81562,6 +81590,7 @@
       {
         "name": "",
         "obfuscatedName": "bh",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Z",
         "isStatic": false
@@ -81569,6 +81598,7 @@
       {
         "name": "",
         "obfuscatedName": "bg",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81576,6 +81606,7 @@
       {
         "name": "",
         "obfuscatedName": "bt",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81583,6 +81614,7 @@
       {
         "name": "",
         "obfuscatedName": "bs",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81590,6 +81622,7 @@
       {
         "name": "",
         "obfuscatedName": "aq",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81597,6 +81630,7 @@
       {
         "name": "",
         "obfuscatedName": "ap",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81604,6 +81638,7 @@
       {
         "name": "",
         "obfuscatedName": "bz",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Z",
         "isStatic": false
@@ -81611,6 +81646,7 @@
       {
         "name": "",
         "obfuscatedName": "bk",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81618,6 +81654,7 @@
       {
         "name": "",
         "obfuscatedName": "bb",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81625,6 +81662,7 @@
       {
         "name": "",
         "obfuscatedName": "cs",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81632,6 +81670,7 @@
       {
         "name": "",
         "obfuscatedName": "cg",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81639,6 +81678,7 @@
       {
         "name": "",
         "obfuscatedName": "ba",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81646,6 +81686,7 @@
       {
         "name": "",
         "obfuscatedName": "ce",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81653,6 +81694,7 @@
       {
         "name": "",
         "obfuscatedName": "ci",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81660,6 +81702,7 @@
       {
         "name": "",
         "obfuscatedName": "bp",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81667,6 +81710,7 @@
       {
         "name": "",
         "obfuscatedName": "cj",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81674,6 +81718,7 @@
       {
         "name": "",
         "obfuscatedName": "cm",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81681,6 +81726,7 @@
       {
         "name": "",
         "obfuscatedName": "cu",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81688,6 +81734,7 @@
       {
         "name": "",
         "obfuscatedName": "cn",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81695,6 +81742,7 @@
       {
         "name": "",
         "obfuscatedName": "ck",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81702,6 +81750,7 @@
       {
         "name": "",
         "obfuscatedName": "cq",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81709,6 +81758,7 @@
       {
         "name": "",
         "obfuscatedName": "ac",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81716,6 +81766,7 @@
       {
         "name": "",
         "obfuscatedName": "cx",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": false
@@ -81723,6 +81774,7 @@
       {
         "name": "",
         "obfuscatedName": "au",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "I",
         "isStatic": true
@@ -81730,6 +81782,7 @@
       {
         "name": "",
         "obfuscatedName": "cc",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "Ljava/lang/String;",
         "isStatic": false
@@ -81738,36 +81791,44 @@
     "methods": [
       {
         "obfuscatedName": "wv",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(Lrm;FFF)V",
         "isStatic": true
       },
       {
+        "name": "write",
         "obfuscatedName": "al",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(Lwj;I)V",
+        "garbageValue": 0,
         "isStatic": false
       },
       {
         "obfuscatedName": "\u003cinit\u003e",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(IZIIIIIZIIIILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IIIILjava/lang/String;Ljava/lang/String;[IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "ac",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(II)Ljava/lang/String;",
         "isStatic": false
       },
       {
         "obfuscatedName": "xq",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "ab",
+        "owner": "PlatformInfo",
         "ownerObfuscatedName": "ut",
         "descriptor": "(I)I",
         "isStatic": false
@@ -83283,6 +83344,12 @@
         "obfuscatedName": "cq",
         "ownerObfuscatedName": "vi",
         "descriptor": "(ILng;I)Lng;",
+        "isStatic": false
+      },
+      {
+        "obfuscatedName": "cj",
+        "ownerObfuscatedName": "vi",
+        "descriptor": "(IILng;Lng;I)V",
         "isStatic": false
       },
       {

@@ -39,6 +39,7 @@ public class MethodHookTransformer
 
         System.out.println("Hooking method: " + toHook.name + toHook.desc + " in class " + gamepack.name);
 
+        boolean isStatic = (method.access & Opcodes.ACC_STATIC) != 0;
         Type hookMethodType = Type.getMethodType(method.desc);
         Type targetMethodType = Type.getMethodType(toHook.desc);
         Type[] hookParams = hookMethodType.getArgumentTypes();
@@ -46,18 +47,37 @@ public class MethodHookTransformer
 
         InsnList call = new InsnList();
         if (hookParams.length == 0) {
-            call.add(new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    gamepack.name,
-                    method.name,
-                    method.desc,
-                    false
-            ));
+            if(isStatic)
+            {
+                call.add(new MethodInsnNode(
+                        Opcodes.INVOKESTATIC,
+                        gamepack.name,
+                        method.name,
+                        method.desc,
+                        false
+                ));
+            }
+            else
+            {
+                call.add(new VarInsnNode(Opcodes.ALOAD, 0));
+                call.add(new MethodInsnNode(
+                        Opcodes.INVOKEVIRTUAL,
+                        gamepack.name,
+                        method.name,
+                        method.desc,
+                        false
+                ));
+            }
         }
         else {
             if (hookParams.length > targetParams.length) {
                 System.err.println("Hook method expects more parameters than target method has");
                 return;
+            }
+
+            if(!isStatic)
+            {
+                call.add(new VarInsnNode(Opcodes.ALOAD, 0));
             }
 
             boolean isTargetStatic = (toHook.access & Opcodes.ACC_STATIC) != 0;
@@ -96,13 +116,27 @@ public class MethodHookTransformer
 
                 localVarIndex += targetParamType.getSize();
             }
-            call.add(new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    gamepack.name,
-                    method.name,
-                    method.desc,
-                    false
-            ));
+
+            if(isStatic)
+            {
+                call.add(new MethodInsnNode(
+                        Opcodes.INVOKESTATIC,
+                        gamepack.name,
+                        method.name,
+                        method.desc,
+                        false
+                ));
+            }
+            else
+            {
+                call.add(new MethodInsnNode(
+                        Opcodes.INVOKEVIRTUAL,
+                        gamepack.name,
+                        method.name,
+                        method.desc,
+                        false
+                ));
+            }
         }
 
         AbstractInsnNode injectionPoint = null;
