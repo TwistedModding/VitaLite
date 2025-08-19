@@ -33,14 +33,14 @@ public abstract class TClientMixin implements TClient
     @SkipPoison
     public static void callStackPacker1()
     {
-        packedClassStack1 = "506+";
+        packedClassStack1 = "555+";
     }
 
     @MethodOverride("callStackPacker2")
     @SkipPoison
     public static void callStackPacker2()
     {
-        packedClassStack2 = "704+";
+        packedClassStack2 = "638+";
     }
 
     @MethodOverride("callStackCheck")
