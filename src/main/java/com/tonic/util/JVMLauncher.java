@@ -3,6 +3,7 @@ package com.tonic.util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JVMLauncher {
@@ -37,9 +38,7 @@ public class JVMLauncher {
 
         // Program arguments - add all provided args
         if (programArgs != null) {
-            for (String arg : programArgs) {
-                command.add(arg);
-            }
+            command.addAll(Arrays.asList(programArgs));
         }
 
         // Create and start process

@@ -1,7 +1,6 @@
 package com.tonic;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 
 import static com.tonic.util.JVMLauncher.launchInNewJVM;

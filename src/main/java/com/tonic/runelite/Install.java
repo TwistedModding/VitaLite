@@ -31,15 +31,23 @@ public class Install
 
             for (Iterator<ClassByte> it = pending.iterator(); it.hasNext(); ) {
                 ClassByte cb  = it.next();
-                Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
-                if (cls == null) continue;
-                CallStackFilter.processName(cls.getName());
-                it.remove();
-                loadedThisPass++;
-                Class<?> parent = cls.getSuperclass();
-                if (parent != null && parent.getName().endsWith(".Plugin")) {
-                    System.out.println("Loaded: " + cls.getName());
-                    plugins.add(cls);
+                try
+                {
+                    Class<?>  cls = Main.CLASSLOADER.loadClass(cb.name, cb.bytes);
+                    if (cls == null) continue;
+                    CallStackFilter.processName(cls.getName());
+                    it.remove();
+                    loadedThisPass++;
+                    Class<?> parent = cls.getSuperclass();
+                    if (parent != null && parent.getName().endsWith(".Plugin")) {
+                        System.out.println("Loaded: " + cls.getName());
+                        plugins.add(cls);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    System.out.println("Failed to load class: " + cb.name + " from jar");
                 }
             }
             if (loadedThisPass == 0) {
