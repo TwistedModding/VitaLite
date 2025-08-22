@@ -8,6 +8,7 @@ import com.tonic.dto.JField;
 import com.tonic.dto.JMethod;
 import lombok.Getter;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,8 +107,10 @@ public class MappingProvider
         return null;
     }
 
-    public static JField getField(JClass owner, String name)
+    public static JField getField(@Nullable JClass owner, String name)
     {
+        if(owner == null)
+            return getStaticField(name);
         for (JField jField : owner.getFields())
         {
             if (jField.getName() != null && jField.getName().equals(name))

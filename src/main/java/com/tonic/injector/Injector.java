@@ -11,6 +11,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,6 +33,8 @@ public class Injector {
         for (var entry : gamepack.entrySet()) {
             String name = entry.getKey();
             ClassNode classNode = entry.getValue();
+
+            FieldHookTransformer.instrument(classNode);
 
             if(SignerMapper.shouldIgnore(name))
             {
@@ -98,6 +101,10 @@ public class Injector {
                 if(AnnotationUtil.hasAnnotation(method, Disable.class))
                 {
                     DisableTransformer.patch(mixin, method);
+                }
+                if(AnnotationUtil.hasAnnotation(method, FieldHook.class))
+                {
+                    FieldHookTransformer.patch(mixin, method);
                 }
             }
         }

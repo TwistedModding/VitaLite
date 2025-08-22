@@ -6133,11 +6133,13 @@
     "methods": []
   },
   {
+    "name": "MouseHandler",
     "obfuscatedName": "bx",
     "fields": [
       {
         "name": "",
         "obfuscatedName": "av",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6145,6 +6147,7 @@
       {
         "name": "",
         "obfuscatedName": "am",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6152,6 +6155,7 @@
       {
         "name": "",
         "obfuscatedName": "au",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6159,6 +6163,7 @@
       {
         "name": "",
         "obfuscatedName": "as",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6166,6 +6171,7 @@
       {
         "name": "",
         "obfuscatedName": "ah",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "J",
         "isStatic": true
@@ -6173,6 +6179,7 @@
       {
         "name": "",
         "obfuscatedName": "ap",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6180,6 +6187,7 @@
       {
         "name": "",
         "obfuscatedName": "al",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6187,6 +6195,7 @@
       {
         "name": "",
         "obfuscatedName": "ac",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6194,6 +6203,7 @@
       {
         "name": "",
         "obfuscatedName": "ag",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "J",
         "isStatic": true
@@ -6201,6 +6211,7 @@
       {
         "name": "",
         "obfuscatedName": "ay",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "Lbx;",
         "isStatic": true
@@ -6208,6 +6219,7 @@
       {
         "name": "",
         "obfuscatedName": "aj",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6215,6 +6227,7 @@
       {
         "name": "",
         "obfuscatedName": "ai",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6222,6 +6235,7 @@
       {
         "name": "",
         "obfuscatedName": "ak",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6229,6 +6243,7 @@
       {
         "name": "",
         "obfuscatedName": "ar",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6236,20 +6251,25 @@
       {
         "name": "",
         "obfuscatedName": "at",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "J",
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "MouseHandler_idleCycles",
         "obfuscatedName": "aa",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
+        "getter": 1804546091,
+        "setter": -450793493,
         "isStatic": true
       },
       {
         "name": "",
         "obfuscatedName": "aq",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6257,6 +6277,7 @@
       {
         "name": "",
         "obfuscatedName": "ao",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6264,6 +6285,7 @@
       {
         "name": "",
         "obfuscatedName": "yl",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": false
@@ -6271,6 +6293,7 @@
       {
         "name": "",
         "obfuscatedName": "ax",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6278,6 +6301,7 @@
       {
         "name": "",
         "obfuscatedName": "az",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "J",
         "isStatic": true
@@ -6285,6 +6309,7 @@
       {
         "name": "",
         "obfuscatedName": "ab",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6292,6 +6317,7 @@
       {
         "name": "",
         "obfuscatedName": "bv",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "I",
         "isStatic": true
@@ -6300,90 +6326,105 @@
     "methods": [
       {
         "obfuscatedName": "mousePressed",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseReleased",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseClicked",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseEntered",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseExited",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseDragged",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "mouseMoved",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "focusGained",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/FocusEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "focusLost",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/FocusEvent;)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "\u003cclinit\u003e",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "()V",
         "isStatic": true
       },
       {
         "obfuscatedName": "\u003cinit\u003e",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "()V",
         "isStatic": false
       },
       {
         "obfuscatedName": "he",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "au",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ljava/awt/event/MouseEvent;I)I",
         "isStatic": false
       },
       {
         "obfuscatedName": "kz",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Ldj;IIIIIIII[Ljava/lang/String;III)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "mg",
+        "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "(Lda;IIIII)V",
         "isStatic": true

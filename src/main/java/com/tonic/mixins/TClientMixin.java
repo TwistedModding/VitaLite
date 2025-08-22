@@ -87,4 +87,9 @@ public abstract class TClientMixin implements TClient
                 secondNum + "+"
         };
     }
+
+    @FieldHook("MouseHandler_idleCycles")
+    public static boolean onIdleCycleSet(int value) {
+        return false;
+    }
 }
