@@ -47,6 +47,7 @@ public class FieldHookTransformer {
     }
 
     private static void instrument(MethodNode method, FieldHookDef hook) {
+        //TODO: implement handling of multipliers for int/long fields
         String desc = hook.getTarget().getDescriptor();
         boolean isStatic = hook.isStatic();
 
@@ -101,8 +102,8 @@ public class FieldHookTransformer {
                 wrapper.add(new InsnNode(Opcodes.POP));
                 LabelNode continueLabel = new LabelNode();
                 wrapper.add(new JumpInsnNode(Opcodes.GOTO, continueLabel));
-
                 wrapper.add(skipLabel);
+
                 method.instructions.insertBefore(fieldInsn, wrapper);
                 method.instructions.insert(fieldInsn, continueLabel);
             }
@@ -115,14 +116,7 @@ public class FieldHookTransformer {
         for (AbstractInsnNode insn = method.instructions.getFirst();
              insn != null; insn = insn.getNext()) {
 
-            if (isStatic && insn.getOpcode() == Opcodes.PUTSTATIC) {
-                FieldInsnNode fieldInsn = (FieldInsnNode) insn;
-                if (fieldInsn.owner.equals(hook.getTarget().getOwnerObfuscatedName()) &&
-                        fieldInsn.name.equals(hook.getTarget().getObfuscatedName()) &&
-                        fieldInsn.desc.equals(hook.getTarget().getDescriptor())) {
-                    fieldSets.add(insn);
-                }
-            } else if (!isStatic && insn.getOpcode() == Opcodes.PUTFIELD) {
+            if ((isStatic && insn.getOpcode() == Opcodes.PUTSTATIC) || (!isStatic && insn.getOpcode() == Opcodes.PUTFIELD)) {
                 FieldInsnNode fieldInsn = (FieldInsnNode) insn;
                 if (fieldInsn.owner.equals(hook.getTarget().getOwnerObfuscatedName()) &&
                         fieldInsn.name.equals(hook.getTarget().getObfuscatedName()) &&
