@@ -2,6 +2,7 @@ package com.tonic.injector.pipeline;
 
 import com.tonic.dto.JClass;
 import com.tonic.dto.JMethod;
+import com.tonic.injector.Injector;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.MethodOverride;
 import com.tonic.injector.annotations.Mixin;
@@ -31,7 +32,9 @@ public class MethodOverrideTransformer {
         String targetName = jMethod.getObfuscatedName();
         String targetDesc = jMethod.getDescriptor();
 
-        MethodNode toReplace = gamepack.methods.stream()
+        ClassNode targetClass = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
+
+        MethodNode toReplace = targetClass.methods.stream()
                 .filter(m -> m.name.equals(targetName) && m.desc.equals(targetDesc))
                 .findFirst().orElse(null);
 

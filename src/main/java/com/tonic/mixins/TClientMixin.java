@@ -1,7 +1,9 @@
 package com.tonic.mixins;
 
+import com.tonic.Logger;
 import com.tonic.api.*;
 import com.tonic.injector.annotations.*;
+import com.tonic.injector.util.ExceptionUtil;
 
 import java.util.Random;
 
@@ -24,6 +26,21 @@ public abstract class TClientMixin implements TClient
 
     @Shadow("getPacketBufferNode")
     public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
+
+    @Insert(
+            method = "processServerPacket",
+            at = @At(
+                    value = AtTarget.PUTFIELD,
+                    owner = "PacketBuffer",
+                    target = "offset",
+                    shift = Shift.HEAD
+            ),
+            ordinal = 2
+    )
+    public static void processServerPacket(TClient client, TPacketBuffer buffer)
+    {
+        //TODO: impl structure of server packet stuff for logging
+    }
 
     @Shadow("packedCallStack1")
     private static String packedClassStack1;
@@ -90,6 +107,31 @@ public abstract class TClientMixin implements TClient
 
     @FieldHook("MouseHandler_idleCycles")
     public static boolean onIdleCycleSet(int value) {
+        return false;
+    }
+
+    @Disable("RunException_sendStackTrace")
+    @SkipPoison
+    public static boolean sendStackTrace(String message, Throwable throwable) {
+        if(throwable != null)
+        {
+            Logger.error(message);
+            Logger.error(ExceptionUtil.formatException(throwable));
+        }
+        return false;
+    }
+
+    @Disable("newRunException")
+    @SkipPoison
+    public static boolean newRunException(Throwable throwable, String message) {
+        if((message != null && message.equals("bj.ac()")) || throwable instanceof NullPointerException)
+            return true;
+
+        if(throwable != null)
+        {
+            Logger.error(message);
+            Logger.error(ExceptionUtil.formatException(throwable));
+        }
         return false;
     }
 }

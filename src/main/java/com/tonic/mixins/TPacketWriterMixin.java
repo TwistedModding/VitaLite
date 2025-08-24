@@ -33,12 +33,6 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 //        addNodeHook(node);
 //    }
 
-    @Insert(method = "addNode", at = @At(value = AtTarget.GETFIELD, owner = "PacketBuffer", target = "offset"))
-    public static void testingShit()
-    {
-        System.out.println("Woot!");
-    }
-
     @Shadow("addNode")
     public abstract void addNode(TPacketBufferNode node);
     @MethodHook("addNode")

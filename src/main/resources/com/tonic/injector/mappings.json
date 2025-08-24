@@ -15353,6 +15353,7 @@
         "isStatic": false
       },
       {
+        "name": "processServerPacket",
         "obfuscatedName": "ks",
         "owner": "Client",
         "ownerObfuscatedName": "client",
@@ -69152,6 +69153,7 @@
     ],
     "methods": [
       {
+        "name": "newRunException",
         "obfuscatedName": "ab",
         "ownerObfuscatedName": "pq",
         "descriptor": "(Ljava/lang/Throwable;Ljava/lang/String;)Lxj;",
@@ -83840,9 +83842,11 @@
         "isStatic": false
       },
       {
+        "name": "RunException_sendStackTrace",
         "obfuscatedName": "al",
         "ownerObfuscatedName": "vl",
         "descriptor": "(Ljava/lang/String;Ljava/lang/Throwable;I)V",
+        "garbageValue": 1121058971,
         "isStatic": true
       }
     ]

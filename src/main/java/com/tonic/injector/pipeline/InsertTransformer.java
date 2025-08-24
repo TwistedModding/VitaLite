@@ -134,7 +134,7 @@ public class InsertTransformer {
         boolean isTargetStatic = (targetMethod.access & Opcodes.ACC_STATIC) != 0;
         
         Type injectedMethodType = Type.getMethodType(injectedMethod.desc);
-        Type[] injectedParams = injectedMethodType.getArgumentTypes();
+        Type[] hookParams = injectedMethodType.getArgumentTypes();
         
         // Load 'this' reference if injected method is not static
         if (!isInjectedStatic) {
@@ -143,6 +143,51 @@ public class InsertTransformer {
                 return;
             }
             callInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+        }
+
+        if(hookParams.length > 0)
+        {
+            Type[] targetParams = Type.getArgumentTypes(targetMethod.desc);
+            if (hookParams.length > targetParams.length) {
+                System.err.println("Hook method expects more parameters than target method has");
+                return;
+            }
+
+            int localVarIndex = isTargetStatic ? 0 : 1;
+
+            for (int i = 0; i < hookParams.length; i++) {
+                Type targetParamType = targetParams[i];
+                Type hookParamType = hookParams[i];
+
+                switch (targetParamType.getSort()) {
+                    case Type.BOOLEAN:
+                    case Type.CHAR:
+                    case Type.BYTE:
+                    case Type.SHORT:
+                    case Type.INT:
+                        callInstructions.add(new VarInsnNode(Opcodes.ILOAD, localVarIndex));
+                        break;
+                    case Type.FLOAT:
+                        callInstructions.add(new VarInsnNode(Opcodes.FLOAD, localVarIndex));
+                        break;
+                    case Type.LONG:
+                        callInstructions.add(new VarInsnNode(Opcodes.LLOAD, localVarIndex));
+                        break;
+                    case Type.DOUBLE:
+                        callInstructions.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
+                        break;
+                    default: // Object/Array
+                        callInstructions.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
+                        if (!targetParamType.equals(hookParamType) &&
+                                hookParamType.getSort() == Type.OBJECT) {
+                            callInstructions.add(new TypeInsnNode(Opcodes.CHECKCAST,
+                                    hookParamType.getInternalName()));
+                        }
+                        break;
+                }
+
+                localVarIndex += targetParamType.getSize();
+            }
         }
         
         
