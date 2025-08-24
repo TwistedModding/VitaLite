@@ -11,14 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AnnotationUtil
-{
-    public static boolean hasAnyAnnotation(MethodNode mn)
-    {
+public class AnnotationUtil {
+    public static boolean hasAnyAnnotation(MethodNode mn) {
         return mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty();
     }
-    public static boolean hasAnnotation(ClassNode cn, Class<?> annotation)
-    {
+
+    public static boolean hasAnnotation(ClassNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -29,8 +27,7 @@ public class AnnotationUtil
         return false;
     }
 
-    public static boolean hasAnnotation(MethodNode cn, Class<?> annotation)
-    {
+    public static boolean hasAnnotation(MethodNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -41,8 +38,7 @@ public class AnnotationUtil
         return false;
     }
 
-    public static boolean hasAnnotation(FieldNode cn, Class<?> annotation)
-    {
+    public static boolean hasAnnotation(FieldNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -53,8 +49,7 @@ public class AnnotationUtil
         return false;
     }
 
-    public static <T> T getAnnotation(ClassNode cn, Class<?> annotation, String value)
-    {
+    public static <T> T getAnnotation(ClassNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -63,11 +58,10 @@ public class AnnotationUtil
                 }
             }
         }
-        return (T)null;
+        return (T) null;
     }
 
-    public static <T> T getAnnotation(MethodNode cn, Class<?> annotation, String value)
-    {
+    public static <T> T getAnnotation(MethodNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -76,11 +70,10 @@ public class AnnotationUtil
                 }
             }
         }
-        return (T)null;
+        return (T) null;
     }
 
-    public static <T> T getAnnotation(FieldNode cn, Class<?> annotation, String value)
-    {
+    public static <T> T getAnnotation(FieldNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
                 if (an.desc.equals(Type.getDescriptor(annotation))) {
@@ -89,7 +82,7 @@ public class AnnotationUtil
                 }
             }
         }
-        return (T)null;
+        return (T) null;
     }
 
     /**
@@ -122,8 +115,8 @@ public class AnnotationUtil
             String[] enumValue = (String[]) value;
             return enumValue.length > 1 ? enumValue[1] : enumValue[0];
         } else if (value instanceof AnnotationNode) {
-            // Nested annotation
-            return parseAnnotationValues((AnnotationNode) value);
+            // Nested annotation - return the AnnotationNode itself for proxy creation later
+            return value;
         } else if (value instanceof List) {
             // Array values
             List<?> list = (List<?>) value;
@@ -135,5 +128,47 @@ public class AnnotationUtil
         }
         // Primitive values and Strings are returned as-is
         return value;
+    }
+
+    /**
+     * Creates a proxy instance of an annotation interface from an AnnotationNode.
+     * This allows runtime access to annotation values with proper type handling.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T createAnnotationProxy(Class<T> annotationType, AnnotationNode annotationNode) {
+        Map<String, Object> values = parseAnnotationValues(annotationNode);
+
+        return (T) java.lang.reflect.Proxy.newProxyInstance(
+                annotationType.getClassLoader(),
+                new Class<?>[]{annotationType},
+                (proxy, method, args) -> {
+                    String methodName = method.getName();
+
+                    // Handle annotationType() method
+                    if ("annotationType".equals(methodName)) {
+                        return annotationType;
+                    }
+
+                    // Get the value from parsed annotation values
+                    Object value = values.get(methodName);
+                    if (value != null) {
+                        // Handle nested annotations
+                        if (value instanceof AnnotationNode) {
+                            AnnotationNode nestedAnnotation = (AnnotationNode) value;
+                            // Determine the annotation type from the method return type
+                            Class<?> returnType = method.getReturnType();
+                            if (returnType.isAnnotation()) {
+                                @SuppressWarnings("unchecked")
+                                Class<Object> annotationClass = (Class<Object>) returnType;
+                                return createAnnotationProxy(annotationClass, nestedAnnotation);
+                            }
+                        }
+                        return value;
+                    }
+
+                    // Return default value if available
+                    return method.getDefaultValue();
+                }
+        );
     }
 }

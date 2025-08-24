@@ -147,4 +147,11 @@ public class MappingProvider
         }
         return null;
     }
+    
+    /**
+     * Get access to the mappings list for inheritance support.
+     */
+    public static List<JClass> getMappings() {
+        return mappings;
+    }
 }

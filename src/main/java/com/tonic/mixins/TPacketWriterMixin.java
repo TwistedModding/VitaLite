@@ -3,10 +3,7 @@ package com.tonic.mixins;
 import com.tonic.Static;
 import com.tonic.api.*;
 import com.tonic.events.PacketSent;
-import com.tonic.injector.annotations.Inject;
-import com.tonic.injector.annotations.MethodHook;
-import com.tonic.injector.annotations.Mixin;
-import com.tonic.injector.annotations.Shadow;
+import com.tonic.injector.annotations.*;
 import com.tonic.model.ui.VitaLiteOptionsPanel;
 import com.tonic.packets.PacketMapReader;
 import com.tonic.packets.types.MapEntry;
@@ -35,6 +32,12 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 //    {
 //        addNodeHook(node);
 //    }
+
+    @Insert(method = "addNode", at = @At(value = AtTarget.GETFIELD, owner = "PacketBuffer", target = "offset"))
+    public static void testingShit()
+    {
+        System.out.println("Woot!");
+    }
 
     @Shadow("addNode")
     public abstract void addNode(TPacketBufferNode node);

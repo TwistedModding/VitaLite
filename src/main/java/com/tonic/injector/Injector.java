@@ -106,6 +106,10 @@ public class Injector {
                 {
                     FieldHookTransformer.patch(mixin, method);
                 }
+                if(AnnotationUtil.hasAnnotation(method, Insert.class))
+                {
+                    InsertTransformer.patch(mixin, method);
+                }
             }
         }
     }
