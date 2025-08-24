@@ -47,7 +47,6 @@ public class FieldHookTransformer {
     }
 
     private static void instrument(MethodNode method, FieldHookDef hook) {
-        //TODO: implement handling of multipliers for int/long fields
         String desc = hook.getTarget().getDescriptor();
         boolean isStatic = hook.isStatic();
 
@@ -58,6 +57,19 @@ public class FieldHookTransformer {
 
             if (isStatic) {
                 wrapper.add(new InsnNode(getDupOpcode(desc)));
+                
+                // Apply multiplier for int/long fields if getter exists
+                if (hook.getTarget().getGetter() != null) {
+                    Number multiplier = hook.getTarget().getGetter();
+                    if (desc.equals("I")) {
+                        wrapper.add(new LdcInsnNode(multiplier.intValue()));
+                        wrapper.add(new InsnNode(Opcodes.IMUL));
+                    } else if (desc.equals("J")) {
+                        wrapper.add(new LdcInsnNode(multiplier.longValue()));
+                        wrapper.add(new InsnNode(Opcodes.LMUL));
+                    }
+                }
+                
                 wrapper.add(new MethodInsnNode(
                         Opcodes.INVOKESTATIC,
                         hook.getHookClass(),
@@ -86,6 +98,19 @@ public class FieldHookTransformer {
                     wrapper.add(new InsnNode(Opcodes.POP));
                     wrapper.add(new InsnNode(Opcodes.DUP));
                 }
+                
+                // Apply multiplier for int/long fields if getter exists
+                if (hook.getTarget().getGetter() != null) {
+                    Number multiplier = hook.getTarget().getGetter();
+                    if (desc.equals("I")) {
+                        wrapper.add(new LdcInsnNode(multiplier.intValue()));
+                        wrapper.add(new InsnNode(Opcodes.IMUL));
+                    } else if (desc.equals("J")) {
+                        wrapper.add(new LdcInsnNode(multiplier.longValue()));
+                        wrapper.add(new InsnNode(Opcodes.LMUL));
+                    }
+                }
+                
                 wrapper.add(new MethodInsnNode(
                         Opcodes.INVOKESTATIC,
                         hook.getHookClass(),
