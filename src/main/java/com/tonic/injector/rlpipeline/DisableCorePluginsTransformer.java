@@ -54,8 +54,6 @@ public class DisableCorePluginsTransformer
         InsnList insnList = generateInsns();
         // Insert the generated instructions before the ASTORE in slot 2
         loadCorePlugins.instructions.insert(injectionPoint, insnList);
-
-        System.out.println("Patched PluginManager.loadCorePlugins to no-op");
     }
 
     private static InsnList generateInsns()

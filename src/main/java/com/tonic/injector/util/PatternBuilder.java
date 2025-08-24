@@ -49,7 +49,7 @@ public class PatternBuilder {
     }
     
     public static PatternBuilder invokeStatic(String methodTarget) {
-        return invoke(methodTarget); // ASM handles the opcode differences
+        return invoke(methodTarget);
     }
     
     public static PatternBuilder getField(String fieldTarget) {
@@ -200,7 +200,7 @@ public class PatternBuilder {
         public AtTarget value() { return value; }
         
         @Override
-        public String stringValue() { return ""; } // Empty for new enum-based usage
+        public String stringValue() { return ""; }
         
         @Override
         public String target() { return target; }
@@ -221,7 +221,7 @@ public class PatternBuilder {
         public Shift shift() { return shift; }
         
         @Override
-        public String shiftString() { return ""; } // Empty for new enum-based usage
+        public String shiftString() { return ""; }
         
         @Override
         public Class<? extends java.lang.annotation.Annotation> annotationType() {

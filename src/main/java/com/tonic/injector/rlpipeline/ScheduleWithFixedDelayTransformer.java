@@ -13,8 +13,6 @@ public class ScheduleWithFixedDelayTransformer implements Opcodes {
 
         for (MethodNode method : classNode.methods) {
             if (method.name.equals("submitPlugins")) {
-                System.out.println("Making submitPlugins a no-op in " + classNode.name);
-
                 // Clear the method body
                 method.instructions.clear();
 

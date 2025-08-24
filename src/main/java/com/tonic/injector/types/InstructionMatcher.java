@@ -42,7 +42,6 @@ public class InstructionMatcher {
     public static List<MatchResult> findMatches(MethodNode method, At pattern, Slice slice, JClass mappingContext) {
         List<MatchResult> matches = new ArrayList<>();
         
-        // Determine search bounds from slice
         AbstractInsnNode start = getSliceStart(method, slice, mappingContext);
         AbstractInsnNode end = getSliceEnd(method, slice, mappingContext);
         
@@ -82,7 +81,6 @@ public class InstructionMatcher {
     }
     
     private static boolean matchesPattern(AbstractInsnNode insn, At pattern, JClass mappingContext) {
-        // Get the target type - support both enum and legacy string
         AtTarget targetType = getTargetType(pattern);
         
         switch (targetType) {
@@ -109,7 +107,7 @@ public class InstructionMatcher {
             case JUMP:
                 return matchesJump(insn);
             case NONE:
-                return false; // NONE never matches - used only for slice defaults
+                return false;
             default:
                 return false;
         }
@@ -119,18 +117,15 @@ public class InstructionMatcher {
      * Get the target type, supporting both enum and legacy string values.
      */
     private static AtTarget getTargetType(At pattern) {
-        // If legacy string value is provided, use it for backwards compatibility
         if (!pattern.stringValue().isEmpty()) {
             try {
                 return AtTarget.valueOf(pattern.stringValue().toUpperCase());
             } catch (IllegalArgumentException e) {
                 System.err.println("Invalid target type: " + pattern.stringValue());
-                return AtTarget.INVOKE; // Default fallback
+                return AtTarget.INVOKE;
             }
         }
         
-        // Handle the case where proxy returns String instead of enum (due to annotation parsing)
-        // Use reflection to avoid triggering the proxy's casting behavior
         try {
             java.lang.reflect.InvocationHandler handler = java.lang.reflect.Proxy.getInvocationHandler(pattern);
             java.lang.reflect.Method valueMethod = At.class.getMethod("value");
@@ -142,7 +137,6 @@ public class InstructionMatcher {
                 return (AtTarget) valueObj;
             }
         } catch (Exception e) {
-            // Fallback: try to get raw value if it's a string
             try {
                 Object valueObj = getRawAnnotationValue(pattern, "value");
                 if (valueObj instanceof String) {
@@ -155,7 +149,6 @@ public class InstructionMatcher {
             throw new RuntimeException(e);
         }
 
-        // Default fallback
         return AtTarget.INVOKE;
     }
     
@@ -166,7 +159,6 @@ public class InstructionMatcher {
         try {
             if (java.lang.reflect.Proxy.isProxyClass(proxy.getClass())) {
                 java.lang.reflect.InvocationHandler handler = java.lang.reflect.Proxy.getInvocationHandler(proxy);
-                // Try to access the underlying values map via reflection
                 java.lang.reflect.Field[] fields = handler.getClass().getDeclaredFields();
                 for (java.lang.reflect.Field field : fields) {
                     field.setAccessible(true);
@@ -179,7 +171,6 @@ public class InstructionMatcher {
                 }
             }
         } catch (Exception e) {
-            // Ignore and fallback
         }
         return null;
     }
@@ -191,22 +182,18 @@ public class InstructionMatcher {
         
         if (target.isEmpty()) return true;
         
-        // Handle owner class specification
         if (!owner.isEmpty()) {
-            // Resolve owner class through mappings
             String resolvedOwner = resolveClassName(owner);
             if (!methodInsn.owner.equals(resolvedOwner) && !methodInsn.owner.endsWith("/" + resolvedOwner)) {
                 return false;
             }
         }
         
-        // Legacy support: Parse target for "className.methodName(descriptor)" format
         if (target.contains(".") && owner.isEmpty()) {
             String[] parts = target.split("\\.", 2);
             String className = parts[0];
             String methodPart = parts[1];
             
-            // Resolve class name through mappings
             String resolvedClassName = resolveClassName(className);
             
             if (!methodInsn.owner.equals(resolvedClassName) && !methodInsn.owner.endsWith("/" + resolvedClassName)) {
@@ -215,7 +202,6 @@ public class InstructionMatcher {
             target = methodPart;
         }
         
-        // Extract method name and descriptor
         int parenIndex = target.indexOf('(');
         String methodName;
         String descriptor = null;
@@ -227,11 +213,9 @@ public class InstructionMatcher {
             descriptor = target.substring(parenIndex);
         }
         
-        // Resolve method name through mappings
         JClass ownerContext = owner.isEmpty() ? mappingContext : MappingProvider.getClass(owner);
         String resolvedMethodName = resolveMethodName(ownerContext, methodName, descriptor);
         
-        // Match against resolved names
         if (descriptor != null) {
             return methodInsn.name.equals(resolvedMethodName) && methodInsn.desc.equals(descriptor);
         } else {
@@ -246,17 +230,14 @@ public class InstructionMatcher {
 
         if (target.isEmpty()) return true;
         
-        // Handle owner class specification
         String resolvedOwner = "";
         if (!owner.isEmpty()) {
-            // Resolve owner class through mappings
             resolvedOwner = resolveClassName(owner);
             if (!fieldInsn.owner.equals(resolvedOwner)) {
                 return false;
             }
         }
         
-        // For bare field names, resolve using appropriate context
         JClass fieldContext = owner.isEmpty() ? mappingContext : MappingProvider.getClass(owner);
         String resolvedFieldName = resolveFieldName(fieldContext, target);
 
@@ -268,12 +249,10 @@ public class InstructionMatcher {
         
         TypeInsnNode typeInsn = (TypeInsnNode) insn;
         
-        // Use owner if specified, otherwise use target
         String className = owner.isEmpty() ? target : owner;
         
         if (className.isEmpty()) return true;
         
-        // Resolve class name through mappings
         String resolvedClassName = resolveClassName(className);
         return typeInsn.desc.equals(resolvedClassName);
     }
@@ -284,7 +263,6 @@ public class InstructionMatcher {
         LdcInsnNode ldcInsn = (LdcInsnNode) insn;
         Object cst = ldcInsn.cst;
         
-        // Check each constant type
         if (constant.intValue() != Integer.MIN_VALUE && cst instanceof Integer) {
             return cst.equals(constant.intValue());
         }
@@ -304,7 +282,7 @@ public class InstructionMatcher {
             return ((org.objectweb.asm.Type) cst).getClassName().equals(constant.classValue().getName());
         }
         
-        return true; // Match any LDC if no specific constant specified
+        return true;
     }
     
     private static boolean matchesOpcode(AbstractInsnNode insn, String opcodeName) {
@@ -339,15 +317,14 @@ public class InstructionMatcher {
     }
     
     private static AbstractInsnNode applyShift(AbstractInsnNode insn, At pattern) {
-        // Get the shift type - support both enum and legacy string
         String shiftType = getShiftType(pattern);
         
         switch (shiftType.toUpperCase()) {
             case "HEAD":
-                return insn; // Insert before the matched instruction
+                return insn;
             case "TAIL":
             default:
-                return insn; // Insert after the matched instruction (will be handled in transformer)
+                return insn;
         }
     }
     
@@ -355,12 +332,10 @@ public class InstructionMatcher {
      * Get the shift type, supporting both enum and legacy string values.
      */
     private static String getShiftType(At pattern) {
-        // If legacy string value is provided, use it for backwards compatibility
         if (!pattern.shiftString().isEmpty()) {
             return pattern.shiftString();
         }
         
-        // Handle the case where proxy returns String instead of enum (due to annotation parsing)
         try {
             Object shiftObj = pattern.shift();
             if (shiftObj instanceof String) {
@@ -372,11 +347,9 @@ public class InstructionMatcher {
             System.err.println("Error getting shift type: " + e.getMessage());
         }
         
-        // Default fallback
         return "TAIL";
     }
     
-    // Empty slice implementation for internal use
     private static class SliceImpl implements Slice {
         @Override
         public At from() { return new AtImpl(); }
@@ -436,7 +409,6 @@ public class InstructionMatcher {
         if (jClass != null && jClass.getObfuscatedName() != null) {
             return jClass.getObfuscatedName();
         }
-        // Fallback to literal name (handle package separator)
         return mappedName.replace(".", "/");
     }
     
@@ -445,21 +417,17 @@ public class InstructionMatcher {
      */
     private static String resolveFieldName(JClass mappingContext, String fieldName) {
         if (mappingContext != null) {
-            // First try the specified class
             JField jField = MappingProvider.getField(mappingContext, fieldName);
             if (jField != null && jField.getObfuscatedName() != null) {
                 return jField.getObfuscatedName();
             }
         }
         
-        // If not found in specific class (or no context), search globally
-        // This handles inheritance and also works when no context is provided
         JField globalField = findFieldInAnyClass(fieldName);
         if (globalField != null && globalField.getObfuscatedName() != null) {
             return globalField.getObfuscatedName();
         }
         
-        // Fallback to literal field name
         return fieldName;
     }
     
@@ -470,13 +438,11 @@ public class InstructionMatcher {
         if (mappingContext != null) {
             JMethod jMethod = MappingProvider.getMethod(mappingContext, methodName);
             if (jMethod != null && jMethod.getObfuscatedName() != null) {
-                // Optionally validate descriptor match if provided
                 if (descriptor == null || jMethod.getDescriptor().equals(descriptor)) {
                     return jMethod.getObfuscatedName();
                 }
             }
         }
-        // Fallback to literal method name
         return methodName;
     }
     
@@ -485,7 +451,6 @@ public class InstructionMatcher {
      * This searches all classes for a field with the given name.
      */
     private static JField findFieldInAnyClass(String fieldName) {
-        // Use the existing mappings list from MappingProvider
         for (JClass jClass : MappingProvider.getMappings()) {
             for (JField jField : jClass.getFields()) {
                 if (jField.getName() != null && jField.getName().equals(fieldName)) {

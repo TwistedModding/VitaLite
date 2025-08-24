@@ -48,6 +48,5 @@ public class PatchDevToolsPluginManagerTransformer
         main.instructions.insert(insertionPoint, code);
         main.instructions.remove(insertionPoint.getPrevious());
         main.instructions.remove(insertionPoint);
-        System.out.println("Patched PluginManager.developerMode check in PluginManager.loadPlugins()");
     }
 }

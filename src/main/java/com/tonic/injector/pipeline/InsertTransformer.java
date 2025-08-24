@@ -57,10 +57,8 @@ public class InsertTransformer {
                 return;
             }
             
-            // Inject the mixin method into the gamepack class
             InjectTransformer.patch(gamepackClass, mixin, method);
             
-            // Find the target method to insert into
             MethodNode targetMethod = gamepackClass.methods.stream()
                     .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
                     .findFirst()
@@ -71,22 +69,19 @@ public class InsertTransformer {
                 return;
             }
             
-            // Get insertion configuration from annotation
             Insert insertAnnotation = getInsertAnnotation(method);
             if (insertAnnotation == null) {
                 System.err.println("No @Insert annotation found on method: " + method.name);
                 return;
             }
             
-            // Find matching instructions with mapping context
             List<InstructionMatcher.MatchResult> matches = InstructionMatcher.findMatches(
                     targetMethod, 
                     insertAnnotation.at(), 
                     insertAnnotation.slice(),
-                    jClass // Pass the mapping context for name resolution
+                    jClass
             );
 
-            // Filter matches to current class context if target is a bare field name
             matches = filterMatchesByContext(matches, insertAnnotation.at(), gamepackClass);
             
             if (matches.isEmpty()) {
@@ -94,7 +89,6 @@ public class InsertTransformer {
                 return;
             }
 
-            // Determine which matches to inject at
             List<InstructionMatcher.MatchResult> targetMatches;
             if (insertAnnotation.all()) {
                 targetMatches = matches;
@@ -107,7 +101,6 @@ public class InsertTransformer {
                 }
             }
             
-            // Insert calls at each target location (reverse order to maintain indices)
             for (int i = targetMatches.size() - 1; i >= 0; i--) {
                 InstructionMatcher.MatchResult match = targetMatches.get(i);
                 insertMethodCall(targetMethod, match.instruction, gamepackClass, method, insertAnnotation.at());
@@ -152,11 +145,7 @@ public class InsertTransformer {
             callInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         }
         
-        // Load parameters for the injected method
-        // For now, we assume the injected method takes no parameters beyond 'this'
-        // This could be extended to support parameter injection based on local variables or stack state
         
-        // Generate the method call
         int invokeOpcode = isInjectedStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL;
         callInstructions.add(new MethodInsnNode(
                 invokeOpcode,
@@ -166,10 +155,8 @@ public class InsertTransformer {
                 false
         ));
         
-        // Handle return value if present
         Type returnType = injectedMethodType.getReturnType();
         if (returnType.getSort() != Type.VOID) {
-            // Pop the return value since we're just inserting, not replacing
             if (returnType.getSize() == 2) {
                 callInstructions.add(new InsnNode(Opcodes.POP2));
             } else {
@@ -177,13 +164,10 @@ public class InsertTransformer {
             }
         }
         
-        // Insert the call at the appropriate location
         Shift shiftType = getShiftType(pattern);
         if (shiftType == Shift.HEAD) {
-            // Insert before the matched instruction
             targetMethod.instructions.insertBefore(insertPoint, callInstructions);
         } else {
-            // Insert after the matched instruction (default)
             targetMethod.instructions.insert(insertPoint, callInstructions);
         }
     }
@@ -192,17 +176,15 @@ public class InsertTransformer {
      * Get the shift type, supporting both enum and legacy string values.
      */
     private static Shift getShiftType(At pattern) {
-        // If legacy string value is provided, use it for backwards compatibility
         if (!pattern.shiftString().isEmpty()) {
             try {
                 return Shift.valueOf(pattern.shiftString().toUpperCase());
             } catch (IllegalArgumentException e) {
                 System.err.println("Invalid shift type: " + pattern.shiftString());
-                return Shift.TAIL; // Default fallback
+                return Shift.TAIL;
             }
         }
         
-        // Handle the case where proxy returns String instead of enum (due to annotation parsing)
         try {
             Object shiftObj = pattern.shift();
             if (shiftObj instanceof String) {
@@ -214,7 +196,6 @@ public class InsertTransformer {
             System.err.println("Error getting shift type: " + e.getMessage());
         }
         
-        // Default fallback
         return Shift.TAIL;
     }
     
@@ -222,12 +203,10 @@ public class InsertTransformer {
      * Get the target type as string, supporting both enum and legacy string values.
      */
     private static String getTargetTypeString(At pattern) {
-        // If legacy string value is provided, use it for backwards compatibility
         if (!pattern.stringValue().isEmpty()) {
             return pattern.stringValue().toUpperCase();
         }
         
-        // Try to get the raw annotation value without triggering the proxy cast
         try {
             Object valueObj = getRawAnnotationValue(pattern, "value");
             if (valueObj instanceof String) {
@@ -237,7 +216,6 @@ public class InsertTransformer {
             System.err.println("Error getting target type string: " + e.getMessage());
         }
         
-        // Default fallback
         return "INVOKE";
     }
     
@@ -248,7 +226,6 @@ public class InsertTransformer {
         try {
             if (java.lang.reflect.Proxy.isProxyClass(proxy.getClass())) {
                 java.lang.reflect.InvocationHandler handler = java.lang.reflect.Proxy.getInvocationHandler(proxy);
-                // Try to access the underlying values map via reflection
                 java.lang.reflect.Field[] fields = handler.getClass().getDeclaredFields();
                 for (java.lang.reflect.Field field : fields) {
                     field.setAccessible(true);
@@ -261,7 +238,6 @@ public class InsertTransformer {
                 }
             }
         } catch (Exception e) {
-            // Ignore and fallback
         }
         return null;
     }
@@ -279,12 +255,10 @@ public class InsertTransformer {
         String value = getTargetTypeString(pattern);
         String target = pattern.target();
         
-        // If target contains class qualification, no filtering needed
         if (target.contains(".")) {
             return matches;
         }
         
-        // For field access patterns, only filter if NO owner was specified
         if ((value.equals("GETFIELD") || value.equals("PUTFIELD") || 
              value.equals("GETSTATIC") || value.equals("PUTSTATIC")) &&
             pattern.owner().isEmpty()) {
@@ -294,8 +268,6 @@ public class InsertTransformer {
                         if (match.instruction instanceof FieldInsnNode) {
                             FieldInsnNode fieldInsn = (FieldInsnNode) match.instruction;
                             
-                            // Only include matches where the field belongs to the target class
-                            // or its superclasses (for inherited fields)
                             return fieldInsn.owner.equals(targetClass.name) ||
                                    isInheritedField(fieldInsn.owner, targetClass);
                         }
@@ -312,12 +284,10 @@ public class InsertTransformer {
      * This handles cases where the field is inherited.
      */
     private static boolean isInheritedField(String fieldOwner, ClassNode targetClass) {
-        // Check if fieldOwner is the superclass
         if (targetClass.superName != null && targetClass.superName.equals(fieldOwner)) {
             return true;
         }
         
-        // Check interfaces (fields can be inherited from interfaces)
         if (targetClass.interfaces != null) {
             return targetClass.interfaces.contains(fieldOwner);
         }

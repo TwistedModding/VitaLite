@@ -56,8 +56,5 @@ public class PatchSplashScreenTransformer
 
         int strCount = LdcRewriter.rewriteString(constructor, "runelite_splash.png", "icon_splash.png");
         int clsCount = LdcRewriter.rewriteClassRef(constructor, "net/runelite/client/ui/SplashScreen", "com/tonic/vitalite/Main");
-
-        System.out.println("Strings Replaced: " + strCount);
-        System.out.println("Class References Replaced: " + clsCount);
     }
 }

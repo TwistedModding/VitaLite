@@ -84,6 +84,5 @@ public class InjectSideLoadCallTransformer
 
 
         main.instructions.insert(insertionPoint, code);
-        System.out.println("Injected side load call into RuneLite main method");
     }
 }

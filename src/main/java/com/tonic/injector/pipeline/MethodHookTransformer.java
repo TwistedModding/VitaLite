@@ -37,8 +37,6 @@ public class MethodHookTransformer
             return;
         }
 
-        System.out.println("Hooking method: " + toHook.name + toHook.desc + " in class " + gamepack.name);
-
         boolean isStatic = (method.access & Opcodes.ACC_STATIC) != 0;
         Type hookMethodType = Type.getMethodType(method.desc);
         Type targetMethodType = Type.getMethodType(toHook.desc);
