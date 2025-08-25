@@ -46,6 +46,14 @@ public @interface At {
     int line() default -1;
     
     /**
+     * Local variable index when using LOAD, STORE, or IINC.
+     * Examples:
+     * - @At(value = AtTarget.LOAD, local = 7) - matches ALOAD 7, ILOAD 7, etc.
+     * - @At(value = AtTarget.STORE, local = 2) - matches ASTORE 2, ISTORE 2, etc.
+     */
+    int local() default -1;
+    
+    /**
      * Constant value matching for LDC instructions.
      */
     Constant constant() default @Constant;

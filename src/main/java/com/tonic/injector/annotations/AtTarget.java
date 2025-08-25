@@ -72,6 +72,36 @@ public enum AtTarget {
     JUMP,
     
     /**
+     * Load from local variable (ILOAD, LLOAD, FLOAD, DLOAD, ALOAD)
+     * Usage: @At(value = AtTarget.LOAD, local = 7)
+     */
+    LOAD,
+    
+    /**
+     * Store to local variable (ISTORE, LSTORE, FSTORE, DSTORE, ASTORE)
+     * Usage: @At(value = AtTarget.STORE, local = 2)
+     */
+    STORE,
+    
+    /**
+     * Increment local variable (IINC)
+     * Usage: @At(value = AtTarget.IINC, local = 5)
+     */
+    IINC,
+    
+    /**
+     * Array load operations (IALOAD, LALOAD, FALOAD, DALOAD, AALOAD, BALOAD, CALOAD, SALOAD)
+     * Usage: @At(value = AtTarget.ARRAY_LOAD)
+     */
+    ARRAY_LOAD,
+    
+    /**
+     * Array store operations (IASTORE, LASTORE, FASTORE, DASTORE, AASTORE, BASTORE, CASTORE, SASTORE)
+     * Usage: @At(value = AtTarget.ARRAY_STORE)
+     */
+    ARRAY_STORE,
+    
+    /**
      * Empty/no targeting - used for slice defaults
      * Internal use only
      */

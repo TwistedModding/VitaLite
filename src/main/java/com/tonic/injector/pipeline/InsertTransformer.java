@@ -11,6 +11,7 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shift;
 import com.tonic.injector.types.InstructionMatcher;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.util.ReflectBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -99,6 +100,20 @@ public class InsertTransformer {
                 } else {
                     return;
                 }
+            }
+
+            if(insertAnnotation.raw())
+            {
+                String name = mixin.name.replace("/", ".");
+                ReflectBuilder.ofClass(name)
+                        .method(
+                                method.name,
+                                new Class[]{MethodNode.class, AbstractInsnNode.class},
+                                new Object[]{targetMethod, targetMatches.get(0)}
+                        )
+                        .get();
+                System.out.println("Successfully invoked raw insert method: " + method.name + " on " + targetMethod.name);
+                return;
             }
             
             for (int i = targetMatches.size() - 1; i >= 0; i--) {

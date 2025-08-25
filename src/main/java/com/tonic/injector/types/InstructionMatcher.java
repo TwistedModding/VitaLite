@@ -106,6 +106,16 @@ public class InstructionMatcher {
                 return matchesReturn(insn);
             case JUMP:
                 return matchesJump(insn);
+            case LOAD:
+                return matchesLocalLoad(insn, getLocalIndex(pattern));
+            case STORE:
+                return matchesLocalStore(insn, getLocalIndex(pattern));
+            case IINC:
+                return matchesIinc(insn, getLocalIndex(pattern));
+            case ARRAY_LOAD:
+                return matchesArrayLoad(insn);
+            case ARRAY_STORE:
+                return matchesArrayStore(insn);
             default:
                 return false;
         }
@@ -162,6 +172,25 @@ public class InstructionMatcher {
         } catch (Exception ignored) {
         }
         return null;
+    }
+    
+    /**
+     * Safely get local index from At pattern, handling potential proxy issues
+     */
+    private static int getLocalIndex(At pattern) {
+        try {
+            return pattern.local();
+        } catch (Exception e) {
+            try {
+                Object localObj = getRawAnnotationValue(pattern, "local");
+                if (localObj instanceof Integer) {
+                    return (Integer) localObj;
+                }
+            } catch (Exception ex) {
+                System.err.println("Error getting local index: " + ex.getMessage());
+            }
+            return -1; // fallback
+        }
     }
     
     private static boolean matchesInvoke(AbstractInsnNode insn, String target, String owner, JClass mappingContext) {
@@ -305,6 +334,78 @@ public class InstructionMatcher {
                (opcode >= Opcodes.IFEQ && opcode <= Opcodes.IF_ACMPNE);
     }
     
+    private static boolean matchesLocalLoad(AbstractInsnNode insn, int localIndex) {
+        if (!(insn instanceof VarInsnNode)) return false;
+        
+        VarInsnNode varInsn = (VarInsnNode) insn;
+        int opcode = insn.getOpcode();
+        
+        // Match any load opcode if no specific local index specified
+        if (localIndex == -1) {
+            return opcode == Opcodes.ILOAD || opcode == Opcodes.LLOAD ||
+                   opcode == Opcodes.FLOAD || opcode == Opcodes.DLOAD ||
+                   opcode == Opcodes.ALOAD;
+        }
+        
+        // Match specific local index
+        boolean isLoadOpcode = opcode == Opcodes.ILOAD || opcode == Opcodes.LLOAD ||
+                              opcode == Opcodes.FLOAD || opcode == Opcodes.DLOAD ||
+                              opcode == Opcodes.ALOAD;
+        
+        return isLoadOpcode && varInsn.var == localIndex;
+    }
+    
+    private static boolean matchesLocalStore(AbstractInsnNode insn, int localIndex) {
+        if (!(insn instanceof VarInsnNode)) return false;
+        
+        VarInsnNode varInsn = (VarInsnNode) insn;
+        int opcode = insn.getOpcode();
+        
+        // Match any store opcode if no specific local index specified
+        if (localIndex == -1) {
+            return opcode == Opcodes.ISTORE || opcode == Opcodes.LSTORE ||
+                   opcode == Opcodes.FSTORE || opcode == Opcodes.DSTORE ||
+                   opcode == Opcodes.ASTORE;
+        }
+        
+        // Match specific local index
+        boolean isStoreOpcode = opcode == Opcodes.ISTORE || opcode == Opcodes.LSTORE ||
+                               opcode == Opcodes.FSTORE || opcode == Opcodes.DSTORE ||
+                               opcode == Opcodes.ASTORE;
+        
+        return isStoreOpcode && varInsn.var == localIndex;
+    }
+    
+    private static boolean matchesIinc(AbstractInsnNode insn, int localIndex) {
+        if (!(insn instanceof IincInsnNode) || insn.getOpcode() != Opcodes.IINC) return false;
+        
+        IincInsnNode iincInsn = (IincInsnNode) insn;
+        
+        // Match any IINC if no specific local index specified
+        if (localIndex == -1) {
+            return true;
+        }
+        
+        // Match specific local index
+        return iincInsn.var == localIndex;
+    }
+    
+    private static boolean matchesArrayLoad(AbstractInsnNode insn) {
+        int opcode = insn.getOpcode();
+        return opcode == Opcodes.IALOAD || opcode == Opcodes.LALOAD ||
+               opcode == Opcodes.FALOAD || opcode == Opcodes.DALOAD ||
+               opcode == Opcodes.AALOAD || opcode == Opcodes.BALOAD ||
+               opcode == Opcodes.CALOAD || opcode == Opcodes.SALOAD;
+    }
+    
+    private static boolean matchesArrayStore(AbstractInsnNode insn) {
+        int opcode = insn.getOpcode();
+        return opcode == Opcodes.IASTORE || opcode == Opcodes.LASTORE ||
+               opcode == Opcodes.FASTORE || opcode == Opcodes.DASTORE ||
+               opcode == Opcodes.AASTORE || opcode == Opcodes.BASTORE ||
+               opcode == Opcodes.CASTORE || opcode == Opcodes.SASTORE;
+    }
+    
     private static AbstractInsnNode applyShift(AbstractInsnNode insn, At pattern) {
         String shiftType = getShiftType(pattern);
 
@@ -348,6 +449,8 @@ public class InstructionMatcher {
         public String opcode() { return ""; }
         @Override
         public int line() { return -1; }
+        @Override
+        public int local() { return -1; }
         @Override
         public Constant constant() { return new ConstantImpl(); }
         @Override

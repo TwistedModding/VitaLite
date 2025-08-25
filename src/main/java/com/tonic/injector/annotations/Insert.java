@@ -59,4 +59,6 @@ public @interface Insert {
      * Optional slice to limit the search area within the method.
      */
     Slice slice() default @Slice;
+
+    boolean raw() default false;
 }
