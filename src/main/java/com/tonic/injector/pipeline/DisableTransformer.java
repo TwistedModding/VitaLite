@@ -1,11 +1,7 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.dto.JClass;
-import com.tonic.dto.JMethod;
-import com.tonic.injector.Injector;
-import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Disable;
-import com.tonic.injector.annotations.Mixin;
+import com.tonic.injector.util.TransformerUtil;
 import com.tonic.model.ConditionType;
 import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.BytecodeBuilder;
@@ -23,23 +19,12 @@ public class DisableTransformer
             throw new RuntimeException("Method " + method.name + " in mixin " + mixin.name + " must be a boolean method.");
         }
 
-        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, Disable.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JMethod jMethod = MappingProvider.getMethod(jClass, name);
 
-        if (jMethod == null)
-        {
-            throw new RuntimeException("Method " + name + " not found in class " + gamepackName);
-        }
-
-        ClassNode gamepack = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
+        ClassNode gamepack = TransformerUtil.getMethodClass(mixin, name);
         InjectTransformer.patch(gamepack, mixin, method);
 
-        MethodNode toHook = gamepack.methods.stream()
-                .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
-                .findFirst()
-                .orElse(null);
+        MethodNode toHook = TransformerUtil.getTargetMethod(mixin, name);
 
         if (toHook == null) {
             System.err.println("Could not find method to hook: " + name);

@@ -51,7 +51,7 @@ public class Injector {
         JarDumper.dump(Main.LIBS.getGamepackClean().classes);
     }
 
-    private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) {
+    private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) throws ClassNotFoundException {
         for (ClassNode mixin : pairs.keySet()) {
             BootstrapPoisonInjector.obliterateDecompilers(mixin);
             StripLvtInfo.run(mixin);
@@ -84,11 +84,11 @@ public class Injector {
                 }
                 if(AnnotationUtil.hasAnnotation(method, Replace.class))
                 {
-                    ReplaceTransformer.patch(gamepackClass, mixin, method);
+                    ReplaceTransformer.patch(mixin, method);
                 }
                 if(AnnotationUtil.hasAnnotation(method, MethodOverride.class))
                 {
-                    MethodOverrideTransformer.patch(gamepackClass, mixin, method);
+                    MethodOverrideTransformer.patch(mixin, method);
                 }
                 if(AnnotationUtil.hasAnnotation(method, Shadow.class))
                 {

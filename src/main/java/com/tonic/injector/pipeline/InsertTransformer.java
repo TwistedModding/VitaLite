@@ -11,6 +11,7 @@ import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shift;
 import com.tonic.injector.types.InstructionMatcher;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import com.tonic.util.ReflectBuilder;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -39,36 +40,13 @@ public class InsertTransformer {
         try {
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             String targetMethodName = AnnotationUtil.getAnnotation(method, Insert.class, "method");
-            
+
             JClass jClass = MappingProvider.getClass(gamepackName);
-            if (jClass == null) {
-                System.err.println("Could not find class mapping for: " + gamepackName);
-                return;
-            }
-            
-            JMethod jMethod = MappingProvider.getMethod(jClass, targetMethodName);
-            if (jMethod == null) {
-                System.err.println("Could not find method mapping for: " + gamepackName + "." + targetMethodName);
-                return;
-            }
-            
-            ClassNode gamepackClass = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
-            if (gamepackClass == null) {
-                System.err.println("Could not find gamepack class: " + jMethod.getOwnerObfuscatedName());
-                return;
-            }
+            ClassNode gamepackClass = TransformerUtil.getMethodClass(mixin, targetMethodName);
             
             InjectTransformer.patch(gamepackClass, mixin, method);
-            
-            MethodNode targetMethod = gamepackClass.methods.stream()
-                    .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
-                    .findFirst()
-                    .orElse(null);
-                    
-            if (targetMethod == null) {
-                System.err.println("Could not find target method: " + jMethod.getObfuscatedName() + jMethod.getDescriptor());
-                return;
-            }
+
+            MethodNode targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName);
             
             Insert insertAnnotation = getInsertAnnotation(method);
             if (insertAnnotation == null) {
@@ -112,23 +90,31 @@ public class InsertTransformer {
             if(insertAnnotation.raw())
             {
                 String name = mixin.name.replace("/", ".");
-                if(method.parameters.size() > 2)
+                Type type = Type.getMethodType(method.desc);
+                Type[] params = type.getArgumentTypes();
+                if(params.length > 2)
                 {
-                    ReflectBuilder.ofClass(name)
-                            .method(
+                    Class<?> clazz = InsertTransformer.class.getClassLoader()
+                            .loadClass(name);
+
+                    ReflectBuilder.of(clazz)
+                            .staticMethod(
                                     method.name,
                                     new Class[]{ClassNode.class, MethodNode.class, AbstractInsnNode.class},
-                                    new Object[]{gamepackClass, targetMethod, targetMatches.get(0)}
+                                    new Object[]{gamepackClass, targetMethod, targetMatches.get(0).instruction}
                             )
                             .get();
                 }
                 else
                 {
-                    ReflectBuilder.ofClass(name)
-                            .method(
+                    Class<?> clazz = InsertTransformer.class.getClassLoader()
+                            .loadClass(name);
+
+                    ReflectBuilder.of(clazz)
+                            .staticMethod(
                                     method.name,
                                     new Class[]{MethodNode.class, AbstractInsnNode.class},
-                                    new Object[]{targetMethod, targetMatches.get(0)}
+                                    new Object[]{targetMethod, targetMatches.get(0).instruction}
                             )
                             .get();
                 }
@@ -185,7 +171,8 @@ public class InsertTransformer {
             Type[] targetParams = Type.getArgumentTypes(targetMethod.desc);
             if (hookParams.length > targetParams.length) {
                 System.err.println("Hook method expects more parameters than target method has");
-                return;
+                throw new RuntimeException("Hook method expects more parameters than target method has");
+                //return;
             }
 
             int localVarIndex = isTargetStatic ? 0 : 1;

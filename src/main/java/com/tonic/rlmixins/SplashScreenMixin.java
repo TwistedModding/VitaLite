@@ -42,7 +42,8 @@ public class SplashScreenMixin
                     value = AtTarget.GETSTATIC,
                     target = "BRAND_ORANGE",
                     owner = "net/runelite/client/ui/ColorScheme"
-            )
+            ),
+            raw = true
     )
     public static void constructorHook2(MethodNode method, AbstractInsnNode insertionPoint)
     {

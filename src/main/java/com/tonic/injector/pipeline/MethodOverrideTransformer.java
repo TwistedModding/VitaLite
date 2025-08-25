@@ -7,6 +7,7 @@ import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.MethodOverride;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -19,30 +20,12 @@ public class MethodOverrideTransformer {
      * Replaces the bytecode of the target (toHook) method in the gamepack with the bytecode
      * from the provided mixin MethodNode.
      *
-     * @param gamepack The ClassNode of the gamepack being transformed.
      * @param mixin The ClassNode containing the mixin method.
      * @param method The MethodNode from the mixin that contains the new bytecode.
      */
-    public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
-        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+    public static void patch(ClassNode mixin, MethodNode method) {
         String name = AnnotationUtil.getAnnotation(method, MethodOverride.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JMethod jMethod = MappingProvider.getMethod(jClass, name);
-
-        String targetName = jMethod.getObfuscatedName();
-        String targetDesc = jMethod.getDescriptor();
-
-        ClassNode targetClass = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
-
-        MethodNode toReplace = targetClass.methods.stream()
-                .filter(m -> m.name.equals(targetName) && m.desc.equals(targetDesc))
-                .findFirst().orElse(null);
-
-        if (toReplace == null) {
-            System.err.println("[MethodOverrideTransformer] Could not find target to replace: "
-                    + targetName + targetDesc);
-            return;
-        }
+        MethodNode toReplace = TransformerUtil.getTargetMethod(mixin, name);
 
         toReplace.instructions.clear();
         toReplace.tryCatchBlocks.clear();

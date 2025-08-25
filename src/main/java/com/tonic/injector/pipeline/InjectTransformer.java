@@ -2,32 +2,26 @@ package com.tonic.injector.pipeline;
 
 import com.tonic.injector.util.FieldUtil;
 import com.tonic.injector.util.MethodUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public class InjectTransformer
 {
-    /**
-     * Injects a method from a mixin class into the gamepack class.
-     *
-     * @param gamepack the gamepack class node
-     * @param mixin the mixin class node
-     * @param method the method node to inject
-     */
-    public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method)
+    public static void patch(ClassNode toClass, ClassNode fromClass, MethodNode method)
     {
         if(method.name.equals("<init>") && method.desc.equals("()V"))
             return;
 
-        boolean methodExists = gamepack.methods.stream()
+        boolean methodExists = toClass.methods.stream()
                 .anyMatch(m -> m.name.equals(method.name) && m.desc.equals(method.desc));
 
         if(methodExists)
             return;
 
-        MethodNode copyMethod = MethodUtil.copyMethod(method, method.name, mixin, gamepack);
-        gamepack.methods.add(copyMethod);
+        MethodNode copyMethod = MethodUtil.copyMethod(method, method.name, fromClass, toClass);
+        toClass.methods.add(copyMethod);
     }
 
     /**

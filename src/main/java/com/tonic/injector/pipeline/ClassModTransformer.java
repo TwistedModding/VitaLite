@@ -7,11 +7,12 @@ import org.objectweb.asm.tree.MethodNode;
 
 public class ClassModTransformer
 {
-    public static void patch(ClassNode mixin, MethodNode method)
-    {
+    public static void patch(ClassNode mixin, MethodNode method) throws ClassNotFoundException {
         ClassNode target = TransformerUtil.getBaseClass(mixin);
         String name = mixin.name.replace("/", ".");
-        ReflectBuilder.ofClass(name)
+        Class<?> clazz = InsertTransformer.class.getClassLoader()
+                .loadClass(name);
+        ReflectBuilder.of(clazz)
                 .staticMethod(
                         method.name,
                         new Class[]{ClassNode.class},

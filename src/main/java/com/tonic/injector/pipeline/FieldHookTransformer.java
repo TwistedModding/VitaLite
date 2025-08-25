@@ -15,6 +15,9 @@ import org.objectweb.asm.tree.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * GamePack only
+ */
 public class FieldHookTransformer {
     private static final List<FieldHookDef> fieldHooks = new ArrayList<>();
 

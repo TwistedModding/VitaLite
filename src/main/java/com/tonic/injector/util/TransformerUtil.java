@@ -14,6 +14,14 @@ public class TransformerUtil
     public static ClassNode getBaseClass(ClassNode mixin)
     {
         String className = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        if(className == null)
+        {
+            throw new RuntimeException("Could not find Mixin annotation on class: " + mixin.name);
+        }
+        return getBaseClass(className);
+    }
+    public static ClassNode getBaseClass(String className)
+    {
         if(className.contains("/"))
         {
             return RLInjector.runelite.get(className);
@@ -31,6 +39,10 @@ public class TransformerUtil
     public static ClassNode getMethodClass(ClassNode mixin, String targetMethodName)
     {
         String className = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        if(className.contains("/"))
+        {
+            return getBaseClass(className);
+        }
         JClass jClass = MappingProvider.getClass(className);
         if (jClass == null) {
             throw new RuntimeException("Could not find class mapping for: " + className);

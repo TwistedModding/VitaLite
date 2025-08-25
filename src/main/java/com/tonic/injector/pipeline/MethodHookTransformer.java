@@ -7,6 +7,7 @@ import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.MethodHook;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -19,18 +20,11 @@ public class MethodHookTransformer
      * @param method the method to hook
      */
     public static void patch(ClassNode mixin, MethodNode method) {
-        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, MethodHook.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JMethod jMethod = MappingProvider.getMethod(jClass, name);
-
-        ClassNode gamepack = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
+        ClassNode gamepack = TransformerUtil.getMethodClass(mixin, name);
         InjectTransformer.patch(gamepack, mixin, method);
 
-        MethodNode toHook = gamepack.methods.stream()
-                .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
-                .findFirst()
-                .orElse(null);
+        MethodNode toHook = TransformerUtil.getTargetMethod(mixin, name);
 
         if (toHook == null) {
             System.err.println("Could not find method to hook: " + name);

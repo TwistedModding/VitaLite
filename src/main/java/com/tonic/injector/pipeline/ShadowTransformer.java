@@ -8,6 +8,7 @@ import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -25,24 +26,20 @@ public class ShadowTransformer
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, Shadow.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JMethod jMethod = MappingProvider.getMethod(jClass, name);
 
-        if( jMethod == null ) {
-            System.out.println("No mapping found for " + gamepackName + "." + name + " // " + mixin.name + "." + method.name + method.desc);
-            System.exit(0);
-            return;
+        ClassNode gamepack = TransformerUtil.getMethodClass(mixin, name);
+        ClassNode injectionSite = TransformerUtil.getBaseClass(mixin);
+
+        MethodNode toShadow = TransformerUtil.getTargetMethod(mixin, name);
+
+        Number multiplier = null;
+        if(!gamepackName.contains("/"))
+        {
+            JClass jClass = MappingProvider.getClass(gamepackName);
+            JMethod jMethod = MappingProvider.getMethod(jClass, name);
+            multiplier = jMethod.getGarbageValue();
         }
 
-        ClassNode gamepack = Injector.gamepack.get(jMethod.getOwnerObfuscatedName());
-        ClassNode injectionSite = Injector.gamepack.get(jClass.getObfuscatedName());
-
-        MethodNode toShadow = gamepack.methods.stream()
-                .filter(m -> m.name.equals(jMethod.getObfuscatedName()) && m.desc.equals(jMethod.getDescriptor()))
-                .findFirst()
-                .orElse(null);
-
-        Number multiplier = jMethod.getGarbageValue();
         InsnList instructions = new InsnList();
 
         Type shadowReturnType = Type.getReturnType(method.desc);
@@ -134,6 +131,9 @@ public class ShadowTransformer
 
     /**
      * Transforms a shadow field in a mixin class to point to the corresponding field in the gamepack.
+     *
+     * GamePack only
+     *
      * @param mixin the mixin class node containing the shadow field
      * @param field the field node representing the shadow field to be transformed
      */

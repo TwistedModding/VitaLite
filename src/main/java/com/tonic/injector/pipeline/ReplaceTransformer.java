@@ -6,6 +6,7 @@ import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Replace;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -18,40 +19,24 @@ public class ReplaceTransformer
      * The target method is identified by its name and descriptor, which are obtained from the mixin's
      * @MethodHook annotation and the @Replace annotation on the method.
      *
-     * @param gamepack The ClassNode of the gamepack being modified.
      * @param mixin    The ClassNode of the mixin containing the hook method.
      * @param method   The MethodNode of the hook method to be injected.
      */
-    public static void patch(ClassNode gamepack, ClassNode mixin, MethodNode method) {
-        // First, inject the hook method into the gamepack (static copy)
+    public static void patch(ClassNode mixin, MethodNode method) {
+        String name = AnnotationUtil.getAnnotation(method, Replace.class, "value");
+
+        ClassNode gamepack = TransformerUtil.getBaseClass(mixin);
         InjectTransformer.patch(gamepack, mixin, method);
 
-        // Read the @MethodHook annotation to find which target to override
-        String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
-        String name = AnnotationUtil.getAnnotation(method, Replace.class, "value");
-        JClass jClass = MappingProvider.getClass(gamepackName);
-        JMethod jMethod = MappingProvider.getMethod(jClass, name);
-
-        String targetName = jMethod.getObfuscatedName();
-        String targetDesc = jMethod.getDescriptor();
-
         // Locate the target method in the gamepack
-        MethodNode toReplace = gamepack.methods.stream()
-                .filter(m -> m.name.equals(targetName) && m.desc.equals(targetDesc))
-                .findFirst()
-                .orElse(null);
-
-        if (toReplace == null) {
-            System.err.println("Could not find method to override: " + targetName + targetDesc);
-            return;
-        }
+        MethodNode toReplace = TransformerUtil.getTargetMethod(mixin, name);
 
         // Parse hook and target descriptors
         Type hookType   = Type.getMethodType(method.desc);
         Type targetType = Type.getMethodType(toReplace.desc);
         Type[] hookParams   = hookType.getArgumentTypes();
         Type[] targetParams = targetType.getArgumentTypes();
-        Type   returnType   = hookType.getReturnType();
+        Type returnType   = hookType.getReturnType();
 
         // Build instructions: load args, invoke hook, return result
         InsnList override = new InsnList();
@@ -116,8 +101,5 @@ public class ReplaceTransformer
 
         // Insert at the very start of the target method
         toReplace.instructions.insert(override);
-
-        System.out.println("::: Overrode Method: " + targetName + targetDesc
-                + " -> returns hook " + method.name + method.desc);
     }
 }

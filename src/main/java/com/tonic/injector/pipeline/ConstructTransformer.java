@@ -1,11 +1,9 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.dto.JClass;
-import com.tonic.injector.Injector;
-import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Construct;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.util.AnnotationUtil;
+import com.tonic.injector.util.TransformerUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -22,15 +20,13 @@ public class ConstructTransformer
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, Construct.class, "value");
-        JClass constructTargetDTO = MappingProvider.getClass(name);
-        JClass injectionTargetDTO = MappingProvider.getClass(gamepackName);
 
-        if (constructTargetDTO == null || injectionTargetDTO == null) {
+        if (gamepackName == null || name == null) {
             throw new RuntimeException("Construct target or injection target not found for " + name);
         }
 
-        ClassNode constructTarget = Injector.gamepack.get(constructTargetDTO.getObfuscatedName());
-        ClassNode injectionTarget = Injector.gamepack.get(injectionTargetDTO.getObfuscatedName());
+        ClassNode constructTarget = TransformerUtil.getBaseClass(name);
+        ClassNode injectionTarget = TransformerUtil.getBaseClass(gamepackName);
 
         if (constructTarget == null || injectionTarget == null) {
             throw new RuntimeException("Construct target or injection target class not found for " + name);
