@@ -337,14 +337,10 @@ public class InstructionMatcher {
         }
         
         try {
-            Object shiftObj = pattern.shift();
-            if (shiftObj instanceof String) {
-                return (String) shiftObj;
-            } else if (shiftObj instanceof Shift) {
-                return ((Shift) shiftObj).toString();
-            }
+            return pattern.shift().name();
         } catch (Exception e) {
             System.err.println("Error getting shift type: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return "TAIL";

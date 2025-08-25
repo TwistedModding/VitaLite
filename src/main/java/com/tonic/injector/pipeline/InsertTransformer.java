@@ -239,6 +239,7 @@ public class InsertTransformer {
             }
         } catch (Exception e) {
             System.err.println("Error getting shift type: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return Shift.TAIL;

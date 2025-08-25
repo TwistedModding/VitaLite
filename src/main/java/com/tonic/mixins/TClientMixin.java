@@ -32,12 +32,11 @@ public abstract class TClientMixin implements TClient
             at = @At(
                     value = AtTarget.PUTFIELD,
                     owner = "PacketBuffer",
-                    target = "offset",
-                    shift = Shift.HEAD
+                    target = "offset"
             ),
             ordinal = 2
     )
-    public static void processServerPacket(TClient client, TPacketBuffer buffer)
+    public static void processServerPacket(TClient client, TPacketWriter writer)
     {
         //TODO: impl structure of server packet stuff for logging
     }
