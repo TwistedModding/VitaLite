@@ -13,12 +13,16 @@ import java.util.Map;
 
 public class RLInjector
 {
-    public static Map<String,ClassNode> runelite;
+    public static final Map<String,ClassNode> runelite = new HashMap<>();
 
     public static void patch() throws Exception
     {
         for (var entry : Main.LIBS.getRunelite().classes.entrySet()) {
             String name = entry.getKey();
+            if(SignerMapper.shouldIgnore(name))
+            {
+                continue;
+            }
             byte[] bytes = entry.getValue();
             runelite.put(name, ClassNodeUtil.toNode(bytes));
         }
