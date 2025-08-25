@@ -1,0 +1,152 @@
+package com.tonic.rlmixins;
+
+import com.tonic.injector.annotations.*;
+import com.tonic.injector.util.BytecodeBuilder;
+import com.tonic.model.ConditionType;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ASTORE;
+
+@Mixin("net/runelite/client/plugins/PluginManager")
+public class PluginManagerMixin {
+    private static final List<String> allowed = new ArrayList<>()
+    {{
+        add("net.runelite.client.plugins.config");
+        add("net.runelite.client.plugins.lowmemory");
+        add("net.runelite.client.plugins.loginscreen");
+    }};
+
+    @MethodOverride("loadSideLoadPlugins")
+    public static void loadSideLoadPlugins()
+    {
+        return;
+    }
+
+    @Insert(
+            method = "loadPlugins",
+            at = @At(
+                    value = AtTarget.GETFIELD,
+                    owner = "net/runelite/client/plugins/PluginManager",
+                    target = "developerMode"
+            )
+    )
+    public static void loadPlugins(MethodNode method, AbstractInsnNode insertionPoint)
+    {
+        InsnList code = BytecodeBuilder.create()
+                .pushInt(1)
+                .build();
+
+        method.instructions.insert(insertionPoint, code);
+        method.instructions.remove(insertionPoint.getPrevious());
+        method.instructions.remove(insertionPoint);
+    }
+
+    @Insert(
+            method = "loadCorePlugins",
+            at = @At(
+                    value = AtTarget.STORE,
+                    local = 2
+            ),
+            ordinal = -1,
+            raw = true
+    )
+    public static void loadCorePlugins(MethodNode method, AbstractInsnNode insertionPoint)
+    {
+        InsnList code = BytecodeBuilder.create()
+                // Static.set(new RuneLite(Main.CLASSLOADER.getMain()), "RL");
+                .newInstance("com/tonic/model/RuneLite")
+                .dup()
+                .getStaticField(
+                        "com/tonic/vitalite/Main",
+                        "CLASSLOADER",
+                        "Lcom/tonic/classloader/RLClassLoader;"
+                )
+                .invokeVirtual(
+                        "com/tonic/classloader/RLClassLoader",
+                        "getMain",
+                        "()Ljava/lang/Class;"
+                )
+                .invokeSpecial(
+                        "com/tonic/model/RuneLite",
+                        "<init>",
+                        "(Ljava/lang/Class;)V"
+                )
+                .pushString("RL")
+                .invokeStatic(
+                        "com/tonic/Static",
+                        "set",
+                        "(Ljava/lang/Object;Ljava/lang/String;)V"
+                )
+
+                // RuneLite.injector.getInstance(Install.class).start(plugins);
+                .invokeStatic("com/tonic/Static",
+                        "getInjector",
+                        "()Lcom/google/inject/Injector;")
+                .pushClass("com/tonic/runelite/Install")
+                .invokeInterface("com/google/inject/Injector",
+                        "getInstance",
+                        "(Ljava/lang/Class;)Ljava/lang/Object;")
+                .castToType("com/tonic/runelite/Install")
+                .loadLocal(2, Opcodes.ALOAD)
+                .invokeVirtual("com/tonic/runelite/Install",
+                        "injectSideLoadPlugins",
+                        "(Ljava/util/List;)V")
+                .build();
+
+
+        method.instructions.insert(insertionPoint, code);
+
+        InsnList code2 = BytecodeBuilder.create()
+                .newInstance("java/util/ArrayList")
+                .dup()
+                .invokeSpecial("java/util/ArrayList", "<init>", "()V")
+                .storeLocal(3, ASTORE)
+                .loadLocal(2, ALOAD)
+                .invokeInterface("java/util/List", "iterator", "()Ljava/util/Iterator;")
+                .storeLocal(4, ASTORE)
+                .whileBlock(
+                        ConditionType.EQUALS,
+                        condition -> condition.loadLocal(4, ALOAD)
+                                .invokeInterface("java/util/Iterator", "hasNext", "()Z")
+                                .pushInt(0),
+                        body -> {
+                            body.loadLocal(4, ALOAD)
+                                    .invokeInterface("java/util/Iterator", "next", "()Ljava/lang/Object;")
+                                    .castToType("java/lang/Class")
+                                    .storeLocal(5, ASTORE)
+                                    .loadLocal(5, ALOAD)
+                                    .invokeVirtual("java/lang/Class", "getName", "()Ljava/lang/String;")
+                                    .storeLocal(6, ASTORE);
+                            LabelNode skipAdd = body.createLabel("skipAdd");
+                            body.pushInt(0);
+                            for(String prefix : allowed)
+                            {
+                                body.loadLocal(6, ALOAD)
+                                        .pushString(prefix)
+                                        .invokeVirtual("java/lang/String", "startsWith", "(Ljava/lang/String;)Z")
+                                        .or();
+                            }
+                            body.pushInt(0)
+                                    .jumpIf(ConditionType.EQUALS, skipAdd)
+                                    .loadLocal(3, ALOAD)
+                                    .loadLocal(5, ALOAD)
+                                    .invokeInterface("java/util/List", "add", "(Ljava/lang/Object;)Z")
+                                    .pop()
+                                    .placeLabel(skipAdd);
+                        }
+                )
+                .loadLocal(3, ALOAD)
+                .storeLocal(2, ASTORE)
+                .build();
+
+        method.instructions.insert(insertionPoint, code2);
+    }
+}
