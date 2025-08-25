@@ -106,8 +106,6 @@ public class InstructionMatcher {
                 return matchesReturn(insn);
             case JUMP:
                 return matchesJump(insn);
-            case NONE:
-                return false;
             default:
                 return false;
         }
@@ -117,15 +115,6 @@ public class InstructionMatcher {
      * Get the target type, supporting both enum and legacy string values.
      */
     private static AtTarget getTargetType(At pattern) {
-        if (!pattern.stringValue().isEmpty()) {
-            try {
-                return AtTarget.valueOf(pattern.stringValue().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                System.err.println("Invalid target type: " + pattern.stringValue());
-                return AtTarget.INVOKE;
-            }
-        }
-        
         try {
             java.lang.reflect.InvocationHandler handler = java.lang.reflect.Proxy.getInvocationHandler(pattern);
             java.lang.reflect.Method valueMethod = At.class.getMethod("value");
@@ -170,7 +159,7 @@ public class InstructionMatcher {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return null;
     }
@@ -230,7 +219,7 @@ public class InstructionMatcher {
 
         if (target.isEmpty()) return true;
         
-        String resolvedOwner = "";
+        String resolvedOwner;
         if (!owner.isEmpty()) {
             resolvedOwner = resolveClassName(owner);
             if (!fieldInsn.owner.equals(resolvedOwner)) {
@@ -318,24 +307,17 @@ public class InstructionMatcher {
     
     private static AbstractInsnNode applyShift(AbstractInsnNode insn, At pattern) {
         String shiftType = getShiftType(pattern);
-        
-        switch (shiftType.toUpperCase()) {
-            case "HEAD":
-                return insn;
-            case "TAIL":
-            default:
-                return insn;
+
+        if (shiftType.equalsIgnoreCase("TAIL")) {
+            return insn;
         }
+        return insn.getPrevious();
     }
     
     /**
      * Get the shift type, supporting both enum and legacy string values.
      */
     private static String getShiftType(At pattern) {
-        if (!pattern.shiftString().isEmpty()) {
-            return pattern.shiftString();
-        }
-        
         try {
             return pattern.shift().name();
         } catch (Exception e) {
@@ -359,8 +341,6 @@ public class InstructionMatcher {
         @Override
         public AtTarget value() { return AtTarget.NONE; }
         @Override
-        public String stringValue() { return ""; }
-        @Override
         public String target() { return ""; }
         @Override
         public String owner() { return ""; }
@@ -372,8 +352,6 @@ public class InstructionMatcher {
         public Constant constant() { return new ConstantImpl(); }
         @Override
         public Shift shift() { return Shift.TAIL; }
-        @Override
-        public String shiftString() { return ""; }
         @Override
         public Class<? extends java.lang.annotation.Annotation> annotationType() { return At.class; }
     }

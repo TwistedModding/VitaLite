@@ -200,9 +200,6 @@ public class PatternBuilder {
         public AtTarget value() { return value; }
         
         @Override
-        public String stringValue() { return ""; }
-        
-        @Override
         public String target() { return target; }
         
         @Override
@@ -219,9 +216,6 @@ public class PatternBuilder {
         
         @Override
         public Shift shift() { return shift; }
-        
-        @Override
-        public String shiftString() { return ""; }
         
         @Override
         public Class<? extends java.lang.annotation.Annotation> annotationType() {

@@ -218,55 +218,34 @@ public class InsertTransformer {
     }
     
     /**
-     * Get the shift type, supporting both enum and legacy string values.
+     * Get the shift type from the pattern.
      */
     private static Shift getShiftType(At pattern) {
-        if (!pattern.shiftString().isEmpty()) {
-            try {
-                return Shift.valueOf(pattern.shiftString().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                System.err.println("Invalid shift type: " + pattern.shiftString());
-                return Shift.TAIL;
-            }
-        }
-        
-        try {
-            Object shiftObj = pattern.shift();
-            if (shiftObj instanceof String) {
-                return Shift.valueOf(((String) shiftObj).toUpperCase());
-            } else if (shiftObj instanceof Shift) {
-                return (Shift) shiftObj;
-            }
-        } catch (Exception e) {
-            System.err.println("Error getting shift type: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
-        return Shift.TAIL;
+        return pattern.shift();
     }
     
     /**
-     * Get the target type as string, supporting both enum and legacy string values.
+     * Get the target type as string from the enum.
      */
     private static String getTargetTypeString(At pattern) {
-        if (!pattern.stringValue().isEmpty()) {
-            return pattern.stringValue().toUpperCase();
-        }
-        
         try {
-            Object valueObj = getRawAnnotationValue(pattern, "value");
-            if (valueObj instanceof String) {
-                return ((String) valueObj).toUpperCase();
+            return pattern.value().name();
+        } catch (ClassCastException e) {
+            // Handle case where annotation still contains string value during transition
+            try {
+                Object valueObj = getRawAnnotationValue(pattern, "value");
+                if (valueObj instanceof String) {
+                    return ((String) valueObj).toUpperCase();
+                }
+            } catch (Exception ex) {
+                System.err.println("Error getting target type: " + ex.getMessage());
             }
-        } catch (Exception e) {
-            System.err.println("Error getting target type string: " + e.getMessage());
+            return "INVOKE"; // fallback
         }
-        
-        return "INVOKE";
     }
     
     /**
-     * Attempt to get raw annotation value without triggering proxy casting
+     * Get raw annotation value for transition period
      */
     private static Object getRawAnnotationValue(Object proxy, String methodName) {
         try {
@@ -287,6 +266,7 @@ public class InsertTransformer {
         }
         return null;
     }
+    
     
     /**
      * Filter matches by context to avoid ambiguity with bare field names.

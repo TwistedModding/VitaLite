@@ -12,21 +12,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface At {
     /**
-     * The type of instruction pattern to match using enum (recommended).
-     * Use this for better IDE support and compile-time validation.
-     * 
-     * Example: @At(AtTarget.PUTFIELD)
+     * The type of instruction pattern to match.
      */
     AtTarget value() default AtTarget.INVOKE;
-    
-    /**
-     * Legacy string-based pattern type (for backwards compatibility).
-     * Use the enum 'value' parameter instead for new code.
-     * 
-     * @deprecated Use {@link #value()} with AtTarget enum instead
-     */
-    @Deprecated
-    String stringValue() default "";
     
     /**
      * Target specification for INVOKE, field access, or NEW instructions.
@@ -63,20 +51,8 @@ public @interface At {
     Constant constant() default @Constant;
     
     /**
-     * Whether to match the instruction before the target (HEAD) or after (TAIL) using enum (recommended).
-     * Use this for better IDE support and compile-time validation.
+     * Whether to match the instruction before the target (HEAD) or after (TAIL).
      * Default: Shift.TAIL (after the instruction)
-     * 
-     * Example: @At(value = AtTarget.INVOKE, target = "method", shift = Shift.HEAD)
      */
     Shift shift() default Shift.TAIL;
-    
-    /**
-     * Legacy string-based shift specification (for backwards compatibility).
-     * Use the enum 'shift' parameter instead for new code.
-     * 
-     * @deprecated Use {@link #shift()} with Shift enum instead
-     */
-    @Deprecated
-    String shiftString() default "";
 }
