@@ -210,7 +210,12 @@ public class PatternBuilder {
         
         @Override
         public int line() { return line; }
-        
+
+        @Override
+        public int local() {
+            return 0;
+        }
+
         @Override
         public Constant constant() { return constant; }
         

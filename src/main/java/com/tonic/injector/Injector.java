@@ -110,6 +110,10 @@ public class Injector {
                 {
                     InsertTransformer.patch(mixin, method);
                 }
+                if(AnnotationUtil.hasAnnotation(method, ClassMod.class))
+                {
+                    ClassModTransformer.patch(mixin, method);
+                }
             }
         }
     }

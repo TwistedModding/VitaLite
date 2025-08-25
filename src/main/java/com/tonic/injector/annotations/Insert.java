@@ -52,6 +52,7 @@ public @interface Insert {
     /**
      * Optional ordinal to specify which match to target when all=false.
      * 0-based index. Default: 0 (first match)
+     * Use -1 to target the last match.
      */
     int ordinal() default 0;
     

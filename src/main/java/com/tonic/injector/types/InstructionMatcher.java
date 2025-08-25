@@ -116,6 +116,8 @@ public class InstructionMatcher {
                 return matchesArrayLoad(insn);
             case ARRAY_STORE:
                 return matchesArrayStore(insn);
+            case CHECKCAST:
+                return matchesCheckcast(insn, pattern.owner(), mappingContext);
             default:
                 return false;
         }
@@ -404,6 +406,21 @@ public class InstructionMatcher {
                opcode == Opcodes.FASTORE || opcode == Opcodes.DASTORE ||
                opcode == Opcodes.AASTORE || opcode == Opcodes.BASTORE ||
                opcode == Opcodes.CASTORE || opcode == Opcodes.SASTORE;
+    }
+    
+    private static boolean matchesCheckcast(AbstractInsnNode insn, String owner, JClass mappingContext) {
+        if (!(insn instanceof TypeInsnNode) || insn.getOpcode() != Opcodes.CHECKCAST) return false;
+        
+        TypeInsnNode typeInsn = (TypeInsnNode) insn;
+        
+        // If no owner specified, match any CHECKCAST
+        if (owner.isEmpty()) return true;
+        
+        // Resolve the owner class name through mappings first
+        String resolvedClassName = resolveClassName(owner);
+        
+        // Check if the CHECKCAST target matches the resolved class name
+        return typeInsn.desc.equals(resolvedClassName);
     }
     
     private static AbstractInsnNode applyShift(AbstractInsnNode insn, At pattern) {

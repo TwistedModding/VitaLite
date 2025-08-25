@@ -102,6 +102,13 @@ public enum AtTarget {
     ARRAY_STORE,
     
     /**
+     * Type cast check instruction (CHECKCAST)
+     * Usage: @At(value = AtTarget.CHECKCAST, owner = "net/runelite/client/RuneLite")
+     * The owner parameter specifies the class type being cast to
+     */
+    CHECKCAST,
+    
+    /**
      * Empty/no targeting - used for slice defaults
      * Internal use only
      */

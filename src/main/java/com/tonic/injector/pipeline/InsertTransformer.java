@@ -95,7 +95,14 @@ public class InsertTransformer {
                 targetMatches = matches;
             } else {
                 int ordinal = insertAnnotation.ordinal();
-                if (ordinal >= 0 && ordinal < matches.size()) {
+                if (ordinal == -1) {
+                    // -1 means last match
+                    if (!matches.isEmpty()) {
+                        targetMatches = List.of(matches.get(matches.size() - 1));
+                    } else {
+                        return;
+                    }
+                } else if (ordinal >= 0 && ordinal < matches.size()) {
                     targetMatches = List.of(matches.get(ordinal));
                 } else {
                     return;
@@ -105,13 +112,26 @@ public class InsertTransformer {
             if(insertAnnotation.raw())
             {
                 String name = mixin.name.replace("/", ".");
-                ReflectBuilder.ofClass(name)
-                        .method(
-                                method.name,
-                                new Class[]{MethodNode.class, AbstractInsnNode.class},
-                                new Object[]{targetMethod, targetMatches.get(0)}
-                        )
-                        .get();
+                if(method.parameters.size() > 2)
+                {
+                    ReflectBuilder.ofClass(name)
+                            .method(
+                                    method.name,
+                                    new Class[]{ClassNode.class, MethodNode.class, AbstractInsnNode.class},
+                                    new Object[]{gamepackClass, targetMethod, targetMatches.get(0)}
+                            )
+                            .get();
+                }
+                else
+                {
+                    ReflectBuilder.ofClass(name)
+                            .method(
+                                    method.name,
+                                    new Class[]{MethodNode.class, AbstractInsnNode.class},
+                                    new Object[]{targetMethod, targetMatches.get(0)}
+                            )
+                            .get();
+                }
                 System.out.println("Successfully invoked raw insert method: " + method.name + " on " + targetMethod.name);
                 return;
             }

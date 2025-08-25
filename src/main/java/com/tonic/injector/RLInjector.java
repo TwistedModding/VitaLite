@@ -9,17 +9,21 @@ import org.objectweb.asm.tree.ClassNode;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RLInjector
 {
+    public static Map<String,ClassNode> runelite;
+
     public static void patch() throws Exception
     {
-        HashMap<String, ClassNode> runelite = new HashMap<>();
         for (var entry : Main.LIBS.getRunelite().classes.entrySet()) {
             String name = entry.getKey();
             byte[] bytes = entry.getValue();
             runelite.put(name, ClassNodeUtil.toNode(bytes));
         }
+
+
 
         for(ClassNode node : runelite.values())
         {
