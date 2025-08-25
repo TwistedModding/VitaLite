@@ -3,6 +3,7 @@ package com.tonic.rlmixins;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.util.BytecodeBuilder;
 import com.tonic.model.ConditionType;
+import com.tonic.vitalite.Main;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -36,10 +37,14 @@ public class PluginManagerMixin {
                     value = AtTarget.GETFIELD,
                     owner = "net/runelite/client/plugins/PluginManager",
                     target = "developerMode"
-            )
+            ),
+            raw = true
     )
     public static void loadPlugins(MethodNode method, AbstractInsnNode insertionPoint)
     {
+        if(Main.optionsParser.isIncognito())
+            return;
+
         InsnList code = BytecodeBuilder.create()
                 .pushInt(1)
                 .build();
@@ -103,6 +108,9 @@ public class PluginManagerMixin {
 
 
         method.instructions.insert(insertionPoint, code);
+
+        if(!Main.optionsParser.isNoPlugins())
+            return;
 
         InsnList code2 = BytecodeBuilder.create()
                 .newInstance("java/util/ArrayList")
