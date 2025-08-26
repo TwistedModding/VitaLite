@@ -72,6 +72,9 @@ java -jar VitaLite-shaded.jar -help
 ### Build Commands
 
 ```bash
+# First, sync the RuneLite API (required before building)
+./gradlew syncRuneLiteAPI
+
 # Clean and build all modules
 ./gradlew clean build
 
@@ -84,6 +87,8 @@ java -jar VitaLite-shaded.jar -help
 # Clean and publish everything
 ./gradlew cleanAndPublishAll
 ```
+
+**Important**: You must run `./gradlew syncRuneLiteAPI` before building to ensure the RuneLite API dependencies are properly synchronized.
 
 The main executable will be located at `build/libs/VitaLite-*-shaded.jar`.
 
