@@ -11,7 +11,6 @@ import com.tonic.injector.types.InstructionMatcher;
 import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.TransformerUtil;
 import com.tonic.util.ReflectBuilder;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 

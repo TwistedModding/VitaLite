@@ -28,6 +28,8 @@ public class Main {
 
     public static void main(String[] args) throws Exception
     {
+        //System.out.println("Mem: " + Runtime.getRuntime().maxMemory());
+        //System.exit(0);
         args = optionsParser.parse(args);
         if(!optionsParser.isSafeLaunch())
         {

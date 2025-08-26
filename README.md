@@ -30,11 +30,12 @@ VitaLite supports several command-line arguments for customization:
 
 ### Core Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `--rsdump` | String | Path to dump the gamepack to (optional) |
-| `-noPlugins` | Boolean | Disables loading of core plugins |
-| `-incognito` | Boolean | Visually display as 'RuneLite' instead of 'VitaLite' |
+| Option       | Type | Description                                                                  |
+|--------------|------|------------------------------------------------------------------------------|
+| `--rsdump`   | String | Path to dump the gamepack to (optional)                                      |
+| `-noPlugins` | Boolean | Disables loading of core plugins                                             |
+| `-min`       | Boolean | Runs jvm with minimal alotted memory. Only works if `-noPlugins` is enabled. |
+| `-incognito` | Boolean | Visually display as 'RuneLite' instead of 'VitaLite'                         |
 
 ### Usage Examples
 

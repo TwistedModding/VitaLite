@@ -1,10 +1,10 @@
 package com.tonic.injector.pipeline;
 
 import com.tonic.injector.annotations.Disable;
+import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.*;
 import com.tonic.model.ConditionType;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 /**

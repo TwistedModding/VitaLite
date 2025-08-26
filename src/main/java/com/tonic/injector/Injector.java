@@ -1,5 +1,6 @@
 package com.tonic.injector;
 
+import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.*;
 import com.tonic.vitalite.Main;
 import com.tonic.util.dto.JClass;
@@ -32,6 +33,8 @@ public class Injector {
         for (var entry : gamepack.entrySet()) {
             String name = entry.getKey();
             ClassNode classNode = entry.getValue();
+
+            GlobalMixin.patch(classNode);
 
             FieldHookTransformer.instrument(classNode);
 

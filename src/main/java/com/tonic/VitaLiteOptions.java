@@ -30,4 +30,10 @@ public class VitaLiteOptions extends OptionsParser
             description = "Flag to ensure proper Launching from Launcher class."
     )
     private boolean safeLaunch = false;
+
+    @CLIArgument(
+            name = "min",
+            description = "Run with minimum memory on jvm"
+    )
+    private boolean min = false;
 }

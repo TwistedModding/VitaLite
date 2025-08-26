@@ -25,8 +25,8 @@ public class VitaLite {
             newArgs[0] = "-safeLaunch";
             System.arraycopy(args, 0, newArgs, 1, args.length);
             Process p = launchInNewJVM("com.tonic.vitalite.Main", buildFullClasspath(), newArgs);
-            int exitCode = p.waitFor();
-            System.out.println("Process exited with code: " + exitCode);
+            //int exitCode = p.waitFor();
+            System.out.println("Launched VitaLite in new JVM");
         } catch (Exception e) {
             e.printStackTrace();
         }
