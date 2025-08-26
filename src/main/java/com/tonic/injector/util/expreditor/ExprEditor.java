@@ -5,7 +5,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * ASM-based expression editor inspired by Javassist's ExprEditor.
- * Allows editing field accesses and method calls within method bodies.
+ * Allows editing field accesses, method calls, and array accesses within method bodies.
  */
 public abstract class ExprEditor {
     
@@ -26,6 +26,16 @@ public abstract class ExprEditor {
      * @param call the method call expression
      */
     public void edit(MethodCall call) {
+        // Default: do nothing
+    }
+    
+    /**
+     * Edit an array access (AALOAD/AASTORE/IALOAD/IASTORE/etc.).
+     * Override this method to modify array access expressions.
+     * 
+     * @param access the array access expression
+     */
+    public void edit(ArrayAccess access) {
         // Default: do nothing
     }
     

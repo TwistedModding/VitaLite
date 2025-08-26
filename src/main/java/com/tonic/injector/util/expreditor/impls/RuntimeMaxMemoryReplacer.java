@@ -44,10 +44,9 @@ public class RuntimeMaxMemoryReplacer extends ExprEditor {
         replacement.add(new LdcInsnNode(hardcodedValue));
         maxMemoryCall.getMethod().instructions.remove(pendingRuntimeCall);
         maxMemoryCall.replace(replacement);
-
-        String className = maxMemoryCall.getClassNode().name.replace('/', '.');
-        String methodName = maxMemoryCall.getMethod().name + maxMemoryCall.getMethod().desc;
-        System.out.printf("Replaced Runtime.getRuntime().maxMemory() with %d bytes in %s.%s%n", hardcodedValue, className, methodName);
+        //String className = maxMemoryCall.getClassNode().name.replace('/', '.');
+        //String methodName = maxMemoryCall.getMethod().name + maxMemoryCall.getMethod().desc;
+        //System.out.printf("Replaced Runtime.getRuntime().maxMemory() with %d bytes in %s.%s%n", hardcodedValue, className, methodName);
     }
 
     private boolean isDirectlyAfter(AbstractInsnNode first, AbstractInsnNode second) {

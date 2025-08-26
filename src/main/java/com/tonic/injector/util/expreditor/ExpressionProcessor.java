@@ -33,6 +33,8 @@ class ExpressionProcessor {
                 processFieldAccess((FieldInsnNode) insn, i);
             } else if (insn instanceof MethodInsnNode) {
                 processMethodCall((MethodInsnNode) insn, i);
+            } else if (insn instanceof InsnNode) {
+                processArrayAccess((InsnNode) insn, i);
             }
         }
     }
@@ -51,6 +53,13 @@ class ExpressionProcessor {
         }
     }
     
+    private void processArrayAccess(InsnNode insnNode, int index) {
+        if (isArrayAccessOpcode(insnNode.getOpcode())) {
+            ArrayAccess access = new ArrayAccess(classNode, method, insnNode, index);
+            editor.edit(access);
+        }
+    }
+    
     private boolean isFieldAccessOpcode(int opcode) {
         return opcode == Opcodes.GETFIELD || 
                opcode == Opcodes.PUTFIELD || 
@@ -63,5 +72,16 @@ class ExpressionProcessor {
                opcode == Opcodes.INVOKESPECIAL || 
                opcode == Opcodes.INVOKESTATIC || 
                opcode == Opcodes.INVOKEINTERFACE;
+    }
+    
+    private boolean isArrayAccessOpcode(int opcode) {
+        return opcode == Opcodes.AALOAD || opcode == Opcodes.AASTORE ||
+               opcode == Opcodes.BALOAD || opcode == Opcodes.BASTORE ||
+               opcode == Opcodes.CALOAD || opcode == Opcodes.CASTORE ||
+               opcode == Opcodes.DALOAD || opcode == Opcodes.DASTORE ||
+               opcode == Opcodes.FALOAD || opcode == Opcodes.FASTORE ||
+               opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE ||
+               opcode == Opcodes.LALOAD || opcode == Opcodes.LASTORE ||
+               opcode == Opcodes.SALOAD || opcode == Opcodes.SASTORE;
     }
 }
