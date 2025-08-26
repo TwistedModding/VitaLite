@@ -1,4 +1,4 @@
-package com.tonic.injector;
+package com.tonic.injector.util;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;

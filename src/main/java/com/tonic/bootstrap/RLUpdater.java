@@ -79,7 +79,6 @@ public class RLUpdater
                 System.out.println("Downloading " + art.getName());
                 downloadFile(art.getPath(), localFile);
 
-                // verify
                 String downloadedHash = computeSha256(localFile);
                 if (!downloadedHash.equalsIgnoreCase(art.getHash())) {
                     throw new IOException("Hash mismatch for " + art.getName()
@@ -109,7 +108,6 @@ public class RLUpdater
                     + " (status=" + res.statusCode() + ")");
         }
 
-        // Stream directly to disk
         try (InputStream in = res.body();
              OutputStream out = Files.newOutputStream(destination)) {
             in.transferTo(out);

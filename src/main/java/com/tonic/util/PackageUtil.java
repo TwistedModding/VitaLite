@@ -23,14 +23,12 @@ public class PackageUtil
     {
         HashMap<ClassNode,ClassNode> pairs = new HashMap<>();
 
-        //get all classes from out mixin scope and from out interface scope
         List<ClassNode> mixins = getClasses(mixinPackage, null);
         List<ClassNode> interfaces = getInterfaces(mixins);
 
         if(interfaces.isEmpty() || mixins.isEmpty())
             return pairs;
 
-        //loop through mixin classes gathered
         String name;
         for(ClassNode mixinClazz : mixins)
         {
@@ -38,7 +36,6 @@ public class PackageUtil
             {
                 name = getSimpleClassName(mixinClazz);
 
-                //Annotation check
                 if(!AnnotationUtil.hasAnnotation(mixinClazz, Mixin.class))
                 {
                     if(name.contains("$") || name.toLowerCase().startsWith("vx"))
@@ -50,19 +47,17 @@ public class PackageUtil
                     continue;
                 }
 
-                //Annotation value check
                 String tag = AnnotationUtil.getAnnotation(mixinClazz, Mixin.class, "value");
                 if(tag == null || tag.isEmpty())
                 {
                     System.out.println("[Skipped] <" + name + "> missing tag identifier in @Mixin annotation.");
                     continue;
                 }
-                // Interface implementation check
-                List<String> ext = mixinClazz.interfaces; // List of internal names like "com/example/MyInterface"
+                List<String> ext = mixinClazz.interfaces;
                 ClassNode ifaceClazz = null;
 
                 if (ext != null && !ext.isEmpty()) {
-                    String ifaceName = ext.get(0).replace('/', '.'); // Convert internal name to regular name
+                    String ifaceName = ext.get(0).replace('/', '.');
                     ifaceClazz = interfaces.stream()
                             .filter(c -> c.name.replace('/', '.').equals(ifaceName))
                             .findFirst()
@@ -86,12 +81,10 @@ public class PackageUtil
 
         for (ClassNode mixin : mixins) {
             try {
-                // Skip if no interfaces implemented
                 if (mixin.interfaces == null || mixin.interfaces.isEmpty()) {
                     interfaces.add(null);
                 }
 
-                // Get the first (and only) interface name
                 String toMatch = "/" + getSimpleClassName(mixin).replace("Mixin", "");
                 String interfaceName = mixin.interfaces.stream()
                         .filter(i -> i.endsWith(toMatch))
@@ -251,7 +244,7 @@ public class PackageUtil
 
     public static String getSimpleClassName(ClassNode classNode) {
         Type type = Type.getObjectType(classNode.name);
-        String className = type.getClassName(); // Converts to regular Java name
+        String className = type.getClassName();
         return className.substring(className.lastIndexOf('.') + 1);
     }
 }

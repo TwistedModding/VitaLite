@@ -55,11 +55,8 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         };
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setOpaque(false);
-
-        // Add some top padding
         contentPanel.add(Box.createVerticalStrut(10));
 
-        // Create header panel with glow effect
         JPanel titlePanel = createGlowPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
 
@@ -80,7 +77,6 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         contentPanel.add(titlePanel);
         contentPanel.add(Box.createVerticalStrut(10));
 
-        // Headless toggle
         headlessToggle = new ToggleSlider();
         contentPanel.add(createToggleOption(
                 "Headless Mode",
@@ -90,7 +86,6 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         ));
         contentPanel.add(Box.createVerticalStrut(12));
 
-        // Log Packets toggle
         logPacketsToggle = new ToggleSlider();
         contentPanel.add(createToggleOption(
                 "Log Packets",
@@ -118,7 +113,6 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         checkButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         contentPanel.add(checkButton);
 
-
         add(contentPanel);
     }
 
@@ -145,7 +139,6 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
                 Graphics2D g2d = (Graphics2D) g;
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Draw glow effect
                 g2d.setColor(ACCENT_GLOW);
                 int glowRadius = 20;
                 for (int i = glowRadius; i > 0; i--) {

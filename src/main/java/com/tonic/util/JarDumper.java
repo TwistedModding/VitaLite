@@ -32,11 +32,9 @@ public class JarDumper
     public static void ensureFolders(String filePath) throws IOException
     {
         Path path = Paths.get(filePath).toAbsolutePath();
-
-        // If the path already denotes a directory, use it; otherwise use its parent.
         Path dir = Files.isDirectory(path) ? path : path.getParent();
         if (dir != null) {
-            Files.createDirectories(dir);   // creates parents as needed; does nothing if they exist
+            Files.createDirectories(dir);
         }
     }
 }

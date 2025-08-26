@@ -164,7 +164,6 @@ public class Logger {
         throwable.printStackTrace();
         if(INSTANCE == null)
         {
-            throwable.printStackTrace();
             return;
         }
         INSTANCE._error(throwable.getMessage());
@@ -203,13 +202,6 @@ public class Logger {
     private final float SPACING = 1.5f;
     private Logger()
     {
-//        console = new JTextPane() {{
-//            setBackground(Color.BLACK);
-//            setForeground(Color.GREEN);
-//            setAutoscrolls(true);
-//            setEditable(false);
-//            setFont(new Font("Monoid", Font.PLAIN, 14));
-//        }};
         console = new JTextPane();
         console.setBackground(Color.BLACK);
         console.setForeground(Color.GREEN);
@@ -242,15 +234,12 @@ public class Logger {
     private void addFullContextMenu(JTextPane textPane) {
         JPopupMenu popupMenu = new JPopupMenu();
 
-        // Clear option
         JMenuItem clearItem = new JMenuItem("Clear");
         clearItem.addActionListener(e -> textPane.setText(""));
 
-        // Copy option
         JMenuItem copyItem = new JMenuItem("Copy");
         copyItem.addActionListener(e -> textPane.copy());
 
-        // Select All option
         JMenuItem selectAllItem = new JMenuItem("Select All");
         selectAllItem.addActionListener(e -> textPane.selectAll());
 
@@ -259,24 +248,24 @@ public class Logger {
         popupMenu.addSeparator();
         popupMenu.add(clearItem);
 
-        textPane.setComponentPopupMenu(popupMenu);  // Even simpler way!
+        textPane.setComponentPopupMenu(popupMenu);
     }
 
     private static void fontFactory(JTextPane console)
     {
         Font consoleFont = null;
         String[] fontNames = {
-                "Consolas",           // Windows
-                "Menlo",              // macOS
-                "DejaVu Sans Mono",   // Linux
-                "Liberation Mono",    // Linux
-                "Courier New",        // Fallback
-                Font.MONOSPACED       // Generic fallback
+                "Consolas",
+                "Menlo",
+                "DejaVu Sans Mono",
+                "Liberation Mono",
+                "Courier New",
+                Font.MONOSPACED
         };
 
         for (String fontName : fontNames) {
             Font f = new Font(fontName, Font.PLAIN, 12);
-            if (!f.getFamily().equals(Font.DIALOG)) { // Font exists
+            if (!f.getFamily().equals(Font.DIALOG)) {
                 consoleFont = f;
                 break;
             }

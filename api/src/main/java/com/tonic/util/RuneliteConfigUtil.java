@@ -34,21 +34,15 @@ public class RuneliteConfigUtil
      */
     public static String getTagValueFromURL(String tagName) {
         try {
-            // Open a connection to the URL
             URL url = new URL("https://repo.runelite.net/net/runelite/injected-client/maven-metadata.xml");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
-
-            // Check if the request was successful
             if (connection.getResponseCode() == 200) {
                 try (InputStream inputStream = connection.getInputStream()) {
-                    // Parse the XML from the input stream
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder builder = factory.newDocumentBuilder();
                     Document document = builder.parse(inputStream);
                     document.getDocumentElement().normalize();
-
-                    // Find the specified tag
                     NodeList nodeList = document.getElementsByTagName(tagName);
                     if (nodeList.getLength() > 0) {
                         return nodeList.item(0).getTextContent();
@@ -60,6 +54,6 @@ public class RuneliteConfigUtil
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null; // Return null if the tag is not found or an error occurs
+        return null;
     }
 }

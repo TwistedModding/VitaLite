@@ -1,6 +1,6 @@
 package com.tonic.rlmixins;
 
-import com.tonic.injector.GuiceBindingInjector;
+import com.tonic.injector.util.GuiceBindingInjector;
 import com.tonic.injector.annotations.ClassMod;
 import com.tonic.injector.annotations.MethodOverride;
 import com.tonic.injector.annotations.Mixin;

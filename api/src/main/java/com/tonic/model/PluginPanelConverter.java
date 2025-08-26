@@ -2,7 +2,6 @@ package com.tonic.model;
 
 import com.tonic.model.ui.componants.VPluginPanel;
 import com.tonic.util.ReflectBuilder;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,7 +13,6 @@ public class PluginPanelConverter
             return null;
         }
 
-        //new instance of PluginPanel
         JPanel pluginPanel = ReflectBuilder.newInstance(
                 "net.runelite.proxies.PluginPanelProxy",
                 new Class[]{boolean.class},

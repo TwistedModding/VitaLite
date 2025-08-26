@@ -22,7 +22,6 @@ public class ResourceUtil
                         "Resource not found: " + imageName + " for class: " + clazz.getName()
                 );
             }
-            // Read the image
             BufferedImage image = ImageIO.read(inputStream);
 
             if (image == null) {

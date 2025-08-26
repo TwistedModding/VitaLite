@@ -3,7 +3,6 @@ package com.tonic.injector.util;
 import com.tonic.util.dto.JClass;
 import com.tonic.util.dto.JMethod;
 import com.tonic.injector.Injector;
-import com.tonic.injector.MappingProvider;
 import com.tonic.injector.RLInjector;
 import com.tonic.injector.annotations.Mixin;
 import org.objectweb.asm.tree.ClassNode;

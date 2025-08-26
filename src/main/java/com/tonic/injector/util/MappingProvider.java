@@ -1,8 +1,9 @@
-package com.tonic.injector;
+package com.tonic.injector.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.tonic.injector.Injector;
 import com.tonic.util.dto.JClass;
 import com.tonic.util.dto.JField;
 import com.tonic.util.dto.JMethod;
@@ -30,7 +31,7 @@ public class MappingProvider
     static
     {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        try (InputStream inputStream = MappingProvider.class.getResourceAsStream("mappings.json")) {
+        try (InputStream inputStream = Injector.class.getResourceAsStream("mappings.json")) {
             if( inputStream == null) {
                 throw new IOException("Mappings file not found");
             }

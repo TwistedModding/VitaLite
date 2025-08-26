@@ -22,7 +22,6 @@ public class ProxyClassBuilder
 
     public ProxyClassBuilder withName(String className)
     {
-        //split by '.' and get last element
         if (className.contains("."))
         {
             String[] parts = className.split("\\.");

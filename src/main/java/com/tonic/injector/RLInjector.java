@@ -4,6 +4,7 @@ import com.tonic.injector.annotations.*;
 import com.tonic.injector.pipeline.*;
 import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.ClassFileUtil;
+import com.tonic.injector.util.SignerMapper;
 import com.tonic.util.PackageUtil;
 import com.tonic.vitalite.Main;
 import com.tonic.injector.util.ClassNodeUtil;

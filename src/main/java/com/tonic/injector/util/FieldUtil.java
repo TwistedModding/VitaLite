@@ -8,16 +8,14 @@ public class FieldUtil {
      * Creates a deep copy of a FieldNode
      */
     public static FieldNode copyField(FieldNode original) {
-        // Create new FieldNode with basic properties
         FieldNode copy = new FieldNode(
                 original.access,
                 original.name,
                 original.desc,
                 original.signature,
-                original.value  // Initial value (for static final fields)
+                original.value
         );
 
-        // Copy attributes
         if (original.attrs != null) {
             copy.attrs = new ArrayList<>(original.attrs);
         }

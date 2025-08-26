@@ -16,25 +16,21 @@ public class BootstrapAttributeCopier {
     public static void copyBootstrapAttributesAndCallsites(ClassNode nodeA, ClassNode nodeB) {
         if (nodeA.methods == null) return;
 
-        // Update all invokedynamic instructions in nodeA in-place
         for (MethodNode methodA : nodeA.methods) {
             if (methodA.instructions == null) continue;
 
             List<InvokeDynamicInsnNode> indysToUpdate = new ArrayList<>();
 
-            // Collect all invokedynamic instructions
             for (AbstractInsnNode insn : methodA.instructions) {
                 if (insn instanceof InvokeDynamicInsnNode) {
                     indysToUpdate.add((InvokeDynamicInsnNode) insn);
                 }
             }
 
-            // Update each invokedynamic instruction in-place
             for (InvokeDynamicInsnNode dynInsn : indysToUpdate) {
                 updateInvokeDynamicInPlace(dynInsn, nodeA.name, nodeB.name);
             }
 
-            // Also copy to corresponding method in nodeB if it exists
             if (nodeB.methods != null) {
                 MethodNode methodB = findMethod(nodeB, methodA.name, methodA.desc);
                 if (methodB != null && !indysToUpdate.isEmpty()) {
@@ -42,9 +38,7 @@ public class BootstrapAttributeCopier {
                         methodB.instructions = new InsnList();
                     }
 
-                    // Add copies of the updated invokedynamic instructions
                     for (InvokeDynamicInsnNode dynInsn : indysToUpdate) {
-                        // Create a copy (already updated)
                         InvokeDynamicInsnNode copy = new InvokeDynamicInsnNode(
                                 dynInsn.name,
                                 dynInsn.desc,
@@ -57,7 +51,6 @@ public class BootstrapAttributeCopier {
             }
         }
 
-        // Also update all other instruction types in nodeA that might reference the class
         updateAllInstructionsInPlace(nodeA, nodeA.name, nodeB.name);
     }
 
@@ -66,13 +59,8 @@ public class BootstrapAttributeCopier {
      */
     private static void updateInvokeDynamicInPlace(InvokeDynamicInsnNode dynInsn,
                                                    String oldClassName, String newClassName) {
-        // Update the bootstrap method handle
         dynInsn.bsm = translateHandle(dynInsn.bsm, oldClassName, newClassName);
-
-        // Update the descriptor
         dynInsn.desc = translateDescriptor(dynInsn.desc, oldClassName, newClassName);
-
-        // Update bootstrap arguments
         dynInsn.bsmArgs = translateBootstrapArguments(dynInsn.bsmArgs, oldClassName, newClassName);
     }
 
@@ -85,13 +73,11 @@ public class BootstrapAttributeCopier {
         for (MethodNode method : node.methods) {
             if (method.instructions == null) continue;
 
-            // Update method descriptor and signature
             method.desc = translateDescriptor(method.desc, oldClassName, newClassName);
             if (method.signature != null) {
                 method.signature = translateSignature(method.signature, oldClassName, newClassName);
             }
 
-            // Update exceptions
             if (method.exceptions != null) {
                 for (int i = 0; i < method.exceptions.size(); i++) {
                     String exception = method.exceptions.get(i);
@@ -101,12 +87,10 @@ public class BootstrapAttributeCopier {
                 }
             }
 
-            // Update all instructions
             for (AbstractInsnNode insn : method.instructions) {
                 updateInstructionInPlace(insn, oldClassName, newClassName);
             }
 
-            // Update try-catch blocks
             if (method.tryCatchBlocks != null) {
                 for (TryCatchBlockNode tcb : method.tryCatchBlocks) {
                     if (tcb.type != null && tcb.type.equals(oldClassName)) {
@@ -115,7 +99,6 @@ public class BootstrapAttributeCopier {
                 }
             }
 
-            // Update local variables
             if (method.localVariables != null) {
                 for (LocalVariableNode lvn : method.localVariables) {
                     lvn.desc = translateDescriptor(lvn.desc, oldClassName, newClassName);
@@ -125,12 +108,10 @@ public class BootstrapAttributeCopier {
                 }
             }
 
-            // Update annotations
             updateAnnotations(method.visibleAnnotations, oldClassName, newClassName);
             updateAnnotations(method.invisibleAnnotations, oldClassName, newClassName);
         }
 
-        // Update field descriptors and signatures
         if (node.fields != null) {
             for (FieldNode field : node.fields) {
                 field.desc = translateDescriptor(field.desc, oldClassName, newClassName);
@@ -142,7 +123,6 @@ public class BootstrapAttributeCopier {
             }
         }
 
-        // Update class-level items
         node.superName = node.superName.equals(oldClassName) ? newClassName : node.superName;
         if (node.interfaces != null) {
             for (int i = 0; i < node.interfaces.size(); i++) {
@@ -156,7 +136,6 @@ public class BootstrapAttributeCopier {
             node.signature = translateSignature(node.signature, oldClassName, newClassName);
         }
 
-        // Update class annotations
         updateAnnotations(node.visibleAnnotations, oldClassName, newClassName);
         updateAnnotations(node.invisibleAnnotations, oldClassName, newClassName);
     }
@@ -268,12 +247,10 @@ public class BootstrapAttributeCopier {
         String name = handle.getName();
         String desc = handle.getDesc();
 
-        // Replace class name in owner if it matches
         if (owner.equals(oldClassName)) {
             owner = newClassName;
         }
 
-        // Replace class names in descriptor
         desc = translateDescriptor(desc, oldClassName, newClassName);
 
         return new Handle(
@@ -291,7 +268,6 @@ public class BootstrapAttributeCopier {
     private static String translateDescriptor(String descriptor, String oldClassName, String newClassName) {
         if (descriptor == null) return null;
 
-        // Convert internal names (with /) to descriptor format (with L and ;)
         String oldDescriptor = "L" + oldClassName + ";";
         String newDescriptor = "L" + newClassName + ";";
 
@@ -304,7 +280,6 @@ public class BootstrapAttributeCopier {
     private static String translateSignature(String signature, String oldClassName, String newClassName) {
         if (signature == null) return null;
 
-        // Replace both descriptor format and binary name format
         signature = signature.replace("L" + oldClassName + ";", "L" + newClassName + ";");
         signature = signature.replace(oldClassName.replace('/', '.'), newClassName.replace('/', '.'));
 
@@ -338,7 +313,6 @@ public class BootstrapAttributeCopier {
                     translated[i] = str;
                 }
             } else {
-                // For Integer, Float, Long, Double, etc., keep as-is
                 translated[i] = arg;
             }
         }

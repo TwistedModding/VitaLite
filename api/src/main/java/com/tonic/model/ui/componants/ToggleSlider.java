@@ -68,7 +68,7 @@ public class ToggleSlider extends JPanel {
         final float end = isSelected() ? 1f : 0f;
 
         final long startTime = System.currentTimeMillis();
-        final int duration = 200; // milliseconds
+        final int duration = 200;
 
         animator = new Timer(10, e -> {
             long elapsed = System.currentTimeMillis() - startTime;
@@ -90,22 +90,14 @@ public class ToggleSlider extends JPanel {
     protected void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-        // Draw track
         Color trackColor = mixColors(animationProgress);
         g2d.setColor(trackColor);
         g2d.fillRoundRect(0, 0, TOGGLE_WIDTH, TOGGLE_HEIGHT, TOGGLE_HEIGHT, TOGGLE_HEIGHT);
-
-        // Draw knob
         int knobSize = TOGGLE_HEIGHT - 6;
         int knobX = (int)(3 + (TOGGLE_WIDTH - knobSize - 6) * animationProgress);
         int knobY = 3;
-
-        // Knob shadow
         g2d.setColor(new Color(0, 0, 0, 50));
         g2d.fillOval(knobX + 1, knobY + 1, knobSize, knobSize);
-
-        // Knob
         g2d.setColor(TOGGLE_KNOB);
         g2d.fillOval(knobX, knobY, knobSize, knobSize);
     }

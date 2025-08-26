@@ -52,7 +52,6 @@ public class Injector {
 
     private static void applyMixins(HashMap<ClassNode, ClassNode> pairs) throws ClassNotFoundException {
         for (ClassNode mixin : pairs.keySet()) {
-            BootstrapPoisonInjector.obliterateDecompilers(mixin);
             StripLvtInfo.run(mixin);
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             JClass jClass = MappingProvider.getClass(gamepackName);

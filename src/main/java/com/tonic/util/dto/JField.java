@@ -7,11 +7,11 @@ import lombok.Data;
 public class JField
 {
     @Expose
-    private String name;  //mapped name
+    private String name;
     @Expose
     private String obfuscatedName;
     @Expose
-    private String owner; //mapped owner name
+    private String owner;
     @Expose
     private String ownerObfuscatedName;
     @Expose

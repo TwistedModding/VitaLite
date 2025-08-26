@@ -1,7 +1,7 @@
 package com.tonic.injector.pipeline;
 
 import com.tonic.util.dto.JClass;
-import com.tonic.injector.MappingProvider;
+import com.tonic.injector.util.MappingProvider;
 import com.tonic.injector.annotations.At;
 import com.tonic.injector.annotations.Insert;
 import com.tonic.injector.annotations.Mixin;

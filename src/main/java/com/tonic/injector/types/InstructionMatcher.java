@@ -3,7 +3,7 @@ package com.tonic.injector.types;
 import com.tonic.util.dto.JClass;
 import com.tonic.util.dto.JField;
 import com.tonic.util.dto.JMethod;
-import com.tonic.injector.MappingProvider;
+import com.tonic.injector.util.MappingProvider;
 import com.tonic.injector.annotations.At;
 import com.tonic.injector.annotations.AtTarget;
 import com.tonic.injector.annotations.Constant;
@@ -191,7 +191,7 @@ public class InstructionMatcher {
             } catch (Exception ex) {
                 System.err.println("Error getting local index: " + ex.getMessage());
             }
-            return -1; // fallback
+            return -1;
         }
     }
     
@@ -341,15 +341,13 @@ public class InstructionMatcher {
         
         VarInsnNode varInsn = (VarInsnNode) insn;
         int opcode = insn.getOpcode();
-        
-        // Match any load opcode if no specific local index specified
+
         if (localIndex == -1) {
             return opcode == Opcodes.ILOAD || opcode == Opcodes.LLOAD ||
                    opcode == Opcodes.FLOAD || opcode == Opcodes.DLOAD ||
                    opcode == Opcodes.ALOAD;
         }
-        
-        // Match specific local index
+
         boolean isLoadOpcode = opcode == Opcodes.ILOAD || opcode == Opcodes.LLOAD ||
                               opcode == Opcodes.FLOAD || opcode == Opcodes.DLOAD ||
                               opcode == Opcodes.ALOAD;
@@ -362,15 +360,13 @@ public class InstructionMatcher {
         
         VarInsnNode varInsn = (VarInsnNode) insn;
         int opcode = insn.getOpcode();
-        
-        // Match any store opcode if no specific local index specified
+
         if (localIndex == -1) {
             return opcode == Opcodes.ISTORE || opcode == Opcodes.LSTORE ||
                    opcode == Opcodes.FSTORE || opcode == Opcodes.DSTORE ||
                    opcode == Opcodes.ASTORE;
         }
-        
-        // Match specific local index
+
         boolean isStoreOpcode = opcode == Opcodes.ISTORE || opcode == Opcodes.LSTORE ||
                                opcode == Opcodes.FSTORE || opcode == Opcodes.DSTORE ||
                                opcode == Opcodes.ASTORE;
@@ -382,13 +378,11 @@ public class InstructionMatcher {
         if (!(insn instanceof IincInsnNode) || insn.getOpcode() != Opcodes.IINC) return false;
         
         IincInsnNode iincInsn = (IincInsnNode) insn;
-        
-        // Match any IINC if no specific local index specified
+
         if (localIndex == -1) {
             return true;
         }
-        
-        // Match specific local index
+
         return iincInsn.var == localIndex;
     }
     
@@ -410,16 +404,9 @@ public class InstructionMatcher {
     
     private static boolean matchesCheckcast(AbstractInsnNode insn, String owner, JClass mappingContext) {
         if (!(insn instanceof TypeInsnNode) || insn.getOpcode() != Opcodes.CHECKCAST) return false;
-        
         TypeInsnNode typeInsn = (TypeInsnNode) insn;
-        
-        // If no owner specified, match any CHECKCAST
         if (owner.isEmpty()) return true;
-        
-        // Resolve the owner class name through mappings first
         String resolvedClassName = resolveClassName(owner);
-        
-        // Check if the CHECKCAST target matches the resolved class name
         return typeInsn.desc.equals(resolvedClassName);
     }
     
@@ -492,8 +479,6 @@ public class InstructionMatcher {
         @Override
         public Class<? extends java.lang.annotation.Annotation> annotationType() { return Constant.class; }
     }
-    
-    // ========== MAPPING RESOLUTION HELPER METHODS ==========
     
     /**
      * Resolve class name through mappings, fallback to literal if no mapping exists.

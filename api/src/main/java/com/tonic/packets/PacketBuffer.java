@@ -105,7 +105,7 @@ public class PacketBuffer {
         if (var >= 0) {
             return var;
         }
-        return -1; // or throw an exception indicating invalid data
+        return -1;
     }
 
     public boolean readBoolean() {
@@ -137,7 +137,6 @@ public class PacketBuffer {
     }
 
     public short readShortAdd() {
-        //short value = (short)(((payload[offset] & 0xFF) << 8) | ((payload[offset + 1] & 0xFF) - 128));
         short value = (short)((payload.getByte(offset) & 0xFF) - 128 | ((payload.getByte(offset + 1) & 0xFF) << 8));
         offset += 2;
         return value;
