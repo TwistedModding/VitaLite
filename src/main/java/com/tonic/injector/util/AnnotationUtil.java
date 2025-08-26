@@ -12,10 +12,23 @@ import java.util.List;
 import java.util.Map;
 
 public class AnnotationUtil {
+    /**
+     * Checks if a method has any visible annotations.
+     * 
+     * @param mn the method node to check
+     * @return true if the method has any visible annotations, false otherwise
+     */
     public static boolean hasAnyAnnotation(MethodNode mn) {
         return mn.visibleAnnotations != null && !mn.visibleAnnotations.isEmpty();
     }
 
+    /**
+     * Checks if a class has a specific annotation.
+     * 
+     * @param cn the class node to check
+     * @param annotation the annotation class to look for
+     * @return true if the class has the specified annotation, false otherwise
+     */
     public static boolean hasAnnotation(ClassNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -27,6 +40,13 @@ public class AnnotationUtil {
         return false;
     }
 
+    /**
+     * Checks if a method has a specific annotation.
+     * 
+     * @param cn the method node to check
+     * @param annotation the annotation class to look for
+     * @return true if the method has the specified annotation, false otherwise
+     */
     public static boolean hasAnnotation(MethodNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -38,6 +58,13 @@ public class AnnotationUtil {
         return false;
     }
 
+    /**
+     * Checks if a field has a specific annotation.
+     * 
+     * @param cn the field node to check
+     * @param annotation the annotation class to look for
+     * @return true if the field has the specified annotation, false otherwise
+     */
     public static boolean hasAnnotation(FieldNode cn, Class<?> annotation) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -49,6 +76,15 @@ public class AnnotationUtil {
         return false;
     }
 
+    /**
+     * Gets a specific value from an annotation on a class.
+     * 
+     * @param <T> the type of the annotation value
+     * @param cn the class node to check
+     * @param annotation the annotation class to look for
+     * @param value the name of the annotation parameter
+     * @return the annotation value, or null if not found
+     */
     public static <T> T getAnnotation(ClassNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -61,6 +97,15 @@ public class AnnotationUtil {
         return (T) null;
     }
 
+    /**
+     * Gets a specific value from an annotation on a method.
+     * 
+     * @param <T> the type of the annotation value
+     * @param cn the method node to check
+     * @param annotation the annotation class to look for
+     * @param value the name of the annotation parameter
+     * @return the annotation value, or null if not found
+     */
     public static <T> T getAnnotation(MethodNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -73,6 +118,15 @@ public class AnnotationUtil {
         return (T) null;
     }
 
+    /**
+     * Gets a specific value from an annotation on a field.
+     * 
+     * @param <T> the type of the annotation value
+     * @param cn the field node to check
+     * @param annotation the annotation class to look for
+     * @param value the name of the annotation parameter
+     * @return the annotation value, or null if not found
+     */
     public static <T> T getAnnotation(FieldNode cn, Class<?> annotation, String value) {
         if (cn.visibleAnnotations != null) {
             for (AnnotationNode an : cn.visibleAnnotations) {
@@ -92,7 +146,6 @@ public class AnnotationUtil {
         Map<String, Object> params = new HashMap<>();
 
         if (annotation.values != null) {
-            // Annotation values are stored as pairs: [name, value, name, value, ...]
             for (int i = 0; i < annotation.values.size(); i += 2) {
                 String name = (String) annotation.values.get(i);
                 Object value = annotation.values.get(i + 1);
@@ -108,17 +161,13 @@ public class AnnotationUtil {
      */
     private static Object parseValue(Object value) {
         if (value instanceof Type) {
-            // Class values are represented as Type objects
             return ((Type) value).getClassName();
         } else if (value instanceof String[]) {
-            // Enum values are represented as [descriptor, value]
             String[] enumValue = (String[]) value;
             return enumValue.length > 1 ? enumValue[1] : enumValue[0];
         } else if (value instanceof AnnotationNode) {
-            // Nested annotation - return the AnnotationNode itself for proxy creation later
             return value;
         } else if (value instanceof List) {
-            // Array values
             List<?> list = (List<?>) value;
             List<Object> parsedList = new ArrayList<>();
             for (Object item : list) {
@@ -126,7 +175,6 @@ public class AnnotationUtil {
             }
             return parsedList;
         }
-        // Primitive values and Strings are returned as-is
         return value;
     }
 
@@ -144,18 +192,14 @@ public class AnnotationUtil {
                 (proxy, method, args) -> {
                     String methodName = method.getName();
 
-                    // Handle annotationType() method
                     if ("annotationType".equals(methodName)) {
                         return annotationType;
                     }
 
-                    // Get the value from parsed annotation values
                     Object value = values.get(methodName);
                     if (value != null) {
-                        // Handle nested annotations
                         if (value instanceof AnnotationNode) {
                             AnnotationNode nestedAnnotation = (AnnotationNode) value;
-                            // Determine the annotation type from the method return type
                             Class<?> returnType = method.getReturnType();
                             if (returnType.isAnnotation()) {
                                 @SuppressWarnings("unchecked")
@@ -166,7 +210,6 @@ public class AnnotationUtil {
                         return value;
                     }
 
-                    // Return default value if available
                     return method.getDefaultValue();
                 }
         );
