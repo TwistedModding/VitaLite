@@ -32,17 +32,16 @@ public class Injector {
 
         for (var entry : gamepack.entrySet()) {
             String name = entry.getKey();
-            ClassNode classNode = entry.getValue();
-
-            GlobalMixin.patch(classNode);
-
-            FieldHookTransformer.instrument(classNode);
 
             if(SignerMapper.shouldIgnore(name))
             {
                 System.out.println("Skipping cert-checked class: " + name);
                 continue;
             }
+
+            ClassNode classNode = entry.getValue();
+            FieldHookTransformer.instrument(classNode);
+            GlobalMixin.patch(classNode);
 
             Main.LIBS.getGamepack().classes.put(name, ClassNodeUtil.toBytes(classNode));
 
