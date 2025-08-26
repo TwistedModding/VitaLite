@@ -17,8 +17,13 @@ public class JVMLauncher {
         command.add("-XX:+DisableAttachMechanism");
         command.add("-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll");
         command.add("-Xmx768m");
+        command.add("-Xms128m");
         command.add("-Xss2m");
         command.add("-XX:CompileThreshold=1500");
+        command.add("-XX:+UseSerialGC");
+        command.add("-XX:+UseStringDeduplication");
+        command.add("-XX:MetaspaceSize=64m");
+        command.add("-XX:MaxMetaspaceSize=128m");
 
         if (classpath != null && !classpath.isEmpty()) {
             command.add("-cp");

@@ -109,5 +109,6 @@ public class RLInjector
                 );
             }
         }
+        runelite.clear();
     }
 }

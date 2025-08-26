@@ -46,7 +46,7 @@ public class Injector {
             StripAnnotationsTransformer.stripAnnotations(classNode);
             Main.LIBS.getGamepackClean().classes.put(name, ClassNodeUtil.toBytes(classNode));
         }
-
+        gamepack.clear();
         JarDumper.dump(Main.LIBS.getGamepackClean().classes);
     }
 

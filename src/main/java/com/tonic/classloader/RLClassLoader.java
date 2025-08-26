@@ -12,10 +12,11 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.HashMap;
+import java.util.WeakHashMap;
 
 public class RLClassLoader extends URLClassLoader
 {
-    private final HashMap<String, InputStream> resources = new HashMap<>();
+    private final WeakHashMap<String, InputStream> resources = new WeakHashMap<>();
 
     public RLClassLoader(URL[] urls)
     {

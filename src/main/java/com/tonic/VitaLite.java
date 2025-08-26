@@ -14,12 +14,13 @@ public class VitaLite {
     public static void main(String[] args) {
         try {
             String liveRlVersion = RuneliteConfigUtil.getTagValueFromURL("release");
-            if(!getVitaLiteVersion().equals(liveRlVersion))
+            String currentVersion = getVitaLiteVersion();
+            if(!currentVersion.equals(liveRlVersion))
             {
-                System.err.println("Warning: You are running VitaLite version " + getVitaLiteVersion() + " but the latest version is " + liveRlVersion + ". Please update to the latest version.");
+                System.err.println("Warning: You are running VitaLite version " + currentVersion + " but the latest version is " + liveRlVersion + ". Please update to the latest version.");
                 return;
             }
-            System.out.println("VitaLite version " + getVitaLiteVersion() + " is up to date.");
+            System.out.println("VitaLite version " + currentVersion + " is up to date.");
             String[] newArgs = new String[args.length + 1];
             newArgs[0] = "-safeLaunch";
             System.arraycopy(args, 0, newArgs, 1, args.length);
