@@ -58,7 +58,7 @@ public class VitaLite {
             }
             return version;
         } catch (IOException e) {
-            return null;
+            return "UNKNOWN";
         }
     }
 }
