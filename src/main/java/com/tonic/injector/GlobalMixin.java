@@ -13,16 +13,13 @@ public class GlobalMixin
 {
     private static final RuntimeMaxMemoryReplacer memoryReplacer = new RuntimeMaxMemoryReplacer(778502144L);
     private static final SystemPropertyReplacer propertyReplacer = new SystemPropertyReplacer();
-    private static final IntegerLiteralReplacer integerReplacer = new IntegerLiteralReplacer();
+    private static final IntegerLiteralReplacer integerReplacer = new IntegerLiteralReplacer(-1094877034);
     private static final PathsGetReplacer pathsGetReplacer = new PathsGetReplacer();
     public static void patch(ClassNode classNode)
     {
         memoryReplacer.instrument(classNode);
         propertyReplacer.instrument(classNode);
         integerReplacer.instrument(classNode);
-        if(!classNode.name.contains("/"))
-        {
-            pathsGetReplacer.instrument(classNode);
-        }
+        pathsGetReplacer.instrument(classNode);
     }
 }
