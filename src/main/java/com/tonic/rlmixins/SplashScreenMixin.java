@@ -3,7 +3,6 @@ package com.tonic.rlmixins;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.util.BytecodeBuilder;
 import com.tonic.injector.util.LdcRewriter;
-import com.tonic.runelite.ClientUIUpdater;
 import com.tonic.vitalite.Main;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;

@@ -17,7 +17,7 @@ public class RuneliteConfigUtil
     {
         String injectedVersion   = getTagValueFromURL("release");
         String injectedFilename  = "injected-client-" + injectedVersion + ".jar";
-        return  "https://repo.runelite.net/net/runelite/injected-client/" + injectedVersion + "/" + injectedFilename;
+        return "https://repo.runelite.net/net/runelite/injected-client/" + injectedVersion + "/" + injectedFilename;
     }
     public static JarFile fetchGamePack() throws Exception
     {

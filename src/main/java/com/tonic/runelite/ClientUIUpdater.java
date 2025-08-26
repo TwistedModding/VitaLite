@@ -12,6 +12,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static com.tonic.vitalite.Main.isRunningFromShadedJar;
+
 public class ClientUIUpdater
 {
     private static JPanel wrapper;
@@ -20,39 +22,38 @@ public class ClientUIUpdater
     {
         if(Main.optionsParser.isIncognito())
             return;
-        SwingUtilities.invokeLater(() -> {
-            addNavigation();
 
-            Object clientUI = ReflectBuilder.runelite()
-                    .staticField("rlInstance")
-                    .field("clientUI")
-                    .get();
+        addNavigation();
 
-            JFrame frame = ReflectBuilder.of(clientUI)
-                    .field("frame")
-                    .get();
+        Object clientUI = ReflectBuilder.runelite()
+                .staticField("rlInstance")
+                .field("clientUI")
+                .get();
 
-            JPanel originalContent = ReflectBuilder.of(clientUI)
-                    .field("content")
-                    .get();
+        JFrame frame = ReflectBuilder.of(clientUI)
+                .field("frame")
+                .get();
 
-            BufferedImage icon = ResourceUtil.getImage(Main.class, "icon.png");
-            frame.setIconImage(icon);
-            frame.setTitle("VitaLite");
+        JPanel originalContent = ReflectBuilder.of(clientUI)
+                .field("content")
+                .get();
 
-            wrapper = new JPanel(new BorderLayout());
-            JTextPane console = Logger.getConsole();
-            scrollPane = new JScrollPane(console);
-            scrollPane.setPreferredSize(new Dimension(0, 150));
-            scrollPane.setBorder(BorderFactory.createLineBorder(new Color(30, 30, 30), 5));
+        BufferedImage icon = ResourceUtil.getImage(Main.class, "icon.png");
+        frame.setIconImage(icon);
+        frame.setTitle("VitaLite");
 
-            wrapper.add(originalContent, BorderLayout.CENTER);
-            wrapper.add(scrollPane, BorderLayout.SOUTH);
+        wrapper = new JPanel(new BorderLayout());
+        JTextPane console = Logger.getConsole();
+        scrollPane = new JScrollPane(console);
+        scrollPane.setPreferredSize(new Dimension(0, 150));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(30, 30, 30), 5));
 
-            frame.setContentPane(wrapper);
-            frame.revalidate();
-            frame.repaint();
-        });
+        wrapper.add(originalContent, BorderLayout.CENTER);
+        wrapper.add(scrollPane, BorderLayout.SOUTH);
+
+        frame.setContentPane(wrapper);
+        frame.revalidate();
+        frame.repaint();
     }
 
     public static void toggleLogger(boolean remove)

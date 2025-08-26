@@ -26,6 +26,7 @@ public class RLInjector
             String name = entry.getKey();
             if(SignerMapper.shouldIgnore(name))
             {
+                System.out.println("Ignoring class: " + name);
                 continue;
             }
             byte[] bytes = entry.getValue();
@@ -79,7 +80,7 @@ public class RLInjector
         }
 
         for (var entry : runelite.entrySet()) {
-            String name = entry.getKey();
+            String name = entry.getKey().replace("/", ".");
             if(SignerMapper.shouldIgnore(name))
             {
                 continue;
@@ -87,25 +88,25 @@ public class RLInjector
 
             byte[] bytes = ClassNodeUtil.toBytes(entry.getValue());
             Main.LIBS.getRunelite().classes.put(
-                    entry.getKey().replace("/", "."),
+                    name,
                     bytes
             );
 
-//            List<String> toDump = List.of(
-//                    "net.runelite.client.RuneLite",
-//                    "net.runelite.client.RuneLiteModule",
-//                    "net.runelite.client.plugins.PluginManager",
-//                    "net.runelite.client.ui.ClientUI",
-//                    "net.runelite.client.ui.SplashScreen"
-//            );
-//            if(toDump.contains(name))
-//            {
-//                ClassFileUtil.writeClass(
-//                        name,
-//                        bytes,
-//                        Path.of("C:/test/dumper/")
-//                );
-//            }
+            List<String> toDump = List.of(
+                    "net.runelite.client.RuneLite",
+                    "net.runelite.client.RuneLiteModule",
+                    "net.runelite.client.plugins.PluginManager",
+                    "net.runelite.client.ui.ClientUI",
+                    "net.runelite.client.ui.SplashScreen"
+            );
+            if(toDump.contains(name))
+            {
+                ClassFileUtil.writeClass(
+                        name,
+                        bytes,
+                        Path.of("C:/test/dumper/")
+                );
+            }
         }
     }
 }

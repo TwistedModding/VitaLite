@@ -3,6 +3,7 @@ package com.tonic.model;
 import com.google.inject.Injector;
 
 import com.tonic.util.ReflectUtil;
+import com.tonic.util.RuneliteConfigUtil;
 import lombok.Getter;
 
 @Getter
@@ -15,6 +16,7 @@ public class RuneLite
     private final RLEventBus eventBus;
     private final RLClientUI clientUI;
     private final String USER_AGENT;
+    private final String version = RuneliteConfigUtil.getTagValueFromURL("release");
 
     public RuneLite(Class<?> runeLiteMain) throws Exception {
         this.runeLiteMain = runeLiteMain;

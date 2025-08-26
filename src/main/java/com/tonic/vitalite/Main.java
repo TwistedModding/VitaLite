@@ -1,6 +1,7 @@
 package com.tonic.vitalite;
 
 import com.tonic.Logger;
+import com.tonic.VitaLite;
 import com.tonic.VitaLiteOptions;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
@@ -25,7 +26,6 @@ public class Main {
     public static Libs LIBS;
     public static RLClassLoader CLASSLOADER;
     public static RLClassLoader CTX_CLASSLOADER;
-    public static String TRAP = "";
 
     public static void main(String[] args) throws Exception
     {
@@ -44,7 +44,7 @@ public class Main {
         RLInjector.patch();
         CLASSLOADER.launch(args);
         Install.install();
-        ClientUIUpdater.inject();
+        //ClientUIUpdater.inject();
         Logger.norm("VitaLite started.");
     }
 
@@ -70,6 +70,15 @@ public class Main {
     private static void loadClassLoader() {
         CLASSLOADER = new RLClassLoader(URLS);
         CTX_CLASSLOADER = new RLClassLoader(URLS);
-        UIManager.put("ClassLoader", CLASSLOADER);
+        if(!isRunningFromShadedJar())
+            UIManager.put("ClassLoader", CLASSLOADER);
+        Thread.currentThread().setContextClassLoader(CLASSLOADER);
+    }
+
+    public static boolean isRunningFromShadedJar() {
+        // Check if running from a JAR with "shaded" in the name
+        String jarPath = VitaLite.class.getProtectionDomain()
+                .getCodeSource().getLocation().getPath();
+        return jarPath.contains("shaded") || jarPath.endsWith(".jar");
     }
 }

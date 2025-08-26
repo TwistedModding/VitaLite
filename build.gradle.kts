@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.tonic"
-version = "1.0-SNAPSHOT"
+version = "1.11.14"
 
 repositories {
     mavenCentral()
@@ -83,6 +83,9 @@ tasks {
         manifest {
             attributes(
                 "Main-Class" to "com.tonic.VitaLite",
+                "Implementation-Version" to project.version,
+                "Implementation-Title" to "VitaLite",
+                "Implementation-Vendor" to "Tonic",
                 "Multi-Release" to "true"
             )
         }

@@ -1,5 +1,6 @@
 package com.tonic.model.ui;
 
+import com.tonic.Static;
 import com.tonic.events.PacketSent;
 import com.tonic.model.ui.componants.VPluginPanel;
 
@@ -73,7 +74,7 @@ public class VitaLiteInfoPanel extends VPluginPanel
         versionPanel.setOpaque(false);
         versionPanel.setMaximumSize(new Dimension(PANEL_WIDTH, 30));
 
-        JLabel versionBadge = new JLabel("v1.0-SNAPSHOT");
+        JLabel versionBadge = new JLabel("RuneLite v-" + Static.getRuneLite().getVersion());
         versionBadge.setFont(new Font("Consolas", Font.BOLD, 11));
         versionBadge.setForeground(ACCENT_COLOR);
         versionBadge.setBorder(new CompoundBorder(

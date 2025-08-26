@@ -17,7 +17,8 @@ import java.time.format.DateTimeFormatter;
 public class Logger {
     private static Logger INSTANCE;
 
-    static {
+    static
+    {
         setInstance();
     }
 
@@ -202,18 +203,23 @@ public class Logger {
     private final float SPACING = 1.5f;
     private Logger()
     {
-        console = new JTextPane() {{
-            setBackground(Color.BLACK);
-            setForeground(Color.LIGHT_GRAY);
-            setAutoscrolls(true);
-            setEditable(false);
-            setFont(new Font("Monoid", Font.PLAIN, 14));
-        }};
-        DefaultCaret caret = (DefaultCaret)console.getCaret();
-        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-        console.setEditable(false);
+//        console = new JTextPane() {{
+//            setBackground(Color.BLACK);
+//            setForeground(Color.GREEN);
+//            setAutoscrolls(true);
+//            setEditable(false);
+//            setFont(new Font("Monoid", Font.PLAIN, 14));
+//        }};
+        console = new JTextPane();
         console.setBackground(Color.BLACK);
         console.setForeground(Color.GREEN);
+        console.setAutoscrolls(true);
+        console.setEditable(false);
+        console.setFont(new Font("Monoid", Font.PLAIN, 14));
+
+
+        DefaultCaret caret = (DefaultCaret)console.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         fontFactory(console);
         addFullContextMenu(console);
 
