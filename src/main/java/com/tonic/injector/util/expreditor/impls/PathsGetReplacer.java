@@ -4,7 +4,6 @@ import com.tonic.injector.util.expreditor.ExprEditor;
 import com.tonic.injector.util.expreditor.MethodCall;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
