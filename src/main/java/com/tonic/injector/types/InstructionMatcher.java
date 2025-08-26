@@ -1,8 +1,8 @@
 package com.tonic.injector.types;
 
-import com.tonic.dto.JClass;
-import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
+import com.tonic.util.dto.JClass;
+import com.tonic.util.dto.JField;
+import com.tonic.util.dto.JMethod;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.At;
 import com.tonic.injector.annotations.AtTarget;

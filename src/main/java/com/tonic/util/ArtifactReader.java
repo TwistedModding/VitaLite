@@ -1,6 +1,5 @@
 package com.tonic.util;
 
-import com.tonic.RuneliteConfigUtil;
 import com.tonic.model.Libs;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

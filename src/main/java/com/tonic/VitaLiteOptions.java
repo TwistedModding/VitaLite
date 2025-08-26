@@ -1,7 +1,7 @@
 package com.tonic;
 
-import com.tonic.optionsparser.OptionsParser;
-import com.tonic.optionsparser.annotations.CLIArgument;
+import com.tonic.util.optionsparser.OptionsParser;
+import com.tonic.util.optionsparser.annotations.CLIArgument;
 import lombok.Getter;
 
 @Getter

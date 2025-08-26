@@ -3,9 +3,9 @@ package com.tonic.injector;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.tonic.dto.JClass;
-import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
+import com.tonic.util.dto.JClass;
+import com.tonic.util.dto.JField;
+import com.tonic.util.dto.JMethod;
 import lombok.Getter;
 
 import javax.annotation.Nullable;

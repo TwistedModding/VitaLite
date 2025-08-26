@@ -2,7 +2,7 @@ package com.tonic.injector;
 
 import com.tonic.injector.util.*;
 import com.tonic.vitalite.Main;
-import com.tonic.dto.JClass;
+import com.tonic.util.dto.JClass;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.pipeline.*;
 import com.tonic.util.JarDumper;
@@ -11,7 +11,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 

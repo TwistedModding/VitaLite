@@ -1,11 +1,8 @@
 package com.tonic.injector.types;
 
-import com.tonic.dto.JField;
-import com.tonic.injector.Injector;
+import com.tonic.util.dto.JField;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
 
 @RequiredArgsConstructor
 @Getter

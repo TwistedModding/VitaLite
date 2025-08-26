@@ -1,11 +1,8 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.dto.JClass;
-import com.tonic.dto.JMethod;
-import com.tonic.injector.Injector;
+import com.tonic.util.dto.JClass;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.At;
-import com.tonic.injector.annotations.AtTarget;
 import com.tonic.injector.annotations.Insert;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shift;

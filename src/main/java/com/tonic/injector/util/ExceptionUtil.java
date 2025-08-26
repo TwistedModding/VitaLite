@@ -1,8 +1,8 @@
 package com.tonic.injector.util;
 
 import com.tonic.Logger;
-import com.tonic.dto.JClass;
-import com.tonic.dto.JMethod;
+import com.tonic.util.dto.JClass;
+import com.tonic.util.dto.JMethod;
 import com.tonic.injector.MappingProvider;
 import com.tonic.util.Pair;
 

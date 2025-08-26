@@ -1,9 +1,8 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.dto.JClass;
-import com.tonic.dto.JField;
-import com.tonic.dto.JMethod;
-import com.tonic.injector.Injector;
+import com.tonic.util.dto.JClass;
+import com.tonic.util.dto.JField;
+import com.tonic.util.dto.JMethod;
 import com.tonic.injector.MappingProvider;
 import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Shadow;

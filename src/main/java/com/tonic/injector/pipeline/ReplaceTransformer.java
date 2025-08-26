@@ -1,9 +1,5 @@
 package com.tonic.injector.pipeline;
 
-import com.tonic.dto.JClass;
-import com.tonic.dto.JMethod;
-import com.tonic.injector.MappingProvider;
-import com.tonic.injector.annotations.Mixin;
 import com.tonic.injector.annotations.Replace;
 import com.tonic.injector.util.AnnotationUtil;
 import com.tonic.injector.util.TransformerUtil;

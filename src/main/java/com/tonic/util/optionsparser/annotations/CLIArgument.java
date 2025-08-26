@@ -1,4 +1,4 @@
-package com.tonic.optionsparser.annotations;
+package com.tonic.util.optionsparser.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
