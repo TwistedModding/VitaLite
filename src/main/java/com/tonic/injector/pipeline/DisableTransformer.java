@@ -1,11 +1,8 @@
 package com.tonic.injector.pipeline;
 
 import com.tonic.injector.annotations.Disable;
-import com.tonic.injector.util.TransformerUtil;
+import com.tonic.injector.util.*;
 import com.tonic.model.ConditionType;
-import com.tonic.injector.util.AnnotationUtil;
-import com.tonic.injector.util.BytecodeBuilder;
-import com.tonic.injector.util.InsnUtil;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
@@ -39,71 +36,7 @@ public class DisableTransformer
             return;
         }
 
-        Type hookMethodType = Type.getMethodType(method.desc);
-        Type targetMethodType = Type.getMethodType(toHook.desc);
-        Type[] hookParams = hookMethodType.getArgumentTypes();
-        Type[] targetParams = targetMethodType.getArgumentTypes();
-
-        InsnList call = new InsnList();
-        if (hookParams.length == 0) {
-            call.add(new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    gamepack.name,
-                    method.name,
-                    method.desc,
-                    false
-            ));
-        }
-        else {
-            if (hookParams.length > targetParams.length) {
-                System.err.println("Hook method expects more parameters than target method has");
-                return;
-            }
-
-            boolean isTargetStatic = (toHook.access & Opcodes.ACC_STATIC) != 0;
-            int localVarIndex = isTargetStatic ? 0 : 1;
-
-            for (int i = 0; i < hookParams.length; i++) {
-                Type targetParamType = targetParams[i];
-                Type hookParamType = hookParams[i];
-
-                switch (targetParamType.getSort()) {
-                    case Type.BOOLEAN:
-                    case Type.CHAR:
-                    case Type.BYTE:
-                    case Type.SHORT:
-                    case Type.INT:
-                        call.add(new VarInsnNode(Opcodes.ILOAD, localVarIndex));
-                        break;
-                    case Type.FLOAT:
-                        call.add(new VarInsnNode(Opcodes.FLOAD, localVarIndex));
-                        break;
-                    case Type.LONG:
-                        call.add(new VarInsnNode(Opcodes.LLOAD, localVarIndex));
-                        break;
-                    case Type.DOUBLE:
-                        call.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
-                        break;
-                    default:
-                        call.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
-                        if (!targetParamType.equals(hookParamType) &&
-                                hookParamType.getSort() == Type.OBJECT) {
-                            call.add(new TypeInsnNode(Opcodes.CHECKCAST,
-                                    hookParamType.getInternalName()));
-                        }
-                        break;
-                }
-
-                localVarIndex += targetParamType.getSize();
-            }
-            call.add(new MethodInsnNode(
-                    Opcodes.INVOKESTATIC,
-                    gamepack.name,
-                    method.name,
-                    method.desc,
-                    false
-            ));
-        }
+        InsnList call = MethodUtil.generateContextAwareInvoke(mixin, toHook, method, false);
 
         InsnList instructions = BytecodeBuilder.create()
                 .ifBlock(
