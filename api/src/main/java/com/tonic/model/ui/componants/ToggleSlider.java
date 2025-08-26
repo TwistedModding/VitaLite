@@ -2,8 +2,14 @@ package com.tonic.model.ui.componants;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ToggleSlider extends JToggleButton {
+public class ToggleSlider extends JPanel {
     private static final Color TOGGLE_OFF_BG = new Color(65, 65, 70);
     private static final Color TOGGLE_ON_BG = new Color(64, 169, 211);
     private static final Color TOGGLE_KNOB = new Color(245, 245, 250);
@@ -11,18 +17,47 @@ public class ToggleSlider extends JToggleButton {
     private static final int TOGGLE_HEIGHT = 24;
     private float animationProgress = 0f;
     private Timer animator;
+    private boolean selected = false;
+    private List<ActionListener> actionListeners = new ArrayList<>();
 
     public ToggleSlider() {
         setPreferredSize(new Dimension(TOGGLE_WIDTH, TOGGLE_HEIGHT));
         setMinimumSize(new Dimension(TOGGLE_WIDTH, TOGGLE_HEIGHT));
         setMaximumSize(new Dimension(TOGGLE_WIDTH, TOGGLE_HEIGHT));
         setOpaque(false);
-        setBorderPainted(false);
-        setContentAreaFilled(false);
-        setFocusPainted(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        addActionListener(e -> animateToggle());
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                setSelected(!selected);
+                fireActionPerformed();
+            }
+        });
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+        animateToggle();
+    }
+
+    public void addActionListener(ActionListener listener) {
+        actionListeners.add(listener);
+    }
+
+    public void removeActionListener(ActionListener listener) {
+        actionListeners.remove(listener);
+    }
+
+    private void fireActionPerformed() {
+        ActionEvent event = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "toggle");
+        for (ActionListener listener : actionListeners) {
+            listener.actionPerformed(event);
+        }
     }
 
     private void animateToggle() {
