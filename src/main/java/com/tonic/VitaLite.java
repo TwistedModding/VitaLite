@@ -19,6 +19,7 @@ public class VitaLite {
                 System.err.println("Warning: You are running VitaLite version " + getVitaLiteVersion() + " but the latest version is " + liveRlVersion + ". Please update to the latest version.");
                 return;
             }
+            System.out.println("VitaLite version " + getVitaLiteVersion() + " is up to date.");
             String[] newArgs = new String[args.length + 1];
             newArgs[0] = "-safeLaunch";
             System.arraycopy(args, 0, newArgs, 1, args.length);
@@ -55,7 +56,6 @@ public class VitaLite {
                 System.out.println("Could not find manifest, assuming dev environment");
                 return RuneliteConfigUtil.getTagValueFromURL("release");
             }
-            System.out.println("Found VitaLite version: " + version);
             return version;
         } catch (IOException e) {
             return null;

@@ -76,7 +76,6 @@ public class Main {
     }
 
     public static boolean isRunningFromShadedJar() {
-        // Check if running from a JAR with "shaded" in the name
         String jarPath = VitaLite.class.getProtectionDomain()
                 .getCodeSource().getLocation().getPath();
         return jarPath.contains("shaded") || jarPath.endsWith(".jar");

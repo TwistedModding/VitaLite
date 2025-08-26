@@ -1,5 +1,7 @@
 package com.tonic.model.ui.componants;
 
+import lombok.Getter;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +19,7 @@ public class ToggleSlider extends JPanel {
     private static final int TOGGLE_HEIGHT = 24;
     private float animationProgress = 0f;
     private Timer animator;
+    @Getter
     private boolean selected = false;
     private List<ActionListener> actionListeners = new ArrayList<>();
 
@@ -34,10 +37,6 @@ public class ToggleSlider extends JPanel {
                 fireActionPerformed();
             }
         });
-    }
-
-    public boolean isSelected() {
-        return selected;
     }
 
     public void setSelected(boolean selected) {

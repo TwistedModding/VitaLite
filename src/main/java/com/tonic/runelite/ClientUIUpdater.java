@@ -88,7 +88,7 @@ public class ClientUIUpdater
         NavButton.builder()
                 .icon(settings)
                 .priority(999)
-                .tooltip("VitaLite Info")
+                .tooltip("VitaLite Options")
                 .panel(VitaLiteOptionsPanel.getInstance())
                 .addToNavigation();
     }
