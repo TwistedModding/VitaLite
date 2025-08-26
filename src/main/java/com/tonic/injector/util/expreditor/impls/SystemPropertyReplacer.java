@@ -51,13 +51,7 @@ public class SystemPropertyReplacer extends ExprEditor {
         if (ldcInsn != null) {
             InsnList replacement = new InsnList();
             replacement.add(new LdcInsnNode(hardcodedValue));
-            
             call.replace(replacement);
-            
-            //String className = call.getClassNode().name.replace('/', '.');
-            //String methodName = call.getMethod().name + call.getMethod().desc;
-            //System.out.printf("Replaced System.getProperty(\"%s\") with \"%s\" in %s.%s%n",
-            //    getPropertyKeyFromLdc(ldcInsn), hardcodedValue, className, methodName);
         }
     }
     
