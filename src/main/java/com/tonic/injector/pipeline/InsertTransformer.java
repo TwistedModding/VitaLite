@@ -1,5 +1,6 @@
 package com.tonic.injector.pipeline;
 
+import com.tonic.injector.util.MethodUtil;
 import com.tonic.util.dto.JClass;
 import com.tonic.injector.util.MappingProvider;
 import com.tonic.injector.annotations.At;
@@ -152,85 +153,7 @@ public class InsertTransformer {
     private static void insertMethodCall(MethodNode targetMethod, AbstractInsnNode insertPoint, 
                                        ClassNode gamepackClass, MethodNode injectedMethod, At pattern) {
         
-        InsnList callInstructions = new InsnList();
-        
-        boolean isInjectedStatic = (injectedMethod.access & Opcodes.ACC_STATIC) != 0;
-        boolean isTargetStatic = (targetMethod.access & Opcodes.ACC_STATIC) != 0;
-        
-        Type injectedMethodType = Type.getMethodType(injectedMethod.desc);
-        Type[] hookParams = injectedMethodType.getArgumentTypes();
-        
-        if (!isInjectedStatic) {
-            if (isTargetStatic) {
-                System.err.println("Cannot call non-static injected method from static target method");
-                return;
-            }
-            callInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-        }
-
-        if(hookParams.length > 0)
-        {
-            Type[] targetParams = Type.getArgumentTypes(targetMethod.desc);
-            if (hookParams.length > targetParams.length) {
-                System.err.println("Hook method expects more parameters than target method has");
-                throw new RuntimeException("Hook method expects more parameters than target method has");
-            }
-
-            int localVarIndex = isTargetStatic ? 0 : 1;
-
-            for (int i = 0; i < hookParams.length; i++) {
-                Type targetParamType = targetParams[i];
-                Type hookParamType = hookParams[i];
-
-                switch (targetParamType.getSort()) {
-                    case Type.BOOLEAN:
-                    case Type.CHAR:
-                    case Type.BYTE:
-                    case Type.SHORT:
-                    case Type.INT:
-                        callInstructions.add(new VarInsnNode(Opcodes.ILOAD, localVarIndex));
-                        break;
-                    case Type.FLOAT:
-                        callInstructions.add(new VarInsnNode(Opcodes.FLOAD, localVarIndex));
-                        break;
-                    case Type.LONG:
-                        callInstructions.add(new VarInsnNode(Opcodes.LLOAD, localVarIndex));
-                        break;
-                    case Type.DOUBLE:
-                        callInstructions.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
-                        break;
-                    default:
-                        callInstructions.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
-                        if (!targetParamType.equals(hookParamType) &&
-                                hookParamType.getSort() == Type.OBJECT) {
-                            callInstructions.add(new TypeInsnNode(Opcodes.CHECKCAST,
-                                    hookParamType.getInternalName()));
-                        }
-                        break;
-                }
-
-                localVarIndex += targetParamType.getSize();
-            }
-        }
-        
-        
-        int invokeOpcode = isInjectedStatic ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL;
-        callInstructions.add(new MethodInsnNode(
-                invokeOpcode,
-                gamepackClass.name,
-                injectedMethod.name,
-                injectedMethod.desc,
-                false
-        ));
-        
-        Type returnType = injectedMethodType.getReturnType();
-        if (returnType.getSort() != Type.VOID) {
-            if (returnType.getSize() == 2) {
-                callInstructions.add(new InsnNode(Opcodes.POP2));
-            } else {
-                callInstructions.add(new InsnNode(Opcodes.POP));
-            }
-        }
+        InsnList callInstructions = MethodUtil.generateContextAwareInvoke(gamepackClass, targetMethod, injectedMethod, true);
         
         Shift shiftType = getShiftType(pattern);
         if (shiftType == Shift.HEAD) {
