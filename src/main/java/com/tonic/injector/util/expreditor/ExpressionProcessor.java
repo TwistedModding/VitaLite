@@ -35,6 +35,9 @@ class ExpressionProcessor {
                 processMethodCall((MethodInsnNode) insn, i);
             } else if (insn instanceof InsnNode) {
                 processArrayAccess((InsnNode) insn, i);
+                processLiteralValue(insn, i);
+            } else if (insn instanceof IntInsnNode || insn instanceof LdcInsnNode) {
+                processLiteralValue(insn, i);
             }
         }
     }
@@ -57,6 +60,13 @@ class ExpressionProcessor {
         if (isArrayAccessOpcode(insnNode.getOpcode())) {
             ArrayAccess access = new ArrayAccess(classNode, method, insnNode, index);
             editor.edit(access);
+        }
+    }
+    
+    private void processLiteralValue(AbstractInsnNode insn, int index) {
+        if (isLiteralOpcode(insn.getOpcode())) {
+            LiteralValue literal = new LiteralValue(classNode, method, insn, index);
+            editor.edit(literal);
         }
     }
     
@@ -83,5 +93,20 @@ class ExpressionProcessor {
                opcode == Opcodes.IALOAD || opcode == Opcodes.IASTORE ||
                opcode == Opcodes.LALOAD || opcode == Opcodes.LASTORE ||
                opcode == Opcodes.SALOAD || opcode == Opcodes.SASTORE;
+    }
+    
+    private boolean isLiteralOpcode(int opcode) {
+        // Integer constants
+        if (opcode >= Opcodes.ICONST_M1 && opcode <= Opcodes.ICONST_5) {
+            return true;
+        }
+        
+        // Other primitive constants
+        return opcode == Opcodes.LCONST_0 || opcode == Opcodes.LCONST_1 ||
+               opcode == Opcodes.FCONST_0 || opcode == Opcodes.FCONST_1 || opcode == Opcodes.FCONST_2 ||
+               opcode == Opcodes.DCONST_0 || opcode == Opcodes.DCONST_1 ||
+               opcode == Opcodes.ACONST_NULL ||
+               opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH ||
+               opcode == Opcodes.LDC;
     }
 }

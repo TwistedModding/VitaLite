@@ -1,10 +1,7 @@
 package com.tonic.injector.util.expreditor;
 
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.*;
 
 /**
  * Example usage of the ExprEditor ASM implementation.
@@ -42,6 +39,15 @@ public class ExprEditorExample {
                 access.toString(),
                 access.getClassNode().name.replace('/', '.'),
                 access.getMethod().name);
+        }
+        
+        @Override
+        public void edit(LiteralValue literal) {
+            System.out.printf("Found literal: %s (%s) at %s.%s%n", 
+                literal.toString(),
+                literal.getLiteralType(),
+                literal.getClassNode().name.replace('/', '.'),
+                literal.getMethod().name);
         }
     }
     
@@ -97,6 +103,34 @@ public class ExprEditorExample {
     }
     
     /**
+     * Example editor that replaces specific literal values.
+     */
+    public static class LiteralReplacer extends ExprEditor {
+        @Override
+        public void edit(LiteralValue literal) {
+            if (literal.isString()) {
+                String value = literal.getStringValue();
+                if ("debug".equals(value)) {
+                    // Replace "debug" string with "production"
+                    InsnList replacement = new InsnList();
+                    replacement.add(new LdcInsnNode("production"));
+                    literal.replace(replacement);
+                    System.out.printf("Replaced string literal '%s' with 'production'%n", value);
+                }
+            } else if (literal.isInteger()) {
+                Integer value = literal.getIntValue();
+                if (value != null && value == 8080) {
+                    // Replace port 8080 with 9090
+                    InsnList replacement = new InsnList();
+                    replacement.add(new LdcInsnNode(9090));
+                    literal.replace(replacement);
+                    System.out.printf("Replaced integer literal %d with 9090%n", value);
+                }
+            }
+        }
+    }
+    
+    /**
      * Example editor that adds bounds checking to array accesses.
      */
     public static class ArrayBoundsChecker extends ExprEditor {
@@ -141,5 +175,8 @@ public class ExprEditorExample {
         
         // Apply array bounds checker
         new ArrayBoundsChecker().instrument(classNode);
+        
+        // Apply literal replacer
+        new LiteralReplacer().instrument(classNode);
     }
 }
