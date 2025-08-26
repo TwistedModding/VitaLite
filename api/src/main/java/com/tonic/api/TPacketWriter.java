@@ -2,140 +2,171 @@ package com.tonic.api;
 
 public interface TPacketWriter
 {
-    void addNode(TPacketBufferNode node);
-    TIsaacCipher getIsaacCipher();
     /**
-     * send mouse click
+     * Adds a packet buffer node to the writer.
+     *
+     * @param node the packet buffer node to add
+     */
+    void addNode(TPacketBufferNode node);
+    
+    /**
+     * Gets the Isaac cipher used for encryption.
+     *
+     * @return the Isaac cipher
+     */
+    TIsaacCipher getIsaacCipher();
+    
+    /**
+     * Sends a mouse click packet.
+     *
+     * @param mouseButton the mouse button pressed
+     * @param x the x coordinate
+     * @param y the y coordinate
      */
     void clickPacket(int mouseButton, int x, int y);
 
     /**
-     * send a widget action packet
-     * @param type 0-9
-     * @param widgetId widget id
-     * @param childId child id
-     * @param itemId item id
+     * Sends a widget action packet.
+     *
+     * @param type the action type (0-9)
+     * @param widgetId the widget id
+     * @param childId the child id
+     * @param itemId the item id
      */
     void widgetActionPacket(int type, int widgetId, int childId, int itemId);
 
     /**
-     * Send a resume count dialogue packet
-     * @param count count
+     * Sends a resume count dialogue packet.
+     *
+     * @param count the count value
      */
     void resumeCountDialoguePacket(int count);
 
     /**
-     * send a resume string dialogue packet
-     * @param text text
+     * Sends a resume string dialogue packet.
+     *
+     * @param text the text input
      */
     void resumeStringDialoguePacket(String text);
 
     /**
-     * send a resume obj dialogue packet
-     * @param id id
+     * Sends a resume object dialogue packet.
+     *
+     * @param id the object id
      */
     void resumeObjectDialoguePacket(int id);
 
     /**
-     * continue a pause dialogue
-     * @param widgetID widget ID
-     * @param optionIndex childID
+     * Continues a paused dialogue.
+     *
+     * @param widgetID the widget ID
+     * @param optionIndex the option index (child ID)
      */
     void resumePauseWidgetPacket(int widgetID, int optionIndex);
 
     /**
-     * send a walk packet
-     * @param x worldX
-     * @param y worldY
-     * @param ctrl ctrl
+     * Sends a walk packet.
+     *
+     * @param x the world X coordinate
+     * @param y the world Y coordinate
+     * @param ctrl whether ctrl is pressed
      */
     void walkPacket(int x, int y, boolean ctrl);
 
     /**
-     * send a widget on game object packet
-     * @param selectedWidgetId selectedWidgetId
-     * @param itemId itemId
-     * @param slot slot
-     * @param identifier identifier
-     * @param worldX worldX
-     * @param worldY worldY
-     * @param run run
+     * Sends a widget on game object packet.
+     *
+     * @param selectedWidgetId the selected widget id
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param identifier the object identifier
+     * @param worldX the world X coordinate
+     * @param worldY the world Y coordinate
+     * @param run whether to run
      */
     void widgetTargetOnGameObjectPacket(int selectedWidgetId, int itemId, int slot, int identifier, int worldX, int worldY, boolean run);
 
     /**
-     * send widget on npc packet
-     * @param identifier identifier
-     * @param selectedWidgetId widget id
-     * @param itemId item id
-     * @param slot slot
-     * @param run run
+     * Sends a widget on NPC packet.
+     *
+     * @param identifier the NPC identifier
+     * @param selectedWidgetId the widget id
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param run whether to run
      */
     void widgetTargetOnNpcPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean run);
 
     /**
-     * send widget on player packet
-     * @param identifier identifier
-     * @param selectedWidgetId widget id
-     * @param itemId item id
-     * @param slot slot
-     * @param ctrl ctrl
+     * Sends a widget on player packet.
+     *
+     * @param identifier the player identifier
+     * @param selectedWidgetId the widget id
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param ctrl whether ctrl is pressed
      */
     void widgetTargetOnPlayerPacket(int identifier, int selectedWidgetId, int itemId, int slot, boolean ctrl);
 
     /**
-     * send widget on object packet
-     * @param type type
-     * @param identifier identifier
-     * @param worldX worldX
-     * @param worldY worldY
-     * @param ctrl ctrl
+     * Sends an object action packet.
+     *
+     * @param type the action type
+     * @param identifier the object identifier
+     * @param worldX the world X coordinate
+     * @param worldY the world Y coordinate
+     * @param ctrl whether ctrl is pressed
      */
     void objectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl);
 
     /**
-     * send widget on widget packet
-     * @param selectedWidgetId selectedWidgetId
-     * @param itemId itemId
-     * @param slot slot
-     * @param targetWidgetId targetWidgetId
-     * @param itemId2 itemId2
-     * @param slot2 slot2
+     * Sends a widget on widget packet.
+     *
+     * @param selectedWidgetId the selected widget id
+     * @param itemId the first item id
+     * @param slot the first slot number
+     * @param targetWidgetId the target widget id
+     * @param itemId2 the second item id
+     * @param slot2 the second slot number
      */
     void widgetOnWidgetPacket(int selectedWidgetId, int itemId, int slot, int targetWidgetId, int itemId2, int slot2);
 
     /**
-     * send a resume name dialogue packet
-     * @param text text
+     * Sends a resume name dialogue packet.
+     *
+     * @param text the name text
      */
     void resumeNameDialoguePacket(String text);
 
     /**
-     * send a widget on ground item packet
-     * @param selectedWidgetId selectedWidgetId
-     * @param itemId itemId
-     * @param slot slot
-     * @param groundItemID groundItemID
-     * @param worldX worldX
-     * @param worldY worldY
-     * @param ctrl ctrl
+     * Sends a widget on ground item packet.
+     *
+     * @param selectedWidgetId the selected widget id
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param groundItemID the ground item ID
+     * @param worldX the world X coordinate
+     * @param worldY the world Y coordinate
+     * @param ctrl whether ctrl is pressed
      */
     void widgetOnGroundItemPacket(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl);
 
     /**
-     * send an interface close packet
+     * Sends an interface close packet.
      */
     void interfaceClosePacket();
 
     /**
-     * send a chat packet
-     * @param type type
+     * Sends a chat packet.
+     *
+     * @param type the chat type
      * @param text the chat message text
      */
     void chatPacket(int type, String text);
 
     /**
-     * send an item action packet
+     * Sends an item action packet.
+     *
      * @param slot the slot of the item in the inventory
      * @param id the item id
      * @param action the action to perform on the item
@@ -143,40 +174,44 @@ public interface TPacketWriter
     void itemActionPacket(int slot, int id, int action);
 
     /**
-     * send an item on item packet
-     * @param itemId itemId
-     * @param slot slot
-     * @param itemId2 itemId2
-     * @param slot2 slot2
+     * Sends an item on item packet.
+     *
+     * @param itemId the first item id
+     * @param slot the first slot number
+     * @param itemId2 the second item id
+     * @param slot2 the second slot number
      */
     void itemOnItemPacket(int itemId, int slot, int itemId2, int slot2);
 
     /**
-     * send an item on game object packet
-     * @param itemID itemID
-     * @param slot slot
-     * @param objectID objectID
-     * @param worldX worldX
-     * @param worldY worldY
-     * @param run run
+     * Sends an item on game object packet.
+     *
+     * @param itemID the item ID
+     * @param slot the slot number
+     * @param objectID the object ID
+     * @param worldX the world X coordinate
+     * @param worldY the world Y coordinate
+     * @param run whether to run
      */
     void itemOnGameObjectPacket(int itemID, int slot, int objectID, int worldX, int worldY, boolean run);
 
     /**
-     * send an item on player packet
-     * @param itemId itemId
-     * @param slot slot
-     * @param playerIndex playerIndex
-     * @param run run
+     * Sends an item on player packet.
+     *
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param playerIndex the player index
+     * @param run whether to run
      */
     void itemOnPlayerPacket(int itemId, int slot, int playerIndex, boolean run);
 
     /**
-     * send an item on npc packet
-     * @param itemId itemId
-     * @param slot slot
-     * @param npcIndex npcIndex
-     * @param run run
+     * Sends an item on NPC packet.
+     *
+     * @param itemId the item id
+     * @param slot the slot number
+     * @param npcIndex the NPC index
+     * @param run whether to run
      */
     void itemOnNpcPacket(int itemId, int slot, int npcIndex, boolean run);
 }

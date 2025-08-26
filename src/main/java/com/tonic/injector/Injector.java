@@ -56,6 +56,10 @@ public class Injector {
             StripLvtInfo.run(mixin);
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             JClass jClass = MappingProvider.getClass(gamepackName);
+            if(jClass == null)
+            {
+                throw new ClassNotFoundException("Could not find mapping for mixin target class: " + gamepackName);
+            }
             ClassNode gamepackClass = gamepack.get(jClass.getObfuscatedName());
             for(FieldNode field : mixin.fields)
             {

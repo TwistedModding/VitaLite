@@ -7,6 +7,10 @@ import org.objectweb.asm.tree.MethodNode;
 
 import java.util.List;
 
+/**
+ * Transformer that strips specific annotations from classes, fields, and methods.
+ * Used for cleaning up injected gamepack classes for analysis purposes.
+ */
 public class StripAnnotationsTransformer
 {
     /**
@@ -28,6 +32,11 @@ public class StripAnnotationsTransformer
         }
     }
 
+    /**
+     * Clears annotations that contain "Named" from the provided list.
+     *
+     * @param annotations the list of annotations to filter
+     */
     private static void clearIfNonNull(List<AnnotationNode> annotations)
     {
         if(annotations != null)

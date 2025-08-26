@@ -7,16 +7,15 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+/**
+ * Replaces methods by injecting static replacement and redirecting calls.
+ */
 public class ReplaceTransformer
 {
     /**
-     * This transformer replaces a method in the gamepack with a static hook method.
-     * The hook method is injected into the gamepack and then used to override the target method.
-     * The target method is identified by its name and descriptor, which are obtained from the mixin's
-     * @MethodHook annotation and the @Replace annotation on the method.
-     *
-     * @param mixin    The ClassNode of the mixin containing the hook method.
-     * @param method   The MethodNode of the hook method to be injected.
+     * Replaces target method with call to injected static replacement method.
+     * @param mixin mixin class containing replacement method
+     * @param method method annotated with Replace
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         String name = AnnotationUtil.getAnnotation(method, Replace.class, "value");
@@ -24,22 +23,18 @@ public class ReplaceTransformer
         ClassNode gamepack = TransformerUtil.getBaseClass(mixin);
         InjectTransformer.patch(gamepack, mixin, method);
 
-        // Locate the target method in the gamepack
         MethodNode toReplace = TransformerUtil.getTargetMethod(mixin, name);
 
-        // Parse hook and target descriptors
         Type hookType   = Type.getMethodType(method.desc);
         Type targetType = Type.getMethodType(toReplace.desc);
         Type[] hookParams   = hookType.getArgumentTypes();
         Type[] targetParams = targetType.getArgumentTypes();
         Type returnType   = hookType.getReturnType();
 
-        // Build instructions: load args, invoke hook, return result
         InsnList override = new InsnList();
         boolean isStatic = (toReplace.access & Opcodes.ACC_STATIC) != 0;
         int localIdx = isStatic ? 0 : 1;
 
-        // Load each method parameter onto the stack
         for (int i = 0; i < hookParams.length; i++) {
             Type t = targetParams[i];
             switch (t.getSort()) {
@@ -62,7 +57,6 @@ public class ReplaceTransformer
             localIdx += t.getSize();
         }
 
-        // Invoke the injected hook method (static)
         override.add(new MethodInsnNode(
                 Opcodes.INVOKESTATIC,
                 gamepack.name,
@@ -71,7 +65,6 @@ public class ReplaceTransformer
                 false
         ));
 
-        // Append the appropriate return instruction
         int retOp;
         switch (returnType.getSort()) {
             case Type.VOID:
@@ -90,12 +83,11 @@ public class ReplaceTransformer
             case Type.DOUBLE:
                 retOp = Opcodes.DRETURN;
                 break;
-            default:
+                default:
                 retOp = Opcodes.ARETURN;
         }
         override.add(new InsnNode(retOp));
 
-        // Insert at the very start of the target method
         toReplace.instructions.insert(override);
     }
 }

@@ -6,13 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Injector annotation for methods that replace the original method
- * in the gamepack class via hook and early return.
- * <p>
- * The value should be the name of the method to replace.
+ * Replaces original method via hook and early return.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Replace {
+    /**
+     * @return name of method to replace
+     */
     String value();
 }

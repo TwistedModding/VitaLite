@@ -6,14 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Injector annotation for methods that should be disabled.
- *
- *Method should have a boolean return type. If it returns true, the targeted
- * gamepack method fires as normal, if it returns false, the targeted gamepack
- * method returns immediately without executing.
+ * Conditionally disables methods based on boolean return value.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Disable {
+    /**
+     * @return name of method to conditionally disable
+     */
     String value();
 }

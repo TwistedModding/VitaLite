@@ -10,13 +10,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Completely replaces method implementations with bytecode from mixin methods.
+ */
 public class MethodOverrideTransformer {
     /**
-     * Replaces the bytecode of the target (toHook) method in the gamepack with the bytecode
-     * from the provided mixin MethodNode.
-     *
-     * @param mixin The ClassNode containing the mixin method.
-     * @param method The MethodNode from the mixin that contains the new bytecode.
+     * Replaces target method with mixin method implementation.
+     * @param mixin mixin class containing replacement method
+     * @param method method annotated with MethodOverride
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         String name = AnnotationUtil.getAnnotation(method, MethodOverride.class, "value");

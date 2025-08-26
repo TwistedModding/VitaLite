@@ -230,7 +230,6 @@ public class PacketMapReader
                 buffer.writeFloat(value);
                 break;
             default:
-                // Optionally handle the default case
                 break;
         }
     }

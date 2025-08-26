@@ -20,17 +20,14 @@ public class BootstrapPoisonInjector {
 
     static
     {
-        //java.lang.String
         callSites.add(new CallSite("java/lang/String", "valueOf"));
 
-        //java.lang.Long
         callSites.add(new CallSite("java/lang/Long", "toString"));
         callSites.add(new CallSite("java/lang/Long", "toHexString"));
         callSites.add(new CallSite("java/lang/Long", "toOctalString"));
         callSites.add(new CallSite("java/lang/Long", "toBinaryString"));
         callSites.add(new CallSite("java/lang/Long", "toUnsignedString"));
 
-        //java.lang.Thread
         callSites.add(new CallSite("java/lang/Thread", "getName"));
 
     }
@@ -74,7 +71,6 @@ public class BootstrapPoisonInjector {
         var points = findSafeInjectionPoint(method, value);
         if (points.isEmpty()) return;
 
-        //System.out.println("Injecting poison into " + classNode.name + "." + method.name + method.desc + " at " + points.size() + " points");
 
         InsnList poison = new InsnList();
 
@@ -85,7 +81,6 @@ public class BootstrapPoisonInjector {
                 Label skip = new Label();
 
                 // System.nanoTime() % 2 == 3 (always false)
-                //1
                 poison.add(new MethodInsnNode(INVOKESTATIC, "java/lang/System", "nanoTime", "()J", false));
                 poison.add(new LdcInsnNode(2L));
                 poison.add(new InsnNode(LREM));
@@ -240,11 +235,6 @@ public class BootstrapPoisonInjector {
     }
 
     private static boolean shouldInjectIntoMethod(ClassNode classNode, MethodNode method, Config config) {
-        //if ("<clinit>".equals(method.name) && !config.injectIntoStaticInit) return false;
-        //if ("<init>".equals(method.name) && !config.injectIntoConstructors) return false;
-        //if ("o1".equals(method.name)) return false;
-        //if(method.name.length() < 5 && method.instructions.size() > 100) return false;
-        //if(classNode.name.equals("client") || classNode.name.equals("dw")) return false;
         if ((method.access & ACC_NATIVE) != 0) return false;
         if ((method.access & ACC_ABSTRACT) != 0) return false;
         return method.instructions != null && method.instructions.size() > 0;

@@ -96,10 +96,8 @@ public final class LdcRewriter {
 
         // Prepend array dims if any
         if (dims > 0) {
-            StringBuilder sb = new StringBuilder(dims + baseDesc.length());
-            for (int i = 0; i < dims; i++) sb.append('[');
-            sb.append(baseDesc);
-            return Type.getType(sb.toString());
+            String sb = "[".repeat(dims) + baseDesc;
+            return Type.getType(sb);
         }
         return Type.getType(baseDesc);
     }

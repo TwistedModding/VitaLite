@@ -6,8 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Hook a method
- * value: name of the tag or obfuscated name of the method
+ * Hooks method calls at the beginning of target methods.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

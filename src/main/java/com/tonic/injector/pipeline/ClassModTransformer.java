@@ -5,8 +5,17 @@ import com.tonic.util.ReflectBuilder;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * Transforms ClassMod annotations to invoke direct class modification methods.
+ */
 public class ClassModTransformer
 {
+    /**
+     * Invokes class modification method using reflection.
+     * @param mixin mixin class containing modification method
+     * @param method method annotated with @ClassMod
+     * @throws ClassNotFoundException if mixin class cannot be loaded
+     */
     public static void patch(ClassNode mixin, MethodNode method) throws ClassNotFoundException {
         ClassNode target = TransformerUtil.getBaseClass(mixin);
         String name = mixin.name.replace("/", ".");

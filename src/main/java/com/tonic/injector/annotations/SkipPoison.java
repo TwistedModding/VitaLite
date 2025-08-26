@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface SkipPoison {
-    String value() default ""; //specific string call to hit
+    String value() default "";
 }

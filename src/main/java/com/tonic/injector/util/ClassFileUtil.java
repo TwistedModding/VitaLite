@@ -32,6 +32,5 @@ public final class ClassFileUtil {
                 StandardOpenOption.WRITE);
     }
 
-    // utility class — no instances
     private ClassFileUtil() {}
 }

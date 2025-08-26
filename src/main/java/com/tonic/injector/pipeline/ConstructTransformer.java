@@ -10,12 +10,19 @@ import org.objectweb.asm.tree.*;
 
 import java.util.Arrays;
 
+/**
+ * Transformer that processes @Construct annotations to generate factory methods for gamepack class construction.
+ * Converts annotated method signatures into appropriate constructor calls with parameter mapping and type casting.
+ */
 public class ConstructTransformer
 {
     /**
-     * Patches a mixin method annotated with @Construct to create an instance of the target class
-     * @param mixin the mixin class node
+     * Patches a mixin method annotated with @Construct to create an instance of the target class.
+     * Generates a factory method that creates and returns a new instance using the appropriate constructor.
+     *
+     * @param mixin the mixin class node containing the annotated method
      * @param method the method node annotated with @Construct
+     * @throws RuntimeException if target classes or matching constructors cannot be found
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
@@ -73,7 +80,7 @@ public class ConstructTransformer
         Type returnType = Type.getReturnType(method.desc);
 
         String returnDesc = Type.getMethodDescriptor(
-                returnType,  // Use the original return type (TClientPacket)
+                returnType,
                 paramTypes
         );
 
@@ -92,6 +99,13 @@ public class ConstructTransformer
         injectionTarget.methods.add(factoryMethod);
     }
 
+    /**
+     * Finds a constructor in the target class that matches the provided parameter types.
+     *
+     * @param classNode the class to search for constructors
+     * @param paramTypes the parameter types to match
+     * @return the matching constructor method node, or null if no match found
+     */
     private static MethodNode findMatchingConstructor(ClassNode classNode, Type[] paramTypes) {
         for (MethodNode method : classNode.methods) {
             if (!"<init>".equals(method.name)) {
@@ -107,6 +121,13 @@ public class ConstructTransformer
         return null;
     }
 
+    /**
+     * Checks if the provided parameter types are compatible with the expected parameter types.
+     *
+     * @param providedTypes the types being provided
+     * @param expectedTypes the types expected by the constructor
+     * @return true if the signatures are compatible
+     */
     private static boolean isCompatibleSignature(Type[] providedTypes, Type[] expectedTypes) {
         if (providedTypes.length != expectedTypes.length) {
             return false;
@@ -124,6 +145,13 @@ public class ConstructTransformer
         return true;
     }
 
+    /**
+     * Determines if a type can be assigned to another type.
+     *
+     * @param from the source type
+     * @param to the target type
+     * @return true if the assignment is valid
+     */
     private static boolean isAssignable(Type from, Type to) {
         if (from.equals(to)) {
             return true;
@@ -144,8 +172,14 @@ public class ConstructTransformer
         return false;
     }
 
+    /**
+     * Determines if a cast instruction is needed when converting between types.
+     *
+     * @param from the source type
+     * @param to the target type
+     * @return true if a cast instruction should be generated
+     */
     private static boolean needsCast(Type from, Type to) {
-        // Only need cast for object/array types that are different
         return !from.equals(to) &&
                 (from.getSort() == Type.OBJECT || from.getSort() == Type.ARRAY) &&
                 (to.getSort() == Type.OBJECT || to.getSort() == Type.ARRAY);

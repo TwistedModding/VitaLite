@@ -6,60 +6,44 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Injects a method call after a specified instruction pattern in the target method.
- * 
- * Usage examples:
- * 
- * // Insert after method call
- * @Insert(method = "processPlayer", at = @At(value = "INVOKE", 
- *         target = "updatePosition(FF)V"))
- * 
- * // Insert after field access
- * @Insert(method = "handleMovement", at = @At(value = "GETFIELD", 
- *         target = "player.x"))
- * 
- * // Insert after specific opcode
- * @Insert(method = "calculate", at = @At(value = "OPCODE", 
- *         opcode = "IMUL"))
- * 
- * // Insert after LDC instruction with specific value
- * @Insert(method = "checkBounds", at = @At(value = "LDC", 
- *         constant = @Constant(intValue = 100)))
- * 
- * // Insert at specific line number (if debug info available)
- * @Insert(method = "process", at = @At(value = "LINE", 
- *         line = 42))
+ * Injects method calls after specified instruction patterns.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Insert {
     /**
-     * The name of the target method to inject into.
+     * Target method name to inject into.
+     * @return method name
      */
     String method();
     
     /**
-     * The instruction pattern to match and inject after.
+     * Instruction pattern to match for injection.
+     * @return pattern specification
      */
     At at();
     
     /**
-     * Whether to inject after all matching instructions or just the first one.
-     * Default: false (inject after first match only)
+     * Whether to inject after all matches or just first.
+     * @return true for all matches, false for first only
      */
     boolean all() default false;
     
     /**
-     * Optional ordinal to specify which match to target when all=false.
-     * 0-based index. Default: 0 (first match)
-     * Use -1 to target the last match.
+     * Which match to target when all=false (0-based index).
+     * @return match index, -1 for last match
      */
     int ordinal() default 0;
     
     /**
-     * Optional slice to limit the search area within the method.
+     * Optional slice to limit search area.
+     * @return slice specification
      */
     Slice slice() default @Slice;
 
+    /**
+     * Whether to use raw mode for direct instruction manipulation.
+     * @return true for raw mode
+     */
     boolean raw() default false;
 }

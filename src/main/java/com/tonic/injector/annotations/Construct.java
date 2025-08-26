@@ -6,8 +6,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Injector annotation for methods that represent construction of a
- * gamepack class instance.
+ * Annotation for methods that should be transformed into factory methods for constructing gamepack class instances.
+ * The annotated method signature defines the parameters needed for construction, and the transformer
+ * creates the appropriate constructor call with proper parameter mapping and type casting.
+ *
+ * @see com.tonic.injector.pipeline.ConstructTransformer
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

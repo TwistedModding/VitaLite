@@ -12,15 +12,15 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+/**
+ * Transforms shadow annotations to create proxy methods and fields.
+ */
 public class ShadowTransformer
 {
     /**
-     * Replaces the given method's body with a call to the target method in the gamepack,
-     * effectively making it a proxy to that method. It handles parameter passing, return types,
-     * and any necessary type casting.
-     *
-     * @param mixin  The class node representing the mixin containing the shadow method.
-     * @param method The method node representing the shadow method to be patched.
+     * Creates shadow method proxy for accessing target method.
+     * @param mixin class node containing shadow method
+     * @param method shadow method to patch
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
@@ -48,7 +48,7 @@ public class ShadowTransformer
         boolean isTargetStatic = (toShadow.access & Opcodes.ACC_STATIC) != 0;
         boolean isShadowStatic = (method.access & Opcodes.ACC_STATIC) != 0;
 
-        int localVarIndex = isShadowStatic ? 0 : 1; // Skip 'this' if shadow method is not static
+        int localVarIndex = isShadowStatic ? 0 : 1;
         if (!isTargetStatic) {
             instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
         }
@@ -129,12 +129,9 @@ public class ShadowTransformer
     }
 
     /**
-     * Transforms a shadow field in a mixin class to point to the corresponding field in the gamepack.
-     *
-     * GamePack only
-     *
-     * @param mixin the mixin class node containing the shadow field
-     * @param field the field node representing the shadow field to be transformed
+     * Creates shadow field proxy for accessing target field.
+     * @param mixin mixin class containing shadow field
+     * @param field shadow field to transform
      */
     public static void patch(ClassNode mixin, FieldNode field) {
         try
@@ -166,18 +163,15 @@ public class ShadowTransformer
     }
 
     /**
-     * looks through the instructions in the given method for any references to any field where its name matches oldName,
-     * and its owner matched oldOwner. And changes it to point instead to newName, and newOwner. Then also for each field
-     * transformed this way, if the type passed to this method is anything non-primitive, it will the insert a cast to
-     * cast the field reference to that type.
-     *
+     * Transforms field references in method instructions from old to new field.
+     * @param field field metadata
      * @param mn method to scan
-     * @param oldType mixin type of the field
-     * @param newType gamepack type of the field
-     * @param oldName old name
-     * @param oldOwner old owner
-     * @param newName new name
-     * @param newOwner new owner
+     * @param oldType mixin field type
+     * @param newType target field type
+     * @param oldName old field name
+     * @param oldOwner old field owner
+     * @param newName new field name
+     * @param newOwner new field owner
      */
     private static void transformProxyField(JField field, MethodNode mn, Type oldType, Type newType, String oldName, String oldOwner, String newName, String newOwner)
     {

@@ -18,20 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Transformer that injects method calls after specific instruction patterns.
- * 
- * This transformer:
- * 1. Injects the mixin method into the target class
- * 2. Finds all instructions matching the specified pattern
- * 3. Inserts calls to the injected method after each match (or specific ordinal)
+ * Transforms insert annotations to inject method calls at specified locations.
  */
 public class InsertTransformer {
     
     /**
-     * Process an @Insert annotated method from a mixin.
-     *
-     * @param mixin  The mixin class containing the insert method
-     * @param method The method annotated with @Insert
+     * Processes @Insert annotated method to inject calls.
+     * @param mixin mixin class containing insert method
+     * @param method method annotated with @Insert
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         try {
@@ -71,7 +65,6 @@ public class InsertTransformer {
             } else {
                 int ordinal = insertAnnotation.ordinal();
                 if (ordinal == -1) {
-                    // -1 means last match
                     if (!matches.isEmpty()) {
                         targetMatches = List.of(matches.get(matches.size() - 1));
                     } else {
@@ -132,6 +125,11 @@ public class InsertTransformer {
         }
     }
     
+    /**
+     * Extracts Insert annotation from method.
+     * @param method method to check
+     * @return Insert annotation or null
+     */
     private static Insert getInsertAnnotation(MethodNode method) {
         if (method.visibleAnnotations == null) return null;
         
@@ -143,6 +141,14 @@ public class InsertTransformer {
         return null;
     }
     
+    /**
+     * Inserts method call at specified instruction point.
+     * @param targetMethod method to inject into
+     * @param insertPoint instruction to insert after
+     * @param gamepackClass class containing injected method
+     * @param injectedMethod method to inject
+     * @param pattern injection pattern
+     */
     private static void insertMethodCall(MethodNode targetMethod, AbstractInsnNode insertPoint, 
                                        ClassNode gamepackClass, MethodNode injectedMethod, At pattern) {
         
@@ -154,7 +160,6 @@ public class InsertTransformer {
         Type injectedMethodType = Type.getMethodType(injectedMethod.desc);
         Type[] hookParams = injectedMethodType.getArgumentTypes();
         
-        // Load 'this' reference if injected method is not static
         if (!isInjectedStatic) {
             if (isTargetStatic) {
                 System.err.println("Cannot call non-static injected method from static target method");
@@ -169,7 +174,6 @@ public class InsertTransformer {
             if (hookParams.length > targetParams.length) {
                 System.err.println("Hook method expects more parameters than target method has");
                 throw new RuntimeException("Hook method expects more parameters than target method has");
-                //return;
             }
 
             int localVarIndex = isTargetStatic ? 0 : 1;
@@ -195,7 +199,7 @@ public class InsertTransformer {
                     case Type.DOUBLE:
                         callInstructions.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
                         break;
-                    default: // Object/Array
+                    default:
                         callInstructions.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
                         if (!targetParamType.equals(hookParamType) &&
                                 hookParamType.getSort() == Type.OBJECT) {
@@ -237,20 +241,23 @@ public class InsertTransformer {
     }
     
     /**
-     * Get the shift type from the pattern.
+     * Gets shift type from pattern.
+     * @param pattern pattern specification
+     * @return shift type
      */
     private static Shift getShiftType(At pattern) {
         return pattern.shift();
     }
     
     /**
-     * Get the target type as string from the enum.
+     * Gets target type string from pattern.
+     * @param pattern pattern specification
+     * @return target type string
      */
     private static String getTargetTypeString(At pattern) {
         try {
             return pattern.value().name();
         } catch (ClassCastException e) {
-            // Handle case where annotation still contains string value during transition
             try {
                 Object valueObj = getRawAnnotationValue(pattern, "value");
                 if (valueObj instanceof String) {
@@ -259,12 +266,15 @@ public class InsertTransformer {
             } catch (Exception ex) {
                 System.err.println("Error getting target type: " + ex.getMessage());
             }
-            return "INVOKE"; // fallback
+            return "INVOKE";
         }
     }
     
     /**
-     * Get raw annotation value for transition period
+     * Gets raw annotation value for transition period.
+     * @param proxy annotation proxy
+     * @param methodName method name
+     * @return raw value
      */
     private static Object getRawAnnotationValue(Object proxy, String methodName) {
         try {
@@ -288,9 +298,11 @@ public class InsertTransformer {
     
     
     /**
-     * Filter matches by context to avoid ambiguity with bare field names.
-     * This ensures that field access patterns without class qualification
-     * only match fields belonging to the target class.
+     * Filters matches by context to avoid field name ambiguity.
+     * @param matches instruction matches
+     * @param pattern injection pattern
+     * @param targetClass target class
+     * @return filtered matches
      */
     private static List<InstructionMatcher.MatchResult> filterMatchesByContext(
             List<InstructionMatcher.MatchResult> matches, 
@@ -325,8 +337,10 @@ public class InsertTransformer {
     }
     
     /**
-     * Check if a field owner is a superclass of the target class.
-     * This handles cases where the field is inherited.
+     * Checks if field owner is inherited by target class.
+     * @param fieldOwner field owner class
+     * @param targetClass target class
+     * @return true if inherited
      */
     private static boolean isInheritedField(String fieldOwner, ClassNode targetClass) {
         if (targetClass.superName != null && targetClass.superName.equals(fieldOwner)) {

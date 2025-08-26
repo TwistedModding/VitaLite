@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 public class MappingProvider
 {
+    @Getter
     private static final List<JClass> mappings = new ArrayList<>();
 
     static
@@ -39,8 +40,7 @@ public class MappingProvider
         }
         catch (IOException e)
         {
-            System.err.println("MappingProvider::fillMaps // " + e.getMessage());
-            //mappings = new ArrayList<>();
+            System.err.println("MappingProvider::fillMaps " + e.getMessage());
         }
     }
 
@@ -147,11 +147,5 @@ public class MappingProvider
         }
         return null;
     }
-    
-    /**
-     * Get access to the mappings list for inheritance support.
-     */
-    public static List<JClass> getMappings() {
-        return mappings;
-    }
+
 }

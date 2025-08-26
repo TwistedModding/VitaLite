@@ -10,8 +10,16 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+/**
+ * Injects conditional disable checks into methods based on boolean return values.
+ */
 public class DisableTransformer
 {
+    /**
+     * Injects conditional disable logic into target method based on boolean return value.
+     * @param mixin mixin class containing disable method
+     * @param method method annotated with Disable that returns boolean
+     */
     public static void patch(ClassNode mixin, MethodNode method)
     {
         if(!method.desc.endsWith(")Z"))
@@ -76,7 +84,7 @@ public class DisableTransformer
                     case Type.DOUBLE:
                         call.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
                         break;
-                    default: // Object/Array
+                    default:
                         call.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
                         if (!targetParamType.equals(hookParamType) &&
                                 hookParamType.getSort() == Type.OBJECT) {

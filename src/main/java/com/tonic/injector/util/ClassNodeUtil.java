@@ -37,7 +37,7 @@ public class ClassNodeUtil {
         mn.accept(tmv);
         StringWriter sw = new StringWriter();
         printer.print(new PrintWriter(sw));
-        printer.getText().clear();          // free some memory
+        printer.getText().clear();
         return sw.toString();
     }
 

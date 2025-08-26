@@ -6,11 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Injector annotation for methods that override existing methods in the
- * gamepack by replacing their bytecode.
+ * Replaces method implementations with complete bytecode replacement.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface MethodOverride {
+    /**
+     * @return target method name to override
+     */
     String value();
 }

@@ -7,8 +7,18 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
+/**
+ * Injects methods and fields from mixin classes into gamepack classes.
+ */
 public class InjectTransformer
 {
+    /**
+     * Injects a method from mixin to target class if it doesn't exist.
+     *
+     * @param toClass target class
+     * @param fromClass source mixin class
+     * @param method method to inject
+     */
     public static void patch(ClassNode toClass, ClassNode fromClass, MethodNode method)
     {
         if(method.name.equals("<init>") && method.desc.equals("()V"))
@@ -25,10 +35,10 @@ public class InjectTransformer
     }
 
     /**
-     * Injects a field from a mixin class into the gamepack class.
+     * Injects a field into gamepack class if it doesn't exist.
      *
-     * @param gamepack the gamepack class node
-     * @param field the field node to inject
+     * @param gamepack target class
+     * @param field field to inject
      */
     public static void patch(ClassNode gamepack, FieldNode field)
     {

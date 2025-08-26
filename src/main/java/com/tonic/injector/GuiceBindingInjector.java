@@ -8,7 +8,6 @@ import java.util.List;
 
 public class GuiceBindingInjector implements Opcodes {
 
-    // Binding configuration - easily extendable
     private static final List<BindingConfig> BINDINGS = new ArrayList<>();
 
     public static void patch(ClassNode classNode) {
@@ -24,8 +23,6 @@ public class GuiceBindingInjector implements Opcodes {
     }
 
     private static void injectProviderMethod(ClassNode classNode, BindingConfig binding) {
-        // Create the provider method
-        // Method signature: public TInterface provideTInterface(Client client)
         MethodNode method = new MethodNode(
                 ACC_PUBLIC,
                 binding.methodName,
@@ -34,25 +31,20 @@ public class GuiceBindingInjector implements Opcodes {
                 null
         );
 
-        // Add @Provides annotation
         AnnotationNode providesAnnotation = new AnnotationNode("Lcom/google/inject/Provides;");
         if (method.visibleAnnotations == null) {
             method.visibleAnnotations = new ArrayList<>();
         }
         method.visibleAnnotations.add(providesAnnotation);
 
-        // Add @Singleton annotation
         AnnotationNode singletonAnnotation = new AnnotationNode("Ljavax/inject/Singleton;");
         method.visibleAnnotations.add(singletonAnnotation);
 
-        // Add method body
         method.instructions = binding.instructionProvider.createInstructions();
 
-        // Add max stack and locals
-        method.maxStack = 2;  // Typically need 2 for these operations
-        method.maxLocals = 2; // this + Client parameter
+        method.maxStack = 2;
+        method.maxLocals = 2;
 
-        // Add to class
         classNode.methods.add(method);
 
         System.out.println("  - Added provider method: " + binding.methodName + " for " + binding.returnType);
@@ -62,8 +54,8 @@ public class GuiceBindingInjector implements Opcodes {
      * Configuration for a binding to be injected
      */
     private static class BindingConfig {
-        final String returnType;           // Internal name (e.g., "com/tonic/api/TClient")
-        final String methodName;            // Provider method name
+        final String returnType;
+        final String methodName;
         final InstructionProvider instructionProvider;
 
         BindingConfig(String returnType, String methodName, InstructionProvider provider) {
@@ -94,7 +86,7 @@ public class GuiceBindingInjector implements Opcodes {
     public static void addCastBinding(String interfaceType, String methodName) {
         addBinding(interfaceType, methodName, () -> {
             InsnList insns = new InsnList();
-            insns.add(new VarInsnNode(ALOAD, 1)); // Load Client parameter at index 1
+            insns.add(new VarInsnNode(ALOAD, 1));
             insns.add(new TypeInsnNode(CHECKCAST, interfaceType));
             insns.add(new InsnNode(ARETURN));
             return insns;
@@ -108,7 +100,7 @@ public class GuiceBindingInjector implements Opcodes {
                                         String castTo, String getterName, String getterDesc) {
         addBinding(returnType, methodName, () -> {
             InsnList insns = new InsnList();
-            insns.add(new VarInsnNode(ALOAD, 1)); // Load Client parameter at index 1
+            insns.add(new VarInsnNode(ALOAD, 1));
             insns.add(new TypeInsnNode(CHECKCAST, castTo));
             insns.add(new MethodInsnNode(
                     INVOKEINTERFACE,

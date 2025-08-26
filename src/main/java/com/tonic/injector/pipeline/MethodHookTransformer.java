@@ -7,12 +7,40 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+/**
+ * Injects method calls at the beginning of target methods.
+ */
 public class MethodHookTransformer
 {
     /**
-     * Hooks a method in the gamepack with a method from a mixin.
-     * @param mixin the mixin class containing the method to hook
-     * @param method the method to hook
+     * Processes a {@link MethodHook} annotated method and injects it as a hook into the target method.
+     * <p>
+     * This method performs the complete hook injection process:
+     * <ol>
+     *   <li>Extracts the target method name from the {@link MethodHook} annotation</li>
+     *   <li>Injects the hook method into the target class using {@link InjectTransformer}</li>
+     *   <li>Locates the target method in the gamepack</li>
+     *   <li>Generates appropriate bytecode to call the hook method</li>
+     *   <li>Inserts the hook call at the method's entry point</li>
+     * </ol>
+     * <p>
+     * Parameter handling:
+     * <ul>
+     *   <li>Hook methods with no parameters are called directly</li>
+     *   <li>Hook methods with parameters receive values from the target method's parameters</li>
+     *   <li>Parameter count validation ensures hook doesn't expect more parameters than available</li>
+     *   <li>Type casting is applied for object parameters when types don't match exactly</li>
+     * </ul>
+     * <p>
+     * Constructor handling:
+     * <ul>
+     *   <li>For constructors, the hook is injected after the super() constructor call</li>
+     *   <li>This ensures the object is properly initialized before hook execution</li>
+     * </ul>
+     * 
+     * @param mixin the mixin class node containing the hook method
+     * @param method the method node annotated with {@link MethodHook} to be used as a hook
+     * @throws RuntimeException if the target method cannot be found
      */
     public static void patch(ClassNode mixin, MethodNode method) {
         String name = AnnotationUtil.getAnnotation(method, MethodHook.class, "value");
@@ -91,7 +119,7 @@ public class MethodHookTransformer
                     case Type.DOUBLE:
                         call.add(new VarInsnNode(Opcodes.DLOAD, localVarIndex));
                         break;
-                    default: // Object/Array
+                    default:
                         call.add(new VarInsnNode(Opcodes.ALOAD, localVarIndex));
                         if (!targetParamType.equals(hookParamType) &&
                                 hookParamType.getSort() == Type.OBJECT) {

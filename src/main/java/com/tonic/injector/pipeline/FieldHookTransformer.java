@@ -16,15 +16,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * GamePack only
+ * Intercepts field write operations with conditional hook method calls.
  */
 public class FieldHookTransformer {
     private static final List<FieldHookDef> fieldHooks = new ArrayList<>();
 
+    /**
+     * Registers field hook for later instrumentation.
+     * @param mixin mixin class containing hook method
+     * @param method method annotated with FieldHook
+     */
     public static void patch(ClassNode mixin, MethodNode method)
     {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, FieldHook.class, "value");
+        
         JClass jClass = MappingProvider.getClass(gamepackName);
         JField jField = MappingProvider.getField(jClass, name);
 
@@ -35,6 +41,10 @@ public class FieldHookTransformer {
         fieldHooks.add(hook);
     }
 
+    /**
+     * Instruments all methods in class with registered field hooks.
+     * @param classNode class to instrument
+     */
     public static void instrument(ClassNode classNode)
     {
         for(FieldHookDef hook : fieldHooks)
@@ -49,6 +59,11 @@ public class FieldHookTransformer {
         }
     }
 
+    /**
+     * Instruments single method with field access hooks.
+     * @param method method to instrument
+     * @param hook field hook definition
+     */
     private static void instrument(MethodNode method, FieldHookDef hook) {
         String desc = hook.getTarget().getDescriptor();
         boolean isStatic = hook.isStatic();
@@ -61,7 +76,6 @@ public class FieldHookTransformer {
             if (isStatic) {
                 wrapper.add(new InsnNode(getDupOpcode(desc)));
                 
-                // Apply multiplier for int/long fields if getter exists
                 if (hook.getTarget().getGetter() != null) {
                     Number multiplier = hook.getTarget().getGetter();
                     if (desc.equals("I")) {
@@ -102,7 +116,6 @@ public class FieldHookTransformer {
                     wrapper.add(new InsnNode(Opcodes.DUP));
                 }
                 
-                // Apply multiplier for int/long fields if getter exists
                 if (hook.getTarget().getGetter() != null) {
                     Number multiplier = hook.getTarget().getGetter();
                     if (desc.equals("I")) {
@@ -138,6 +151,13 @@ public class FieldHookTransformer {
         }
     }
 
+    /**
+     * Finds field access instructions matching hook definition.
+     * @param method method to scan
+     * @param hook hook definition
+     * @param isStatic whether to look for static field access
+     * @return matching field access instructions
+     */
     @NotNull
     private static List<AbstractInsnNode> getInjectionPoints(MethodNode method, FieldHookDef hook, boolean isStatic) {
         List<AbstractInsnNode> fieldSets = new ArrayList<>();
@@ -156,10 +176,20 @@ public class FieldHookTransformer {
         return fieldSets;
     }
 
+    /**
+     * Gets DUP opcode for field descriptor.
+     * @param desc field descriptor
+     * @return DUP2 for wide types, DUP for others
+     */
     private static int getDupOpcode(String desc) {
         return (desc.equals("J") || desc.equals("D")) ? Opcodes.DUP2 : Opcodes.DUP;
     }
 
+    /**
+     * Checks if field descriptor represents wide type.
+     * @param desc field descriptor
+     * @return true for long/double types
+     */
     private static boolean isWideType(String desc) {
         return desc.equals("J") || desc.equals("D");
     }
