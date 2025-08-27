@@ -11,7 +11,6 @@ import com.tonic.runelite.jvm.JvmParams;
 import com.tonic.injector.Injector;
 import com.tonic.injector.RLInjector;
 import com.tonic.model.Libs;
-
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
@@ -20,6 +19,7 @@ import java.nio.file.Path;
 public class Main {
     public static final Path RUNELITE_REPOSITORY_DIR = Path.of(System.getProperty("user.home"), ".runelite", "repository2");
     public static final Path RUNELITE_DIR = Path.of(System.getProperty("user.home"), ".runelite");
+    public static final Path VITA_DIR = Path.of(System.getProperty("user.home"), ".runelite", "vitalite");
     public static final VitaLiteOptions optionsParser = new VitaLiteOptions();
     private static URL[] URLS = null;
     public static Libs LIBS;
@@ -45,7 +45,6 @@ public class Main {
         RLInjector.patch();
         CLASSLOADER.launch(args);
         Install.install();
-        //ClientUIUpdater.inject();
         Logger.norm("VitaLite started.");
     }
 
@@ -58,7 +57,9 @@ public class Main {
                 throw new Exception();
             URLS = new URL[jarfiles.length];
             for (int i = 0; i < jarfiles.length; i++)
+            {
                 URLS[i] = jarfiles[i].toURI().toURL();
+            }
 
             LIBS = new Libs(URLS);
         }

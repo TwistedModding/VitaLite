@@ -103,3 +103,5 @@ bin/
 /api/src/main/java/net/runelite/api/widgets/WidgetSizeMode.java
 /api/src/main/java/net/runelite/api/widgets/WidgetTextAlignment.java
 /api/src/main/java/net/runelite/api/widgets/WidgetType.java
+/claudedocs/
+/.claude/

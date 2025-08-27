@@ -1,13 +1,11 @@
 package com.tonic;
 
 import com.tonic.util.RuneliteConfigUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
 import static com.tonic.util.JVMLauncher.launchInNewJVM;
 
 public class VitaLite {
@@ -24,9 +22,7 @@ public class VitaLite {
             String[] newArgs = new String[args.length + 1];
             newArgs[0] = "-safeLaunch";
             System.arraycopy(args, 0, newArgs, 1, args.length);
-            Process p = launchInNewJVM("com.tonic.vitalite.Main", buildFullClasspath(), newArgs);
-            //int exitCode = p.waitFor();
-            System.out.println("Launched VitaLite in new JVM");
+            launchInNewJVM("com.tonic.vitalite.Main", buildFullClasspath(), newArgs);
         } catch (Exception e) {
             e.printStackTrace();
         }

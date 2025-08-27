@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.tonic.bootstrap.beans.Artifact;
 import com.tonic.bootstrap.beans.Bootstrap;
 import com.tonic.bootstrap.beans.Diff;
+import com.tonic.util.HashUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,7 +68,7 @@ public class RLUpdater
             boolean needsDownload = true;
 
             if (Files.exists(localFile)) {
-                String localHash = computeSha256(localFile);
+                String localHash = HashUtil.computeSha256(localFile);
                 if (localHash.equalsIgnoreCase(art.getHash())) {
                     needsDownload = false;
                 } else {
@@ -79,7 +80,7 @@ public class RLUpdater
                 System.out.println("Downloading " + art.getName());
                 downloadFile(art.getPath(), localFile);
 
-                String downloadedHash = computeSha256(localFile);
+                String downloadedHash = HashUtil.computeSha256(localFile);
                 if (!downloadedHash.equalsIgnoreCase(art.getHash())) {
                     throw new IOException("Hash mismatch for " + art.getName()
                             + " (expected " + art.getHash()
@@ -112,24 +113,5 @@ public class RLUpdater
              OutputStream out = Files.newOutputStream(destination)) {
             in.transferTo(out);
         }
-    }
-
-    private static String computeSha256(Path path)
-            throws IOException, NoSuchAlgorithmException
-    {
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        try (InputStream is = Files.newInputStream(path);
-             DigestInputStream dis = new DigestInputStream(is, md))
-        {
-            byte[] buffer = new byte[8192];
-            while (dis.read(buffer) != -1) {}
-        }
-        byte[] digest = md.digest();
-        // convert to hex
-        StringBuilder sb = new StringBuilder();
-        for (byte b : digest) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 }
