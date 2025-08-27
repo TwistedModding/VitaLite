@@ -23,24 +23,24 @@ public abstract class TPacketWriterMixin implements TPacketWriter
     @Shadow("client")
     public static TClient client;
 
-//    @Shadow("addNode2")
-//    public abstract void addNode(TPacketWriter packetWriter, TPacketBufferNode node);
-//
-//    @MethodHook("addNode2")
-//    @Inject
-//    public static void onAddNode2(TPacketWriter packetWriter, TPacketBufferNode node)
-//    {
-//        addNodeHook(node);
-//    }
+    @Shadow("addNode2")
+    public abstract void addNode(TPacketWriter packetWriter, TPacketBufferNode node);
 
-    @Shadow("addNode")
-    public abstract void addNode(TPacketBufferNode node);
-    @MethodHook("addNode")
+    @MethodHook("addNode2")
     @Inject
-    public static void onAddNode1(TPacketBufferNode node)
+    public static void onAddNode2(TPacketWriter packetWriter, TPacketBufferNode node)
     {
         addNodeHook(node);
     }
+
+//    @Shadow("addNode")
+//    public abstract void addNode(TPacketBufferNode node);
+//    @MethodHook("addNode")
+//    @Inject
+//    public static void onAddNode1(TPacketBufferNode node)
+//    {
+//        addNodeHook(node);
+//    }
 
     @Inject
     public static void addNodeHook(TPacketBufferNode node)
@@ -55,8 +55,12 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         int id = packet.getId();
         int len = packet.getLength();
 
+        System.out.println("Packet Sent: ID=" + id + " Length=" + len + " Offset=" + offset);
+
         byte[] bytes = buffer.getArray();
         int payloadSize = (len > 0) ? len : (offset - 1);
+        if(payloadSize > 1024)
+            return;
         byte[] payload = new byte[payloadSize];
         System.arraycopy(bytes, 1, payload, 0, payloadSize);
 
@@ -69,7 +73,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     private void addNodeSwitch(TPacketBufferNode node)
     {
-        this.addNode(node);
+        this.addNode(this, node);
         //this.addNode(node);
     }
 

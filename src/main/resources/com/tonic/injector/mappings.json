@@ -23860,10 +23860,12 @@
         "isStatic": true
       },
       {
+        "name": "addNode2",
         "obfuscatedName": "wp",
         "owner": "PacketWriter",
         "ownerObfuscatedName": "dw",
         "descriptor": "(Ldw;Lmb;B)V",
+        "garbageValue": 0,
         "isStatic": true
       },
       {
@@ -54749,7 +54751,7 @@
         "owner": "ClientPacket",
         "ownerObfuscatedName": "mi",
         "descriptor": "I",
-        "getter": 1592024691,
+        "getter": -1642840655,
         "setter": 1361570641,
         "isStatic": false
       },
