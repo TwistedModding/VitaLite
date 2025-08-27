@@ -19,7 +19,6 @@ import java.nio.file.Path;
 public class Main {
     public static final Path RUNELITE_REPOSITORY_DIR = Path.of(System.getProperty("user.home"), ".runelite", "repository2");
     public static final Path RUNELITE_DIR = Path.of(System.getProperty("user.home"), ".runelite");
-    public static final Path VITA_DIR = Path.of(System.getProperty("user.home"), ".runelite", "vitalite");
     public static final VitaLiteOptions optionsParser = new VitaLiteOptions();
     private static URL[] URLS = null;
     public static Libs LIBS;
