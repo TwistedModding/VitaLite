@@ -4,7 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -20,7 +21,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.BorderFactory;
 import java.awt.BorderLayout;
@@ -67,8 +67,7 @@ public final class SelfUpdate {
                 System.out.println("VitaLite is already up to date (v" + currentVersion + ")");
                 return false;
             }
-            
-            // Show update dialog to user
+
             final boolean userConfirmed = showUpdateDialog(currentVersion, latestVersion);
             if (!userConfirmed) {
                 System.out.println("Update cancelled by user");
@@ -109,8 +108,7 @@ public final class SelfUpdate {
             
             final JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
             final String tagName = json.get("tag_name").getAsString();
-            
-            // Remove 'v' prefix if present
+
             return tagName.startsWith("v") ? tagName.substring(1) : tagName;
             
         } catch (final InterruptedException e) {
@@ -135,14 +133,12 @@ public final class SelfUpdate {
         System.out.println("Starting update process...");
         
         try {
-            // Launch the update script and terminate current process
             final ProcessBuilder pb = new ProcessBuilder(getUpdateCommand(updateScript));
             pb.inheritIO();
             pb.start();
             System.exit(0);
             
         } catch (final Exception e) {
-            // Clean up script if launch fails
             try {
                 Files.deleteIfExists(updateScript);
             } catch (final IOException ignored) {}
@@ -190,7 +186,6 @@ public final class SelfUpdate {
         Files.write(scriptPath, script.toString().getBytes());
         
         if (!isWindows) {
-            // Make script executable on Unix systems
             scriptPath.toFile().setExecutable(true);
         }
         
@@ -232,23 +227,19 @@ public final class SelfUpdate {
      */
     private String buildRestartCommand() {
         final StringBuilder cmd = new StringBuilder();
-        
-        // Java executable
+
         final String javaHome = System.getProperty("java.home");
         final String javaBin = javaHome + System.getProperty("file.separator") + 
                               "bin" + System.getProperty("file.separator") + "java";
         
         cmd.append("\"").append(javaBin).append("\"");
-        
-        // JVM arguments
+
         for (final String jvmArg : jvmArgs) {
             cmd.append(" ").append(jvmArg);
         }
-        
-        // JAR execution
+
         cmd.append(" -jar \"").append(currentJarPath).append("\"");
-        
-        // Program arguments
+
         for (final String programArg : programArgs) {
             cmd.append(" ").append(programArg);
         }
@@ -267,8 +258,7 @@ public final class SelfUpdate {
                     .getLocation()
                     .toURI()
                     .getPath();
-            
-            // Normalize Windows paths
+
             if (System.getProperty("os.name").toLowerCase().contains("windows") && 
                 jarPath.startsWith("/")) {
                 return jarPath.substring(1);
@@ -289,19 +279,9 @@ public final class SelfUpdate {
         final List<String> args = new ArrayList<>();
         
         try {
-            // Get JVM arguments from RuntimeMXBean if available
-            final java.lang.management.RuntimeMXBean runtimeMxBean = 
-                    java.lang.management.ManagementFactory.getRuntimeMXBean();
-            
-            for (final String arg : runtimeMxBean.getInputArguments()) {
-                // Filter out dangerous or temporary arguments
-                if (!arg.startsWith("-agentlib:") && 
-                    !arg.startsWith("-javaagent:") &&
-                    !arg.contains("tmp") &&
-                    !arg.contains("temp")) {
-                    args.add(arg);
-                }
-            }
+            final RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+
+            args.addAll(runtimeMxBean.getInputArguments());
         } catch (final Exception e) {
             System.err.println("Warning: Could not retrieve JVM arguments: " + e.getMessage());
         }
@@ -315,8 +295,7 @@ public final class SelfUpdate {
      */
     private List<String> getCurrentProgramArgs() {
         final List<String> args = new ArrayList<>();
-        
-        // Add current VitaLite options
+
         if (Main.optionsParser.isNoPlugins()) {
             args.add("-noPlugins");
         }
@@ -335,60 +314,6 @@ public final class SelfUpdate {
     }
     
     /**
-     * Validates that the update process is safe to perform.
-     * @param newVersion version to update to
-     * @return true if update is safe
-     */
-    private boolean validateUpdate(final String newVersion) {
-        if (newVersion == null || newVersion.trim().isEmpty()) {
-            System.err.println("Invalid version string: " + newVersion);
-            return false;
-        }
-        
-        if (currentJarPath == null) {
-            System.err.println("Cannot determine current JAR location");
-            return false;
-        }
-        
-        final Path jarPath = Paths.get(currentJarPath);
-        if (!Files.exists(jarPath) || !Files.isWritable(jarPath.getParent())) {
-            System.err.println("JAR location is not writable: " + currentJarPath);
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Performs a quick update check without downloading.
-     * @return true if update is available
-     */
-    public boolean isUpdateAvailable() {
-        try {
-            final String latestVersion = getLatestVersionFromGitHub();
-            final String currentVersion = Versioning.getVitaLiteVersion();
-            
-            return !currentVersion.equals(latestVersion);
-        } catch (final Exception e) {
-            System.err.println("Failed to check for updates: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Gets the latest available version without updating.
-     * @return latest version string or null if check fails
-     */
-    public String getLatestVersion() {
-        try {
-            return getLatestVersionFromGitHub();
-        } catch (final Exception e) {
-            System.err.println("Failed to get latest version: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
      * Shows an update dialog to the user with update information.
      * @param currentVersion current version string
      * @param latestVersion latest available version string  
@@ -396,72 +321,50 @@ public final class SelfUpdate {
      */
     private boolean showUpdateDialog(final String currentVersion, final String latestVersion) {
         try {
-            // Create custom dialog for better control
             final JDialog dialog = new JDialog();
             dialog.setTitle("VitaLite Update Available");
             dialog.setModal(true);
             dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
             dialog.setResizable(false);
-            
-            // Main panel
             final JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
             mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-            
-            // Title label
             final JLabel titleLabel = new JLabel("Update Available", SwingConstants.CENTER);
             titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
             mainPanel.add(titleLabel, BorderLayout.NORTH);
-            
-            // Version info panel
             final JPanel versionPanel = new JPanel(new BorderLayout(5, 5));
             final JLabel currentLabel = new JLabel("Current: v" + currentVersion, SwingConstants.CENTER);
             final JLabel latestLabel = new JLabel("Latest: v" + latestVersion, SwingConstants.CENTER);
             final JLabel infoLabel = new JLabel("<html><center>VitaLite will download and install the update,<br>then restart automatically.</center></html>", SwingConstants.CENTER);
-            
             versionPanel.add(currentLabel, BorderLayout.NORTH);
             versionPanel.add(latestLabel, BorderLayout.CENTER);
             versionPanel.add(infoLabel, BorderLayout.SOUTH);
             mainPanel.add(versionPanel, BorderLayout.CENTER);
-            
-            // Button panel
             final JPanel buttonPanel = new JPanel(new FlowLayout());
             final JButton updateButton = new JButton("Update Now");
             final JButton cancelButton = new JButton("Cancel");
-            
             final boolean[] result = {false};
-            
             updateButton.addActionListener(e -> {
                 result[0] = true;
                 dialog.dispose();
             });
-            
             cancelButton.addActionListener(e -> {
                 result[0] = false;
                 dialog.dispose();
             });
-            
             buttonPanel.add(updateButton);
             buttonPanel.add(cancelButton);
             mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-            
-            // Configure dialog
             dialog.add(mainPanel);
             dialog.pack();
             dialog.setLocationRelativeTo(null); // Center on screen
-            
-            // Set minimum size
             final Dimension minSize = new Dimension(350, 200);
             dialog.setMinimumSize(minSize);
             dialog.setPreferredSize(minSize);
-            
-            // Show dialog and wait for user response
             dialog.setVisible(true);
-            
             return result[0];
             
         } catch (final Exception e) {
             System.err.println("Failed to show update dialog: " + e.getMessage());
-            // Fallback to console confirmation
             return showConsoleConfirmation(currentVersion, latestVersion);
         }
     }
@@ -486,44 +389,5 @@ public final class SelfUpdate {
         }
         
         return true;
-    }
-    
-    /**
-     * Performs update with user confirmation.
-     * @param force if true, skips confirmation prompts
-     * @return true if update was performed
-     */
-    public boolean updateWithConfirmation(final boolean force) {
-        try {
-            final String latestVersion = getLatestVersionFromGitHub();
-            final String currentVersion = Versioning.getVitaLiteVersion();
-            
-            if (currentVersion.equals(latestVersion)) {
-                System.out.println("VitaLite is already up to date (v" + currentVersion + ")");
-                return false;
-            }
-            
-            if (!validateUpdate(latestVersion)) {
-                System.err.println("Update validation failed - aborting");
-                return false;
-            }
-            
-            System.out.println("Update available: v" + currentVersion + " -> v" + latestVersion);
-            
-            if (!force) {
-                final boolean userConfirmed = showUpdateDialog(currentVersion, latestVersion);
-                if (!userConfirmed) {
-                    System.out.println("Update cancelled by user");
-                    return false;
-                }
-            }
-            
-            performUpdate(latestVersion);
-            return true;
-            
-        } catch (final Exception e) {
-            System.err.println("Self-update failed: " + e.getMessage());
-            return false;
-        }
     }
 }

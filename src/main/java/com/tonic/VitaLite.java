@@ -1,5 +1,6 @@
 package com.tonic;
 
+import com.tonic.vitalite.Main;
 import com.tonic.vitalite.SelfUpdate;
 import com.tonic.vitalite.Versioning;
 
@@ -17,7 +18,10 @@ public class VitaLite {
             if(!currentVersion.equals(liveRlVersion))
             {
                 if(Versioning.isRunningFromShadedJar())
+                {
+                    Main.optionsParser.parse(args);
                     new SelfUpdate().checkAndUpdate();
+                }
                 System.err.println("Warning: You are running VitaLite version " + currentVersion + " but the latest version is " + liveRlVersion + ". Please update to the latest version.");
                 return;
             }
