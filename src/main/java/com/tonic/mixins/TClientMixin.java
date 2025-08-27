@@ -84,8 +84,8 @@ public abstract class TClientMixin implements TClient
     @MethodOverride("callStackCheck")
     @SkipPoison
     public static String callStackCheck(long l) {
-        return "client42918oe\n" +
-                "client58307pq\n" +
+        return "client18126wi\n" +
+                "client50773cp\n" +
                 "nrc.RuneLite299start\n" +
                 "nrc.RuneLite276main\n" +
                 "nrl.ReflectionLa+64lambda$launc+\n" +

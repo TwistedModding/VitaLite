@@ -99,7 +99,8 @@ public class RLClassLoader extends URLClassLoader
                     }
                 }
             }
-            catch (Exception ignored) {}
+            catch (Exception ignored) {
+            }
         }
         return null;
     }

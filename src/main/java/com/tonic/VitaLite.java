@@ -3,7 +3,6 @@ package com.tonic;
 import com.tonic.vitalite.Main;
 import com.tonic.vitalite.SelfUpdate;
 import com.tonic.vitalite.Versioning;
-
 import java.io.File;
 import java.net.URISyntaxException;
 import static com.tonic.util.JVMLauncher.launchInNewJVM;

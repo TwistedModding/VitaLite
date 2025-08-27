@@ -6,7 +6,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
@@ -22,6 +24,14 @@ public class ClassNodeUtil {
         }
         catch (Exception e)
         {
+            for(MethodNode mn : classNode.methods)
+            {
+                mn.visibleAnnotations = null;
+                mn.invisibleAnnotations = null;
+            }
+            ClassWriter classWriter = new GamepackClassWriter(0, Main.CTX_CLASSLOADER);
+            CheckClassAdapter checkAdapter = new CheckClassAdapter(classWriter);
+            classNode.accept(checkAdapter);
             e.printStackTrace();
             System.out.println("Class: " + classNode.name);
             System.exit(1);
