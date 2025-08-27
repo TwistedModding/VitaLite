@@ -3,6 +3,7 @@ package com.tonic.injector.util.expreditor.impls;
 import com.tonic.injector.util.BytecodeBuilder;
 import com.tonic.injector.util.expreditor.ExprEditor;
 import com.tonic.injector.util.expreditor.LiteralValue;
+import com.tonic.vitalite.Main;
 import org.objectweb.asm.tree.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,9 @@ public class ModifyResourceLoading extends ExprEditor
     @Override
     public void edit(LiteralValue literal) {
         if (!literal.isString() || !literal.getStringValue().equals("Sound FX"))
+            return;
+
+        if(!Main.optionsParser.isNoMusic())
             return;
 
         subEditor.instrument(literal.getClassNode(), literal.getMethod());

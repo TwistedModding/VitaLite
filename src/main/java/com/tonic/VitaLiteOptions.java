@@ -36,4 +36,10 @@ public class VitaLiteOptions extends OptionsParser
             description = "Run with minimum memory on jvm"
     )
     private boolean min = false;
+
+    @CLIArgument(
+            name = "noMusic",
+            description = "Prevent the loading of music tracks"
+    )
+    private boolean noMusic = false;
 }

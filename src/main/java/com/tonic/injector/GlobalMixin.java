@@ -1,7 +1,10 @@
 package com.tonic.injector;
 
+import com.tonic.injector.util.LdcRewriter;
 import com.tonic.injector.util.expreditor.impls.*;
+import com.tonic.vitalite.Main;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class GlobalMixin
 {
@@ -19,5 +22,13 @@ public class GlobalMixin
         pathsGetReplacer.instrument(classNode);
         replaceMethodByString.instrument(classNode);
         modifyResourceLoading.instrument(classNode);
+        for(MethodNode node : classNode.methods)
+        {
+            LdcRewriter.rewriteString(
+                    node,
+                    "Welcome to RuneScape",
+                    "<col=FFFFFF>Welcome to </col><col=00FFFF>VitaLite</col>"
+            );
+        }
     }
 }

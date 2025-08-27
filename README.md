@@ -35,7 +35,9 @@ VitaLite supports several command-line arguments for customization:
 | `--rsdump`   | String | Path to dump the gamepack to (optional)                                      |
 | `-noPlugins` | Boolean | Disables loading of core plugins                                             |
 | `-min`       | Boolean | Runs jvm with minimal alotted memory. Only works if `-noPlugins` is enabled. |
+| `-noMusic`   | Boolean | Prevent the loading of music tracks                                         |
 | `-incognito` | Boolean | Visually display as 'RuneLite' instead of 'VitaLite'                         |
+| `-help`      | Boolean | Displays help information about command line options                        |
 
 ### Usage Examples
 
@@ -60,7 +62,6 @@ java -jar VitaLite-shaded.jar -help
 
 ```
 ~/.runelite/
-├── repository2/           # RuneLite artifacts
 ├── externalplugins/       # External plugin JARs
 └── sideloaded-plugins/    # External plugin JARs
 ```
@@ -74,6 +75,7 @@ java -jar VitaLite-shaded.jar -help
 
 ```bash
 # First, sync the RuneLite API (required before building)
+# Note: You may need to restart ide after running this
 ./gradlew syncRuneLiteAPI
 
 # Clean and build all modules
