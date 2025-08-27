@@ -18,6 +18,6 @@ public class GlobalMixin
         integerReplacer.instrument(classNode);
         pathsGetReplacer.instrument(classNode);
         replaceMethodByString.instrument(classNode);
-        //modifyResourceLoading.instrument(classNode);
+        modifyResourceLoading.instrument(classNode);
     }
 }

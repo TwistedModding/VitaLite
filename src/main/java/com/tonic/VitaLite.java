@@ -16,6 +16,7 @@ public class VitaLite {
             String currentVersion = getVitaLiteVersion();
             if(!currentVersion.equals(liveRlVersion))
             {
+                System.out.println("VitaLite version " + currentVersion + " is out of date. Latest version is " + liveRlVersion + ".");
                 if(Versioning.isRunningFromShadedJar())
                 {
                     Main.optionsParser.parse(args);

@@ -55,8 +55,6 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         int id = packet.getId();
         int len = packet.getLength();
 
-        System.out.println("Packet Sent: ID=" + id + " Length=" + len + " Offset=" + offset);
-
         byte[] bytes = buffer.getArray();
         int payloadSize = (len > 0) ? len : (offset - 1);
         if(payloadSize > 1024)

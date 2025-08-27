@@ -33,53 +33,11 @@ public class ModifyResourceLoading extends ExprEditor
                         break;
                 }
             }
-            else if(literal.isInteger() && literal.getIntValue() == 2048)
-            {
-                System.out.println("Patching PCM Load");
-                patchPcmLoad(literal);
-            }
-        }
-
-        @Override
-        public void edit(FieldAccess access) {
-            if (method == null)
-                method = access.getMethod();
-
-            if(!access.getFieldName().equals(fieldName) || !access.getFieldOwner().equals(fieldOwner))
-                return;
-
-            AbstractInsnNode target = access.getFieldInstruction();
-
-            //TODO: FIXY FIX
-//            if(target.getPrevious().getOpcode() == Opcodes.DUP)
-//            {
-//                AbstractInsnNode start = target.getPrevious().getPrevious();
-//                if(start.getOpcode() != Opcodes.NEW)
-//                    return;
-//                System.out.println("Patching PCM Init");
-//                while(start.getOpcode() != Opcodes.PUTSTATIC)
-//                {
-//                    if(!(start instanceof LabelNode) && !(start instanceof LineNumberNode))
-//                        toRemove.add(start);
-//                    start = start.getNext();
-//                }
-//                toRemove.add(start); // include the putstatic
-//                return;
-//            }
-//
-//            AbstractInsnNode target2 = target.getNext();
-//            if(target2.getOpcode() != Opcodes.ALOAD)
-//                return;
-//            AbstractInsnNode target3 = target2.getNext();
-//            AbstractInsnNode target4 = target3.getNext();
-//            toRemove.add(target);
-//            toRemove.add(target2);
-//            toRemove.add(target3);
-//            toRemove.add(target4);
         }
 
         private void patchSoundLoad(LiteralValue literal)
         {
+            System.out.println("Patching load of: " + literal.getStringValue());
             InsnList insns = BytecodeBuilder.create()
                     .pop2()
                     .pop()
