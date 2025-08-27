@@ -5,6 +5,7 @@ import com.tonic.VitaLite;
 import com.tonic.VitaLiteOptions;
 import com.tonic.bootstrap.RLUpdater;
 import com.tonic.classloader.RLClassLoader;
+import com.tonic.injector.util.MappingProvider;
 import com.tonic.injector.util.SignerMapper;
 import com.tonic.runelite.Install;
 import com.tonic.runelite.jvm.JvmParams;
@@ -15,6 +16,8 @@ import javax.swing.*;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
+
+import static com.tonic.vitalite.Versioning.isRunningFromShadedJar;
 
 public class Main {
     public static final Path RUNELITE_REPOSITORY_DIR = Path.of(System.getProperty("user.home"), ".runelite", "repository2");
@@ -42,6 +45,7 @@ public class Main {
         loadClassLoader();
         Injector.patch();
         RLInjector.patch();
+        MappingProvider.getMappings().clear();
         CLASSLOADER.launch(args);
         Install.install();
         Logger.norm("VitaLite started.");
@@ -74,11 +78,5 @@ public class Main {
         if(!isRunningFromShadedJar())
             UIManager.put("ClassLoader", CLASSLOADER);
         Thread.currentThread().setContextClassLoader(CLASSLOADER);
-    }
-
-    public static boolean isRunningFromShadedJar() {
-        String jarPath = VitaLite.class.getProtectionDomain()
-                .getCodeSource().getLocation().getPath();
-        return jarPath.contains("shaded") || jarPath.endsWith(".jar");
     }
 }

@@ -148,5 +148,4 @@ public class MappingProvider
         }
         return null;
     }
-
 }

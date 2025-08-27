@@ -12,8 +12,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-import static com.tonic.vitalite.Main.isRunningFromShadedJar;
-
 public class ClientUIUpdater
 {
     private static JPanel wrapper;
@@ -54,24 +52,6 @@ public class ClientUIUpdater
         frame.setContentPane(wrapper);
         frame.revalidate();
         frame.repaint();
-    }
-
-    public static void toggleLogger(boolean remove)
-    {
-        if(wrapper == null || scrollPane == null)
-            return;
-        SwingUtilities.invokeLater(() -> {
-            if(remove)
-            {
-                wrapper.remove(scrollPane);
-            }
-            else
-            {
-                wrapper.add(scrollPane, BorderLayout.SOUTH);
-            }
-            wrapper.revalidate();
-            wrapper.repaint();
-        });
     }
 
     private static void addNavigation()

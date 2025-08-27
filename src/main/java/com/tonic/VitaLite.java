@@ -1,20 +1,23 @@
 package com.tonic;
 
-import com.tonic.util.RuneliteConfigUtil;
+import com.tonic.vitalite.SelfUpdate;
+import com.tonic.vitalite.Versioning;
+
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import static com.tonic.util.JVMLauncher.launchInNewJVM;
+import static com.tonic.vitalite.Versioning.getLiveRuneliteVersion;
+import static com.tonic.vitalite.Versioning.getVitaLiteVersion;
 
 public class VitaLite {
     public static void main(String[] args) {
         try {
-            String liveRlVersion = RuneliteConfigUtil.getTagValueFromURL("release");
+            String liveRlVersion = getLiveRuneliteVersion();
             String currentVersion = getVitaLiteVersion();
             if(!currentVersion.equals(liveRlVersion))
             {
+                if(Versioning.isRunningFromShadedJar())
+                    new SelfUpdate().checkAndUpdate();
                 System.err.println("Warning: You are running VitaLite version " + currentVersion + " but the latest version is " + liveRlVersion + ". Please update to the latest version.");
                 return;
             }
@@ -39,23 +42,5 @@ public class VitaLite {
             return myLocation + File.pathSeparator + currentClasspath;
         }
         return currentClasspath;
-    }
-
-    private static String getVitaLiteVersion()
-    {
-        try {
-            Manifest manifest = new Manifest(VitaLite.class.getClassLoader()
-                    .getResourceAsStream("META-INF/MANIFEST.MF"));
-            Attributes attrs = manifest.getMainAttributes();
-            String version = attrs.getValue("Implementation-Version");
-            if (version == null)
-            {
-                System.out.println("Could not find manifest, assuming dev environment");
-                return RuneliteConfigUtil.getTagValueFromURL("release");
-            }
-            return version;
-        } catch (IOException e) {
-            return "UNKNOWN";
-        }
     }
 }
