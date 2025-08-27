@@ -1,13 +1,10 @@
 package com.tonic.injector;
 
-import com.tonic.injector.util.expreditor.ArrayAccess;
-import com.tonic.injector.util.expreditor.ExprEditor;
 import com.tonic.injector.util.expreditor.impls.IntegerLiteralReplacer;
 import com.tonic.injector.util.expreditor.impls.PathsGetReplacer;
 import com.tonic.injector.util.expreditor.impls.RuntimeMaxMemoryReplacer;
 import com.tonic.injector.util.expreditor.impls.SystemPropertyReplacer;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
 
 public class GlobalMixin
 {

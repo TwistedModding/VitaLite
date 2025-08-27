@@ -5,7 +5,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 /**
  * ASM-based expression editor inspired by Javassist's ExprEditor.
- * Allows editing field accesses, method calls, array accesses, and literal values within method bodies.
+ * Allows editing field accesses, method calls, array accesses, literal values, and new instance creation within method bodies.
  */
 public abstract class ExprEditor {
     
@@ -46,6 +46,16 @@ public abstract class ExprEditor {
      * @param literal the literal value expression
      */
     public void edit(LiteralValue literal) {
+        // Default: do nothing
+    }
+    
+    /**
+     * Edit a new instance creation (NEW instruction).
+     * Override this method to modify object instantiation expressions.
+     * 
+     * @param newInstance the new instance expression
+     */
+    public void edit(NewInstance newInstance) {
         // Default: do nothing
     }
     

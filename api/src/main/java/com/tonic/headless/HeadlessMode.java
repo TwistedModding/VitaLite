@@ -47,10 +47,7 @@ public class HeadlessMode {
                         .method("togglePluginPanel", null, null);
             }
             clientPanelSize = new RestoreSize(clientPanel);
-            clientPanel.setPreferredSize(RestoreSize.HIDDEN);
-            clientPanel.setSize(RestoreSize.HIDDEN);
-            clientPanel.setMaximumSize(RestoreSize.HIDDEN);
-            clientPanel.setMinimumSize(RestoreSize.HIDDEN);
+            clientPanelSize.hide(clientPanel);
         }
         else
         {

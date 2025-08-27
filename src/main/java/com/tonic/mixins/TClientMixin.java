@@ -4,6 +4,8 @@ import com.tonic.Logger;
 import com.tonic.api.*;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.util.ExceptionUtil;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Random;
 
@@ -26,6 +28,19 @@ public abstract class TClientMixin implements TClient
 
     @Shadow("getPacketBufferNode")
     public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
+
+    @Shadow("mouseLastPressedTimeMillis")
+    private static long clientMouseLastPressedMillis;
+
+    @Inject
+    public long getClientMouseLastPressedMillis() {
+        return clientMouseLastPressedMillis;
+    }
+
+    @Inject
+    public void setClientMouseLastPressedMillis(long millis) {
+        clientMouseLastPressedMillis = millis;
+    }
 
     @Insert(
             method = "processServerPacket",

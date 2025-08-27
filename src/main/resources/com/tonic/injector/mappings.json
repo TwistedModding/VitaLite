@@ -6201,15 +6201,17 @@
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "MouseHandler_lastPressedTimeMillis",
         "obfuscatedName": "ag",
         "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
         "descriptor": "J",
+        "getter": 4013550640572753771,
+        "setter": 8772613667274657091,
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "MouseHandler_instance",
         "obfuscatedName": "ay",
         "owner": "MouseHandler",
         "ownerObfuscatedName": "bx",
@@ -11042,11 +11044,13 @@
         "isStatic": true
       },
       {
-        "name": "",
+        "name": "mouseLastPressedTimeMillis",
         "obfuscatedName": "jp",
         "owner": "Client",
         "ownerObfuscatedName": "client",
         "descriptor": "J",
+        "getter": 7881463686914378693,
+        "setter": -1496312983244314257,
         "isStatic": true
       },
       {

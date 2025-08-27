@@ -38,6 +38,8 @@ class ExpressionProcessor {
                 processLiteralValue(insn, i);
             } else if (insn instanceof IntInsnNode || insn instanceof LdcInsnNode) {
                 processLiteralValue(insn, i);
+            } else if (insn instanceof TypeInsnNode) {
+                processNewInstance((TypeInsnNode) insn, i);
             }
         }
     }
@@ -67,6 +69,13 @@ class ExpressionProcessor {
         if (isLiteralOpcode(insn.getOpcode())) {
             LiteralValue literal = new LiteralValue(classNode, method, insn, index);
             editor.edit(literal);
+        }
+    }
+    
+    private void processNewInstance(TypeInsnNode typeInsn, int index) {
+        if (typeInsn.getOpcode() == Opcodes.NEW) {
+            NewInstance newInstance = new NewInstance(classNode, method, typeInsn, index);
+            editor.edit(newInstance);
         }
     }
     

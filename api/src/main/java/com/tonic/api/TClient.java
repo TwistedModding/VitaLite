@@ -74,4 +74,10 @@ public interface TClient
      * @return true if on client thread, false otherwise
      */
     boolean isClientThread();
+
+    TMouseHandler getMouseHandler();
+
+    long getClientMouseLastPressedMillis();
+    //mouseLastPressedMillis
+    void setClientMouseLastPressedMillis(long millis);
 }

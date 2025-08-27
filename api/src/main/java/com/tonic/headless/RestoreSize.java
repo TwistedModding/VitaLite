@@ -12,7 +12,7 @@ public class RestoreSize
     private final Dimension preferredSize;
     private final Dimension minimumSize;
     private final Dimension maximumSize;
-    public final static Dimension HIDDEN = new Dimension(1, 200);
+    private final static Dimension HIDDEN = new Dimension(1, 200);
     public RestoreSize(JComponent component)
     {
         this.size = component.getSize();
@@ -27,5 +27,13 @@ public class RestoreSize
         component.setPreferredSize(preferredSize);
         component.setMinimumSize(minimumSize);
         component.setMaximumSize(maximumSize);
+    }
+
+    public void hide(JComponent component)
+    {
+        component.setSize(HIDDEN);
+        component.setPreferredSize(HIDDEN);
+        component.setMinimumSize(HIDDEN);
+        component.setMaximumSize(HIDDEN);
     }
 }

@@ -49,6 +49,14 @@ public class ExprEditorExample {
                 literal.getClassNode().name.replace('/', '.'),
                 literal.getMethod().name);
         }
+        
+        @Override
+        public void edit(NewInstance newInstance) {
+            System.out.printf("Found new instance: %s at %s.%s%n", 
+                newInstance.toString(),
+                newInstance.getClassNode().name.replace('/', '.'),
+                newInstance.getMethod().name);
+        }
     }
     
     /**
@@ -131,6 +139,45 @@ public class ExprEditorExample {
     }
     
     /**
+     * Example editor that intercepts and replaces new instance creation.
+     */
+    public static class NewInstanceReplacer extends ExprEditor {
+        @Override
+        public void edit(NewInstance newInstance) {
+            if (newInstance.isNewInstanceJava("java.util.ArrayList") && newInstance.isNoArgConstructor()) {
+                // Replace new ArrayList() with Collections.emptyList()
+                InsnList replacement = new InsnList();
+                replacement.add(new MethodInsnNode(
+                    Opcodes.INVOKESTATIC,
+                    "java/util/Collections",
+                    "emptyList",
+                    "()Ljava/util/List;",
+                    false
+                ));
+                
+                newInstance.replaceEntirePattern(replacement);
+                System.out.printf("Replaced new ArrayList() with Collections.emptyList()%n");
+                
+            } else if (newInstance.isNewInstanceJava("java.lang.StringBuilder")) {
+                // Add logging before StringBuilder creation
+                InsnList logging = new InsnList();
+                logging.add(new FieldInsnNode(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
+                logging.add(new LdcInsnNode("Creating StringBuilder"));
+                logging.add(new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "java/io/PrintStream",
+                    "println",
+                    "(Ljava/lang/String;)V",
+                    false
+                ));
+                
+                newInstance.insertBefore(logging);
+                System.out.printf("Added logging before StringBuilder creation%n");
+            }
+        }
+    }
+    
+    /**
      * Example editor that adds bounds checking to array accesses.
      */
     public static class ArrayBoundsChecker extends ExprEditor {
@@ -178,5 +225,8 @@ public class ExprEditorExample {
         
         // Apply literal replacer
         new LiteralReplacer().instrument(classNode);
+        
+        // Apply new instance replacer
+        new NewInstanceReplacer().instrument(classNode);
     }
 }
