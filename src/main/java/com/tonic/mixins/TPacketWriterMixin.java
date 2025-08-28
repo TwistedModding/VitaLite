@@ -100,6 +100,8 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
 
+
+
     @Override
     @Inject
     public void widgetActionPacket(int type, int widgetId, int childId, int itemId)
@@ -240,12 +242,10 @@ public abstract class TPacketWriterMixin implements TPacketWriter
     @Override
     public void objectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl)
     {
-        StringBuilder name = new StringBuilder("OP_GAME_OBJECT_ACTION_");
-        name.append(type);
-        MapEntry entry = PacketMapReader.get(name.toString());
+        MapEntry entry = PacketMapReader.get("OP_GAME_OBJECT_ACTION_" + type);
         if(entry == null)
         {
-            System.err.println("Packets::sendObjectActionPacket invalid type");
+            System.err.println("Packets::objectActionPacket invalid type");
             return;
         }
 
@@ -254,6 +254,42 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         args.put("ctrl", ctrl ? 1 : 0);
         args.put("worldX", worldX);
         args.put("worldY", worldY);
+
+        this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
+    }
+
+    @Inject
+    @Override
+    public void playerActionPacket(int type, int playerIndex, boolean ctrl)
+    {
+        MapEntry entry = PacketMapReader.get("OP_PLAYER_ACTION_" + type);
+        if(entry == null)
+        {
+            System.err.println("Packets::playerActionPacket invalid type");
+            return;
+        }
+
+        Map<String,Object> args = new HashMap<>();
+        args.put("identifier", playerIndex);
+        args.put("ctrl", ctrl ? 1 : 0);
+
+        this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
+    }
+
+    @Inject
+    @Override
+    public void npcActionPacket(int type, int npcIndex, boolean ctrl)
+    {
+        MapEntry entry = PacketMapReader.get("OP_NPC_ACTION_" + type);
+        if(entry == null)
+        {
+            System.err.println("Packets::npcActionPacket invalid type");
+            return;
+        }
+
+        Map<String,Object> args = new HashMap<>();
+        args.put("identifier", npcIndex);
+        args.put("ctrl", ctrl ? 1 : 0);
 
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }

@@ -120,6 +120,24 @@ public interface TPacketWriter
     void objectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl);
 
     /**
+     * Sends a player action packet.
+     *
+     * @param type the action type
+     * @param playerIndex the NPC index
+     * @param ctrl whether ctrl is pressed
+     */
+    void playerActionPacket(int type, int playerIndex, boolean ctrl);
+
+    /**
+     * Sends an NPC action packet.
+     *
+     * @param type the action type
+     * @param npcIndex the NPC index
+     * @param ctrl whether ctrl is pressed
+     */
+    void npcActionPacket(int type, int npcIndex, boolean ctrl);
+
+    /**
      * Sends a widget on widget packet.
      *
      * @param selectedWidgetId the selected widget id
