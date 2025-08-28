@@ -25,6 +25,10 @@ dependencies {
     implementation("io.netty:netty-all:5.0.0.Alpha2")
     implementation("com.google.code.gson:gson:2.8.9")
     compileOnly("com.google.inject:guice:5.1.0")
+    implementation(group = "com.fifesoft", name = "rsyntaxtextarea", version = "3.1.2")
+    implementation(group = "com.fifesoft", name = "autocomplete", version = "3.1.1")
+    implementation("org.antlr:antlr4:4.13.1")
+    implementation("com.github.vlsi.mxgraph:jgraphx:4.2.2")
 }
 
 val apiFilePatterns = mapOf(

@@ -25,9 +25,17 @@ public class ShadowTransformer
     public static void patch(ClassNode mixin, MethodNode method) {
         String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         String name = AnnotationUtil.getAnnotation(method, Shadow.class, "value");
+        Boolean isRuneliteExport = AnnotationUtil.getAnnotation(method, Shadow.class, "isRuneLites");
+
+        ClassNode injectionSite = TransformerUtil.getBaseClass(mixin);
+
+        if(isRuneliteExport != null && isRuneliteExport)
+        {
+            createGenericBridgeMethod(injectionSite, method, name);
+            return;
+        }
 
         ClassNode gamepack = TransformerUtil.getMethodClass(mixin, name);
-        ClassNode injectionSite = TransformerUtil.getBaseClass(mixin);
 
         MethodNode toShadow = TransformerUtil.getTargetMethod(mixin, name);
 
@@ -243,5 +251,134 @@ public class ShadowTransformer
                 }
             }
         }
+    }
+
+    public static void createGenericBridgeMethod(ClassNode classNode,
+                                                 MethodNode interfaceMethod,
+                                                 String targetMethodName) {
+        // Create new method with interface signature
+        MethodNode bridgeMethod = new MethodNode(
+                Opcodes.ACC_PUBLIC,
+                interfaceMethod.name,
+                interfaceMethod.desc,
+                interfaceMethod.signature,  // Preserve generic signature
+                interfaceMethod.exceptions != null ?
+                        interfaceMethod.exceptions.toArray(new String[0]) : null
+        );
+
+        // Find the target method to get its return type
+        MethodNode targetMethod = null;
+        String targetDesc = null;
+        for (MethodNode mn : classNode.methods) {
+            if (mn.name.equals(targetMethodName)) {
+                // Check if parameters match (ignoring return type)
+                Type[] interfaceParams = Type.getArgumentTypes(interfaceMethod.desc);
+                Type[] targetParams = Type.getArgumentTypes(mn.desc);
+                if (java.util.Arrays.equals(interfaceParams, targetParams)) {
+                    targetMethod = mn;
+                    targetDesc = mn.desc;
+                    break;
+                }
+            }
+        }
+
+        if (targetMethod == null) {
+            throw new IllegalArgumentException("Target method " + targetMethodName + " not found");
+        }
+
+        InsnList instructions = bridgeMethod.instructions;
+
+        // Load 'this'
+        instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+
+        // Load all parameters
+        Type[] paramTypes = Type.getArgumentTypes(interfaceMethod.desc);
+        int localVarIndex = 1; // Start at 1 (0 is 'this')
+
+        for (Type paramType : paramTypes) {
+            int opcode;
+            switch (paramType.getSort()) {
+                case Type.BOOLEAN:
+                case Type.BYTE:
+                case Type.CHAR:
+                case Type.SHORT:
+                case Type.INT:
+                    opcode = Opcodes.ILOAD;
+                    break;
+                case Type.LONG:
+                    opcode = Opcodes.LLOAD;
+                    break;
+                case Type.FLOAT:
+                    opcode = Opcodes.FLOAD;
+                    break;
+                case Type.DOUBLE:
+                    opcode = Opcodes.DLOAD;
+                    break;
+                default:
+                    opcode = Opcodes.ALOAD;
+                    break;
+            }
+            instructions.add(new VarInsnNode(opcode, localVarIndex));
+            localVarIndex += paramType.getSize(); // Long/Double take 2 slots
+        }
+
+        // Call the target method
+        boolean isStatic = (targetMethod.access & Opcodes.ACC_STATIC) != 0;
+        boolean isInterface = (classNode.access & Opcodes.ACC_INTERFACE) != 0;
+
+        instructions.add(new MethodInsnNode(
+                isStatic ? Opcodes.INVOKESTATIC :
+                        (isInterface ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL),
+                classNode.name,
+                targetMethodName,
+                targetDesc,
+                isInterface
+        ));
+
+        // Add checkcast if return types differ
+        Type interfaceReturn = Type.getReturnType(interfaceMethod.desc);
+        Type targetReturn = Type.getReturnType(targetDesc);
+
+        if (!targetReturn.equals(interfaceReturn) &&
+                interfaceReturn.getSort() == Type.OBJECT) {
+            // Cast to the interface return type
+            instructions.add(new TypeInsnNode(Opcodes.CHECKCAST,
+                    interfaceReturn.getInternalName()));
+        }
+
+        // Return
+        int returnOpcode;
+        switch (interfaceReturn.getSort()) {
+            case Type.VOID:
+                returnOpcode = Opcodes.RETURN;
+                break;
+            case Type.BOOLEAN:
+            case Type.BYTE:
+            case Type.CHAR:
+            case Type.SHORT:
+            case Type.INT:
+                returnOpcode = Opcodes.IRETURN;
+                break;
+            case Type.LONG:
+                returnOpcode = Opcodes.LRETURN;
+                break;
+            case Type.FLOAT:
+                returnOpcode = Opcodes.FRETURN;
+                break;
+            case Type.DOUBLE:
+                returnOpcode = Opcodes.DRETURN;
+                break;
+            default:
+                returnOpcode = Opcodes.ARETURN;
+                break;
+        }
+        instructions.add(new InsnNode(returnOpcode));
+
+        // Set max stack and locals
+        bridgeMethod.maxStack = Math.max(localVarIndex, paramTypes.length + 1);
+        bridgeMethod.maxLocals = localVarIndex;
+
+        // Add the method to the class
+        classNode.methods.add(bridgeMethod);
     }
 }

@@ -80,4 +80,6 @@ public interface TClient
     long getClientMouseLastPressedMillis();
     //mouseLastPressedMillis
     void setClientMouseLastPressedMillis(long millis);
+
+    <T> T getItemContainer(int id);
 }

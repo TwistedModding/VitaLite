@@ -4,6 +4,7 @@ import com.tonic.vitalite.Main;
 import com.tonic.api.TClient;
 import com.tonic.model.Libs;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -16,7 +17,7 @@ import java.util.WeakHashMap;
 
 public class RLClassLoader extends URLClassLoader
 {
-    private final WeakHashMap<String, InputStream> resources = new WeakHashMap<>();
+    private final HashMap<String, byte[]> resources = new HashMap<>();
 
     public RLClassLoader(URL[] urls)
     {
@@ -41,12 +42,11 @@ public class RLClassLoader extends URLClassLoader
         main.invoke(null, (Object) newArgs);
     }
 
-    public void addResource(String name, InputStream resource)
-    {
-        if (name == null || resource == null) {
+    public void addResource(String name, byte[] data) {
+        if (name == null || data == null) {
             return;
         }
-        resources.put(name, resource);
+        resources.put(name, data);
     }
 
     @Override
@@ -136,10 +136,9 @@ public class RLClassLoader extends URLClassLoader
     }
 
     @Override
-    public InputStream getResourceAsStream(String name)
-    {
+    public InputStream getResourceAsStream(String name) {
         if (resources.containsKey(name)) {
-            return resources.get(name);
+            return new ByteArrayInputStream(resources.get(name));
         }
         return super.getResourceAsStream(name);
     }

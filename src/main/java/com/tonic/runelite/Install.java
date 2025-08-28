@@ -103,7 +103,7 @@ public class Install
                                 .replace('/', '.');
                         classes.add(new ClassByte(data, fqcn));
                     } else {
-                        Main.CLASSLOADER.addResource(name, new ByteArrayInputStream(data));
+                        Main.CLASSLOADER.addResource(name, data);
                     }
                 } catch (IOException io) {
                     System.err.printf("Unable to process %s in %s: %s%n",

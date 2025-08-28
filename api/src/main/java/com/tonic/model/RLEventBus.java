@@ -2,12 +2,14 @@ package com.tonic.model;
 
 import com.tonic.Logger;
 import com.tonic.util.ReflectUtil;
+import lombok.Getter;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
 
 public class RLEventBus
 {
+    @Getter
     private final Object eventBus;
     private Method postMethod;
 

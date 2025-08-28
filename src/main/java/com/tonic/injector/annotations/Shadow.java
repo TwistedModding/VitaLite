@@ -16,4 +16,11 @@ public @interface Shadow {
      * @return target field or method name
      */
     String value();
+
+    /**
+     * Whether the target is a runelite injected method or not (Special pipeline to enable using generics to return
+     * types we don't have context of).
+     * @return true if the target is from RuneLite, false otherwise
+     */
+    boolean isRuneLites() default false;
 }

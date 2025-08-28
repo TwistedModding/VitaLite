@@ -15,6 +15,9 @@ public abstract class TClientMixin implements TClient
     @Shadow("packetWriter")
     private static TPacketWriter packetWriter;
 
+    @Shadow(value = "getItemContainer", isRuneLites = true)
+    public abstract <T> T getContainer(int id);
+
     @Inject
     @Override
     public TPacketWriter getPacketWriter()

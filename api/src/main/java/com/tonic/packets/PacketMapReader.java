@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tonic.packets.types.MapEntry;
+import com.tonic.packets.types.PacketDefinition;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -68,6 +69,38 @@ public class PacketMapReader
         }
         buffer.setOffset(0);
         return out.toString();
+    }
+
+    /**
+     * Analyzes a packet buffer and returns a packet definition.
+     *
+     * @param buffer The packet buffer to analyze.
+     * @return The packet definition.
+     */
+    public static PacketDefinition analyze(PacketBuffer buffer)
+    {
+        MapEntry entry = get().stream()
+                .filter(e -> e.getPacket().getId() == buffer.getPacketId())
+                .findFirst().orElse(null);
+
+        if(entry == null)
+        {
+            return null;
+        }
+
+        PacketDefinition definition = new PacketDefinition(entry.getName(), buffer);
+
+        for(int i = 0; i < entry.getReads().size(); i++)
+        {
+            if(isParsableAsNumber(entry.getArgs().get(i)))
+            {
+                doRead(buffer, entry.getReads().get(i)); //shit to ignore
+                continue;
+            }
+            definition.getMap().put(entry.getArgs().get(i), doRead(buffer, entry.getReads().get(i)));
+        }
+        buffer.setOffset(0);
+        return definition;
     }
 
     private static long doRead(PacketBuffer buffer, String method)
