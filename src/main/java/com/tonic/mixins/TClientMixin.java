@@ -11,9 +11,6 @@ public abstract class TClientMixin implements TClient
     @Shadow("packetWriter")
     private static TPacketWriter packetWriter;
 
-    @Shadow(value = "getItemContainer", isRuneLites = true)
-    public abstract <T> T getContainer(int id);
-
     @Shadow("MouseHandler_instance")
     private static TMouseHandler mouseHandler;
 

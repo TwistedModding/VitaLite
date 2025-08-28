@@ -80,12 +80,4 @@ public interface TClient
     long getClientMouseLastPressedMillis();
     //mouseLastPressedMillis
     void setClientMouseLastPressedMillis(long millis);
-
-    /**
-     *
-     * @param id the container id
-     * @return RuneLite > ItemContainer
-     * @param <T> ItemContainer
-     */
-    <T> T getItemContainer(int id);
 }
