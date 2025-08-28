@@ -120,6 +120,17 @@ public interface TPacketWriter
     void objectActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl);
 
     /**
+     * Sends a ground item action packet.
+     *
+     * @param type the action type
+     * @param identifier the ground item identifier
+     * @param worldX the world X coordinate
+     * @param worldY the world Y coordinate
+     * @param ctrl whether ctrl is pressed
+     */
+    void groundItemActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl);
+
+    /**
      * Sends a player action packet.
      *
      * @param type the action type

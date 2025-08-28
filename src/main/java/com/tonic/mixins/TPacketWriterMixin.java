@@ -260,6 +260,26 @@ public abstract class TPacketWriterMixin implements TPacketWriter
 
     @Inject
     @Override
+    public void groundItemActionPacket(int type, int identifier, int worldX, int worldY, boolean ctrl)
+    {
+        MapEntry entry = PacketMapReader.get("OP_GROUND_ITEM_ACTION_" + type);
+        if(entry == null)
+        {
+            System.err.println("Packets::groundItemActionPacket invalid type");
+            return;
+        }
+
+        Map<String,Object> args = new HashMap<>();
+        args.put("identifier", identifier);
+        args.put("ctrl", ctrl ? 1 : 0);
+        args.put("worldX", worldX);
+        args.put("worldY", worldY);
+
+        this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
+    }
+
+    @Inject
+    @Override
     public void playerActionPacket(int type, int playerIndex, boolean ctrl)
     {
         MapEntry entry = PacketMapReader.get("OP_PLAYER_ACTION_" + type);
