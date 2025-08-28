@@ -34,16 +34,17 @@ public class InsertTransformer {
 
             JClass jClass = MappingProvider.getClass(gamepackName);
             ClassNode gamepackClass = TransformerUtil.getMethodClass(mixin, targetMethodName);
-            
-            InjectTransformer.patch(gamepackClass, mixin, method);
 
-            MethodNode targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName);
-            
             Insert insertAnnotation = getInsertAnnotation(method);
             if (insertAnnotation == null) {
                 System.err.println("No @Insert annotation found on method: " + method.name);
                 return;
             }
+
+            if(!insertAnnotation.raw())
+                InjectTransformer.patch(gamepackClass, mixin, method);
+
+            MethodNode targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName);
             
             List<InstructionMatcher.MatchResult> matches = InstructionMatcher.findMatches(
                     targetMethod, 

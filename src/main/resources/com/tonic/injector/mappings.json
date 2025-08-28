@@ -58237,6 +58237,7 @@
         "isStatic": true
       },
       {
+        "name": "\u003cinit\u003e",
         "obfuscatedName": "\u003cinit\u003e",
         "owner": "MidiPcmStream",
         "ownerObfuscatedName": "nm",

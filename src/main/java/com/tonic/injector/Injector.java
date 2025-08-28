@@ -27,6 +27,7 @@ public class Injector {
         }
 
         HashMap<ClassNode, ClassNode> pairs = PackageUtil.getPairs(MIXINS);
+
         applyInterfaces(pairs);
         applyMixins(pairs);
 

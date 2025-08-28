@@ -31,6 +31,8 @@ public class InjectTransformer
             return;
 
         MethodNode copyMethod = MethodUtil.copyMethod(method, method.name, fromClass, toClass);
+        if(copyMethod.visibleAnnotations != null)
+            copyMethod.visibleAnnotations.removeIf(a -> a.desc.contains("com/tonic"));
         toClass.methods.add(copyMethod);
     }
 

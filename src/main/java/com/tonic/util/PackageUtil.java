@@ -59,7 +59,7 @@ public class PackageUtil
                 if (ext != null && !ext.isEmpty()) {
                     String ifaceName = ext.get(0).replace('/', '.');
                     ifaceClazz = interfaces.stream()
-                            .filter(c -> c.name.replace('/', '.').equals(ifaceName))
+                            .filter(c -> c != null && c.name.replace('/', '.').equals(ifaceName))
                             .findFirst()
                             .orElse(null);
                 }
@@ -68,7 +68,7 @@ public class PackageUtil
             }
             catch (Exception ignored)
             {
-
+                ignored.printStackTrace();
             }
         }
         return pairs;
@@ -83,6 +83,7 @@ public class PackageUtil
             try {
                 if (mixin.interfaces == null || mixin.interfaces.isEmpty()) {
                     interfaces.add(null);
+                    continue;
                 }
 
                 String toMatch = "/" + getSimpleClassName(mixin).replace("Mixin", "");
@@ -92,10 +93,10 @@ public class PackageUtil
                         .orElse(null);
 
                 ClassNode interfaceNode = loadInterfaceClassNode(interfaceName);
-
                 interfaces.add(interfaceNode);
             } catch (Exception e) {
                 System.err.println("Failed to load interface for mixin: " + getSimpleClassName(mixin));
+                interfaces.add(null); // Ensure list stays synchronized
             }
         }
 
