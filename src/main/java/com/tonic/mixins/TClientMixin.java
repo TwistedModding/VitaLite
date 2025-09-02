@@ -4,6 +4,7 @@ import com.tonic.Logger;
 import com.tonic.api.*;
 import com.tonic.injector.annotations.*;
 import com.tonic.injector.util.ExceptionUtil;
+import com.tonic.model.ui.VitaLiteOptionsPanel;
 
 @Mixin("Client")
 public abstract class TClientMixin implements TClient
@@ -90,6 +91,11 @@ public abstract class TClientMixin implements TClient
             Logger.error(ExceptionUtil.formatException(throwable));
         }
         return false;
+    }
+
+    @MethodHook("doAction")
+    public static void invokeMenuActionHook(int param0, int param1, int opcode, int id, int itemId, int worldViewId, String option, String target, int canvasX, int canvasY) {
+        VitaLiteOptionsPanel.getInstance().onMenuAction(option, target, id, opcode, param0, param1, itemId);
     }
 
     @Shadow("doAction")

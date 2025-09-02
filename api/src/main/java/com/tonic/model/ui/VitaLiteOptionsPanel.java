@@ -166,6 +166,17 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
         return panel;
     }
 
+    public void onMenuAction(String option, String target, int identifier, int opcode, int param0, int param1, int itemId)
+    {
+        if(!logMenuActionsToggle.isSelected())
+            return;
+
+        String actionInfo = String.format("MenuAction: option='%s', target='%s', id=%d, opcode=%d, param0=%d, param1=%d, itemId=%d",
+                option, target, identifier, opcode, param0, param1, itemId);
+
+        Logger.info(actionInfo);
+    }
+
     private JSeparator createSeparator() {
         JSeparator separator = new JSeparator();
         separator.setForeground(SEPARATOR_COLOR);
