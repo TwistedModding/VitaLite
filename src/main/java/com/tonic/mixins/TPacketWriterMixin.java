@@ -62,7 +62,7 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         byte[] payload = new byte[payloadSize];
         System.arraycopy(bytes, 1, payload, 0, payloadSize);
 
-        PacketSent packetSent = new PacketSent(id, payload);
+        PacketSent packetSent = new PacketSent(id, len, payload);
         Static.post(packetSent);
         VitaLiteOptionsPanel.getInstance().onPacketSent(packetSent);
     }
@@ -99,8 +99,6 @@ public abstract class TPacketWriterMixin implements TPacketWriter
         args.put("y", mouseY);
         this.addNodeSwitch(PacketMapReader.createBuffer(entry, args).toPacketBufferNode(client));
     }
-
-
 
     @Override
     @Inject

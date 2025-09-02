@@ -80,4 +80,6 @@ public interface TClient
     long getClientMouseLastPressedMillis();
     //mouseLastPressedMillis
     void setClientMouseLastPressedMillis(long millis);
+
+    void invokeMenuAction(String option, String target, int identifier, int opcode, int param0, int param1, int itemId, int x, int y);
 }

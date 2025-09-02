@@ -91,4 +91,16 @@ public abstract class TClientMixin implements TClient
         }
         return false;
     }
+
+    @Shadow("doAction")
+    public abstract void RSDoAction(int param0, int param1, int opcode, int id, int itemId, int worldViewId, String option, String target, int canvasX, int canvasY);
+
+    @Override
+    @Inject
+    public void invokeMenuAction(String option, String target, int identifier, int opcode, int param0, int param1, int itemId, int x, int y) {
+        if (!isClientThread())
+            return;
+
+        RSDoAction(param0, param1, opcode, identifier, itemId, -1, option, target, x, y);
+    }
 }

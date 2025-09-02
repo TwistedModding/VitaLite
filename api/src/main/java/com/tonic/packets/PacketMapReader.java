@@ -39,6 +39,17 @@ public class PacketMapReader
                 .findFirst().orElse(null);
     }
 
+    public static MapEntry get(int id)
+    {
+        if(defs == null)
+        {
+            fillMaps();
+        }
+        return defs.stream()
+                .filter(e -> e.getPacket().getId() == id)
+                .findFirst().orElse(null);
+    }
+
     public static String prettify(PacketBuffer buffer)
     {
         if(defs == null)

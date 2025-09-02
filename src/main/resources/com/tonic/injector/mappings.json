@@ -18475,11 +18475,13 @@
     ]
   },
   {
+    "name": "Player",
     "obfuscatedName": "cr",
     "fields": [
       {
         "name": "",
         "obfuscatedName": "ap",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18487,6 +18489,7 @@
       {
         "name": "",
         "obfuscatedName": "ab",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "F",
         "isStatic": true
@@ -18494,6 +18497,7 @@
       {
         "name": "",
         "obfuscatedName": "az",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Z",
         "isStatic": false
@@ -18501,6 +18505,7 @@
       {
         "name": "",
         "obfuscatedName": "au",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18508,6 +18513,7 @@
       {
         "name": "",
         "obfuscatedName": "at",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18515,13 +18521,15 @@
       {
         "name": "",
         "obfuscatedName": "as",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
       },
       {
-        "name": "",
+        "name": "actions",
         "obfuscatedName": "ah",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "[Ljava/lang/String;",
         "isStatic": false
@@ -18529,6 +18537,7 @@
       {
         "name": "",
         "obfuscatedName": "ar",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Ljx;",
         "isStatic": false
@@ -18536,6 +18545,7 @@
       {
         "name": "",
         "obfuscatedName": "nh",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Z",
         "isStatic": true
@@ -18543,6 +18553,7 @@
       {
         "name": "",
         "obfuscatedName": "aj",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18550,6 +18561,7 @@
       {
         "name": "",
         "obfuscatedName": "ag",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18557,6 +18569,7 @@
       {
         "name": "",
         "obfuscatedName": "ay",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18564,6 +18577,7 @@
       {
         "name": "",
         "obfuscatedName": "aa",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18571,6 +18585,7 @@
       {
         "name": "",
         "obfuscatedName": "ac",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Lxf;",
         "isStatic": false
@@ -18578,6 +18593,7 @@
       {
         "name": "",
         "obfuscatedName": "ak",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18585,6 +18601,7 @@
       {
         "name": "",
         "obfuscatedName": "av",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Lnn;",
         "isStatic": false
@@ -18592,6 +18609,7 @@
       {
         "name": "",
         "obfuscatedName": "bi",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18599,6 +18617,7 @@
       {
         "name": "",
         "obfuscatedName": "ax",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18606,6 +18625,7 @@
       {
         "name": "",
         "obfuscatedName": "aq",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18613,6 +18633,7 @@
       {
         "name": "",
         "obfuscatedName": "ao",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18620,6 +18641,7 @@
       {
         "name": "",
         "obfuscatedName": "al",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": true
@@ -18627,6 +18649,7 @@
       {
         "name": "",
         "obfuscatedName": "ae",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Lta;",
         "isStatic": false
@@ -18634,6 +18657,7 @@
       {
         "name": "",
         "obfuscatedName": "aw",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Z",
         "isStatic": false
@@ -18641,6 +18665,7 @@
       {
         "name": "",
         "obfuscatedName": "af",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18648,6 +18673,7 @@
       {
         "name": "",
         "obfuscatedName": "bj",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Lta;",
         "isStatic": false
@@ -18655,6 +18681,7 @@
       {
         "name": "",
         "obfuscatedName": "bn",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "Lta;",
         "isStatic": false
@@ -18662,6 +18689,7 @@
       {
         "name": "",
         "obfuscatedName": "ai",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18669,6 +18697,7 @@
       {
         "name": "",
         "obfuscatedName": "am",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18676,6 +18705,7 @@
       {
         "name": "",
         "obfuscatedName": "ad",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "I",
         "isStatic": false
@@ -18684,252 +18714,294 @@
     "methods": [
       {
         "obfuscatedName": "as",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "al",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)I",
         "isStatic": false
       },
       {
         "obfuscatedName": "setSkullIcon",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "av",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(B)Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "au",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "ap",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(B)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "isFriendsChatMember",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "ah",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "ac",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(B)Ljx;",
         "isStatic": false
       },
       {
         "obfuscatedName": "aa",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(Ldj;IILke;B)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "isClanMember",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "getSkullIcon",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "ax",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "ao",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(IB)Lid;",
         "isStatic": false
       },
       {
         "obfuscatedName": "az",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)I",
         "isStatic": false
       },
       {
         "obfuscatedName": "getPlayerComposition",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Lnet/runelite/api/PlayerComposition;",
         "isStatic": false
       },
       {
         "obfuscatedName": "wq",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(Lcr;Lwj;I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "gj",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "at",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(IIS)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "\u003cinit\u003e",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "fc",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Ljx;",
         "isStatic": false
       },
       {
         "obfuscatedName": "ay",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(B)Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "df",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()V",
         "isStatic": false
       },
       {
         "obfuscatedName": "getCombatLevel",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "getId",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "getConvexHull",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Ljava/awt/Shape;",
         "isStatic": false
       },
       {
         "obfuscatedName": "getPolygons",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()[Ljava/awt/Polygon;",
         "isStatic": false
       },
       {
         "obfuscatedName": "dw",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(Lcr;I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "getFootprintSize",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "gc",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Lnn;",
         "isStatic": false
       },
       {
         "obfuscatedName": "aj",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(B)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "df",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "getTeam",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()I",
         "isStatic": false
       },
       {
         "obfuscatedName": "getOverheadIcon",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Lnet/runelite/api/HeadIcon;",
         "isStatic": false
       },
       {
         "obfuscatedName": "isFriend",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "aq",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(II)Z",
         "isStatic": false
       },
       {
         "obfuscatedName": "getName",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "()Ljava/lang/String;",
         "isStatic": false
       },
       {
         "obfuscatedName": "cb",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(Lcr;I)V",
         "isStatic": true
       },
       {
         "obfuscatedName": "al",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(CI)B",
         "isStatic": true
       },
       {
         "obfuscatedName": "ab",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(Lwj;I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "am",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
       },
       {
         "obfuscatedName": "ag",
+        "owner": "Player",
         "ownerObfuscatedName": "cr",
         "descriptor": "(I)V",
         "isStatic": false
@@ -29073,9 +29145,11 @@
         "isStatic": false
       },
       {
+        "name": "doAction",
         "obfuscatedName": "lu",
         "ownerObfuscatedName": "fy",
         "descriptor": "(IIIIIILjava/lang/String;Ljava/lang/String;IIB)V",
+        "garbageValue": 0,
         "isStatic": true
       },
       {

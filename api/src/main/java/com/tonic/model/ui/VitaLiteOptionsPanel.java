@@ -34,6 +34,7 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
     private static final Color ACCENT_COLOR = new Color(64, 169, 211);
     private final ToggleSlider headlessToggle;
     private final ToggleSlider logPacketsToggle;
+    private final ToggleSlider logMenuActionsToggle;
 
     private VitaLiteOptionsPanel() {
         super(true);
@@ -91,6 +92,15 @@ public class VitaLiteOptionsPanel extends VPluginPanel {
                 "Log Packets",
                 "Enable packet logging",
                 logPacketsToggle,
+                () -> {}
+        ));
+        contentPanel.add(Box.createVerticalStrut(12));
+
+        logMenuActionsToggle = new ToggleSlider();
+        contentPanel.add(createToggleOption(
+                "Log Menu Actions",
+                "Enable menu action logging",
+                logMenuActionsToggle,
                 () -> {}
         ));
 
