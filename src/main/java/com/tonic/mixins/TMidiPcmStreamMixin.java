@@ -13,7 +13,7 @@ import org.objectweb.asm.tree.*;
 public class TMidiPcmStreamMixin {
     @Insert(method = "<init>", at = @At(value = AtTarget.RETURN), raw = true)
     public static void constructorHook(MethodNode method, AbstractInsnNode insertionPoint) {
-        if (!Main.optionsParser.isNoMusic()) return;
+        if (!Main.optionsParser.isNoMusic() && !Main.optionsParser.isMin()) return;
 
         for (AbstractInsnNode insn : method.instructions.toArray()) {
             if (insn.getOpcode() != Opcodes.NEW) continue;
