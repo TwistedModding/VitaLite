@@ -94,7 +94,7 @@ public class PluginManagerMixin {
                 .invokeStatic(
                         "com/tonic/services/GameCache",
                         "init",
-                        "()V;"
+                        "()V"
                 )
 
                 // RuneLite.injector.getInstance(Install.class).start(plugins);

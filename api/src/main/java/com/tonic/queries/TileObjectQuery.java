@@ -37,6 +37,11 @@ public class TileObjectQuery<T extends TileObjectEx> extends AbstractQuery<TileO
         return keepIf(o -> o.getName() != null && TextUtil.containsIgnoreCase(o.getName(), names));
     }
 
+    public TileObjectQuery<T> withAction(String action)
+    {
+        return keepIf(o -> o.getActions() != null && TextUtil.containsIgnoreCase(action, o.getActions()));
+    }
+
     public TileObjectQuery<T> within(int distance)
     {
         return keepIf(o -> Location.within(client.getLocalPlayer().getWorldLocation(), o.getWorldLocation(), distance));
