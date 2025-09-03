@@ -115,10 +115,10 @@ public class GameCache
         System.out.println("GameCache initialized");
     }
 
-    private final List<TileObjectEx> objectCache = Collections.synchronizedList(new ArrayList<>());
-    private final List<TileItemEx> tileItemCache = Collections.synchronizedList(new ArrayList<>());
-    private final List<NPC> npcCache = Collections.synchronizedList(new ArrayList<>());
-    private final List<Player> playerCache = Collections.synchronizedList(new ArrayList<>());
+    private final List<TileObjectEx> objectCache = new ArrayList<>();
+    private final List<TileItemEx> tileItemCache = new ArrayList<>();
+    private final List<NPC> npcCache = new ArrayList<>();
+    private final List<Player> playerCache = new ArrayList<>();
     private Actor lastInteracting = null;
 
     private int tickCount = 0;
