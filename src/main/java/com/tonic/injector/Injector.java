@@ -141,6 +141,10 @@ public class Injector {
                 {
                     gamepackClass.interfaces = new ArrayList<>();
                 }
+                if(gamepackClass.interfaces.contains(api.name))
+                {
+                    continue;
+                }
                 gamepackClass.interfaces.add(api.name);
             }
             catch (Exception e)

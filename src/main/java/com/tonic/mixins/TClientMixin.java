@@ -36,19 +36,6 @@ public abstract class TClientMixin implements TClient
     @Shadow("getPacketBufferNode")
     public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
 
-    @Shadow("mouseLastPressedTimeMillis")
-    private static long clientMouseLastPressedMillis;
-
-    @Inject
-    public long getClientMouseLastPressedMillis() {
-        return clientMouseLastPressedMillis;
-    }
-
-    @Inject
-    public void setClientMouseLastPressedMillis(long millis) {
-        clientMouseLastPressedMillis = millis;
-    }
-
     @Insert(
             method = "processServerPacket",
             at = @At(
@@ -63,50 +50,21 @@ public abstract class TClientMixin implements TClient
         //TODO: impl structure of server packet stuff for logging
     }
 
+    @Shadow("mouseLastPressedTimeMillis")
+    private static long clientMouseLastPressedMillis;
+
+    @Inject
+    public long getClientMouseLastPressedMillis() {
+        return clientMouseLastPressedMillis;
+    }
+
+    @Inject
+    public void setClientMouseLastPressedMillis(long millis) {
+        clientMouseLastPressedMillis = millis;
+    }
+
     @FieldHook("MouseHandler_idleCycles")
     public static boolean onIdleCycleSet(int value) {
         return false;
-    }
-
-    @Disable("RunException_sendStackTrace")
-    @SkipPoison
-    public static boolean sendStackTrace(String message, Throwable throwable) {
-        if(throwable != null)
-        {
-            Logger.error(message);
-            Logger.error(ExceptionUtil.formatException(throwable));
-        }
-        return false;
-    }
-
-    @Disable("newRunException")
-    @SkipPoison
-    public static boolean newRunException(Throwable throwable, String message) {
-        if((message != null && message.equals("bj.ac()")) || throwable instanceof NullPointerException)
-            return true;
-
-        if(throwable != null)
-        {
-            Logger.error(message);
-            Logger.error(ExceptionUtil.formatException(throwable));
-        }
-        return false;
-    }
-
-    @MethodHook("doAction")
-    public static void invokeMenuActionHook(int param0, int param1, int opcode, int id, int itemId, int worldViewId, String option, String target, int canvasX, int canvasY) {
-        VitaLiteOptionsPanel.getInstance().onMenuAction(option, target, id, opcode, param0, param1, itemId);
-    }
-
-    @Shadow("doAction")
-    public abstract void RSDoAction(int param0, int param1, int opcode, int id, int itemId, int worldViewId, String option, String target, int canvasX, int canvasY);
-
-    @Override
-    @Inject
-    public void invokeMenuAction(String option, String target, int identifier, int opcode, int param0, int param1, int itemId, int x, int y) {
-        if (!isClientThread())
-            return;
-
-        RSDoAction(param0, param1, opcode, identifier, itemId, -1, option, target, x, y);
     }
 }
