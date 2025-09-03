@@ -91,6 +91,13 @@ public class PluginManagerMixin {
                         "(Ljava/lang/Object;Ljava/lang/String;)V"
                 )
 
+                .invokeStatic(
+                        "com/tonic/services/GameCache",
+                        "init",
+                        "()V;"
+                )
+                .pop()
+
                 // RuneLite.injector.getInstance(Install.class).start(plugins);
                 .invokeStatic("com/tonic/Static",
                         "getInjector",

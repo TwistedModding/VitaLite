@@ -42,11 +42,11 @@ public class RLEventBus
     public void register(Object listener) {
         try
         {
-            Class<?> listenerClass = listener.getClass();
-            ReflectUtil.getMethod(eventBus, "register", new Class[]{listenerClass}, new Object[]{listener});
+            ReflectUtil.getMethod(eventBus, "register", new Class[]{Object.class}, new Object[]{listener});
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             Logger.error("Failed to register listener: " + listener.getClass().getName());
         }
     }

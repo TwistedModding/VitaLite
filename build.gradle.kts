@@ -49,16 +49,9 @@ subprojects {
 }
 
 // Custom task to clean and publish everything
-tasks.register("cleanAndPublishAll") {
+tasks.register("buildAndPublishAll") {
     description = "Cleans and publishes all projects to Maven Local"
 
-    // Clean all projects first
-    dependsOn(tasks.clean)
-    subprojects.forEach {
-        dependsOn(it.tasks.named("clean"))
-    }
-
-    // Then publish all projects
     dependsOn(tasks.publishToMavenLocal)
     subprojects.forEach {
         dependsOn(it.tasks.named("publishToMavenLocal"))

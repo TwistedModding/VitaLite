@@ -11,6 +11,7 @@ import net.runelite.api.ItemComposition;
 public class ItemEx {
     private final Item item;
     private final int slot;
+    private String[] actions = null;
 
     public int getId() {
         return item.getId();
@@ -23,5 +24,45 @@ public class ItemEx {
 
     public int getQuantity() {
         return item.getQuantity();
+    }
+
+    public String[] getActions()
+    {
+        if(actions != null)
+            return actions;
+        if(item == null)
+            return new String[0];
+        actions = Static.invoke(() -> {
+            Client client = Static.getClient();
+            ItemComposition itemComp = client.getItemDefinition(item.getId());
+            return itemComp.getInventoryActions();
+        });
+        return actions;
+    }
+
+    public boolean hasAction(String action)
+    {
+        String[] actions = getActions();
+        if(actions == null)
+            return false;
+        for(String a : actions)
+        {
+            if(a != null && a.equalsIgnoreCase(action))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean hasActionContains(String actionPart)
+    {
+        String[] actions = getActions();
+        if(actions == null)
+            return false;
+        for(String a : actions)
+        {
+            if(a != null && a.toLowerCase().contains(actionPart.toLowerCase()))
+                return true;
+        }
+        return false;
     }
 }

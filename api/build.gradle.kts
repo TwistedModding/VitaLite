@@ -2,8 +2,8 @@ plugins {
     id("java")
 }
 
-group = "com.tonic.packetmapper"
-version = "1.11.15"
+group = "com.tonic"
+version = rootProject.version
 
 repositories {
     mavenLocal()

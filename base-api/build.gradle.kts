@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.tonic"
-version = "1.0-SNAPSHOT"
+version = rootProject.version
 
 repositories {
     mavenCentral()

@@ -1,19 +1,23 @@
 package com.tonic.queries;
 
-import com.tonic.Static;
-import net.runelite.api.Client;
+import com.tonic.services.GameCache;
 import net.runelite.api.NPC;
 
-public class NpcQuery extends ActorQuery<NPC>
+public class NpcQuery extends AbstractActorQuery<NPC, NpcQuery>
 {
     public NpcQuery()
     {
-        super(((Client) Static.getClient()).getTopLevelWorldView().npcs());
+        super(GameCache.npcList());
+    }
+
+    @Override
+    protected NpcQuery self() {
+        return this;
     }
 
     public NpcQuery withIds(int... ids)
     {
-        return (NpcQuery) keepIf(n -> {
+        return keepIf(n -> {
             for (int id : ids)
             {
                 if (n.getId() == id)
