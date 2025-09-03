@@ -1,10 +1,13 @@
 package com.tonic.classloader;
 
+import com.tonic.VitaLite;
 import com.tonic.vitalite.Main;
 import com.tonic.api.TClient;
 import com.tonic.model.Libs;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -22,6 +25,35 @@ public class RLClassLoader extends URLClassLoader
     public RLClassLoader(URL[] urls)
     {
         super(urls, Main.class.getClassLoader());
+        loadEmbeddedJarAsURL();
+    }
+
+    private void loadEmbeddedJarAsURL() {
+        try {
+            File tempJar = File.createTempFile("api", ".jar");
+            tempJar.deleteOnExit();
+
+            try (InputStream jarStream = VitaLite.class.getResourceAsStream("api.jar");
+                 FileOutputStream fos = new FileOutputStream(tempJar)) {
+
+                if (jarStream == null) {
+                    System.err.println("Could not find embedded api.jar in resources");
+                    return;
+                }
+
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = jarStream.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+            }
+
+            addURL(tempJar.toURI().toURL());
+
+        } catch (Exception e) {
+            System.err.println("Failed to load embedded JAR: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public Class<?> getMain() throws ClassNotFoundException {

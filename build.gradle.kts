@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.net.URI
 
 plugins {
@@ -64,6 +65,19 @@ tasks.register("cleanAndPublishAll") {
     }
 }
 
+tasks.register<Copy>("copySubmoduleJar") {
+    dependsOn(":api:jar")
+    from(project(":api").tasks.named<Jar>("jar").flatMap { it.archiveFile })
+    into("src/main/resources/com/tonic")
+    rename {
+        "api.jar"
+    }
+}
+
+tasks.processResources {
+    dependsOn("copySubmoduleJar")
+}
+
 tasks {
     build {
         finalizedBy("shadowJar")
@@ -127,7 +141,7 @@ dependencies {
 
     implementation("com.google.code.gson:gson:2.8.9")
 
-    implementation(project(":api"))
+    implementation(project(":base-api"))
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

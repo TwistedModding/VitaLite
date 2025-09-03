@@ -108,3 +108,4 @@ bin/
 /deob/
 /src/main/java/com/tonic/test/
 /.idea/workspace.xml
+/src/main/resources/com/tonic/api.jar

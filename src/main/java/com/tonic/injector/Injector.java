@@ -130,7 +130,6 @@ public class Injector {
                 ClassNode api = entry.getValue();
                 if(api == null)
                 {
-                    System.out.println("Skipping null API class: " + entry.getKey().name);
                     continue;
                 }
                 ClassNode mixin = entry.getKey();
@@ -140,10 +139,6 @@ public class Injector {
                 if(gamepackClass.interfaces == null)
                 {
                     gamepackClass.interfaces = new ArrayList<>();
-                }
-                if(gamepackClass.interfaces.contains(api.name))
-                {
-                    continue;
                 }
                 gamepackClass.interfaces.add(api.name);
             }
