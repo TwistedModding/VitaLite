@@ -96,7 +96,6 @@ public class PluginManagerMixin {
                         "init",
                         "()V;"
                 )
-                .pop()
 
                 // RuneLite.injector.getInstance(Install.class).start(plugins);
                 .invokeStatic("com/tonic/Static",

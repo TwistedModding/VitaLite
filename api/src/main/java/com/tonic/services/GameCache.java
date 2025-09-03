@@ -2,6 +2,7 @@ package com.tonic.services;
 
 import com.tonic.Static;
 import com.tonic.types.TileItemEx;
+import com.tonic.types.TileObjectEx;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -62,7 +63,7 @@ public class GameCache
         }
     }
 
-    public static Stream<TileObject> objectStream()
+    public static Stream<TileObjectEx> objectStream()
     {
         synchronized (INSTANCE.objectCache)
         {
@@ -70,7 +71,7 @@ public class GameCache
         }
     }
 
-    public static ArrayList<TileObject> objectList()
+    public static ArrayList<TileObjectEx> objectList()
     {
         synchronized (INSTANCE.objectCache)
         {
@@ -112,7 +113,7 @@ public class GameCache
         System.out.println("GameCache initialized");
     }
 
-    private final List<TileObject> objectCache = Collections.synchronizedList(new ArrayList<>());
+    private final List<TileObjectEx> objectCache = Collections.synchronizedList(new ArrayList<>());
     private final List<TileItemEx> tileItemCache = Collections.synchronizedList(new ArrayList<>());
     private final List<NPC> npcCache = Collections.synchronizedList(new ArrayList<>());
     private final List<Player> playerCache = Collections.synchronizedList(new ArrayList<>());
@@ -246,7 +247,7 @@ public class GameCache
     {
         synchronized (objectCache)
         {
-            objectCache.add(tileObject);
+            objectCache.add(new TileObjectEx(tileObject));
         }
     }
 
@@ -254,11 +255,11 @@ public class GameCache
     {
         synchronized (objectCache)
         {
-            Iterator<TileObject> iterator = objectCache.iterator();
+            Iterator<TileObjectEx> iterator = objectCache.iterator();
             while (iterator.hasNext())
             {
-                TileObject obj = iterator.next();
-                if (obj.equals(tileObject))
+                TileObjectEx obj = iterator.next();
+                if (obj.getTileObject().equals(tileObject))
                 {
                     iterator.remove();
                     break;

@@ -175,4 +175,13 @@ public class TextUtil
 
         return destPos - destOffset;
     }
+
+    public static boolean containsIgnoreCase(String target, String... names) {
+        for (String name : names) {
+            if (target.toLowerCase().contains(name.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

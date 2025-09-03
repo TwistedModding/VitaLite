@@ -1,18 +1,21 @@
 package com.tonic.queries;
 
 import com.tonic.Static;
+import com.tonic.queries.abstractions.AbstractQuery;
 import com.tonic.types.ItemContainerEx;
 import com.tonic.types.ItemEx;
 import com.tonic.types.ShopID;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery>
+public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
 {
-    public static ItemContainerQuery fromContainer(ItemContainerEx itemContainer)
+    public static InventoryQuery fromContainer(ItemContainerEx itemContainer)
     {
         List<ItemEx> cache;
         if(itemContainer != null)
@@ -24,20 +27,20 @@ public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery
         else
             cache = new ArrayList<>();
 
-        return new ItemContainerQuery(cache);
+        return new InventoryQuery(cache);
     }
 
-    public static ItemContainerQuery fromContainer(ItemContainer itemContainer)
+    public static InventoryQuery fromContainer(ItemContainer itemContainer)
     {
         return fromInventoryId(itemContainer.getId());
     }
 
-    public static ItemContainerQuery fromInventoryId(InventoryID inventoryId)
+    public static InventoryQuery fromInventoryId(InventoryID inventoryId)
     {
         return fromInventoryId(inventoryId.getId());
     }
 
-    public static ItemContainerQuery fromInventoryId(int inventoryId)
+    public static InventoryQuery fromInventoryId(int inventoryId)
     {
         List<ItemEx> cache;
         ItemContainerEx itemContainer = new ItemContainerEx(inventoryId);
@@ -50,14 +53,14 @@ public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery
         else
             cache = new ArrayList<>();
 
-        return new ItemContainerQuery(cache);
+        return new InventoryQuery(cache);
     }
 
-    public static ItemContainerQuery fromShopId(ShopID inventoryId)
+    public static InventoryQuery fromShopId(ShopID inventoryId)
     {
         if(inventoryId == null)
         {
-            return new ItemContainerQuery(new ArrayList<>());
+            return new InventoryQuery(new ArrayList<>());
         }
 
         List<ItemEx> cache;
@@ -71,39 +74,39 @@ public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery
         else
             cache = new ArrayList<>();
 
-        return new ItemContainerQuery(cache);
+        return new InventoryQuery(cache);
     }
 
-    public ItemContainerQuery(List<ItemEx> cache) {
+    public InventoryQuery(List<ItemEx> cache) {
         super(cache);
     }
 
     @Override
-    protected ItemContainerQuery self() {
+    protected InventoryQuery self() {
         return this;
     }
 
-    public ItemContainerQuery withId(int id)
+    public InventoryQuery withId(int... id)
     {
-        return removeIf(o -> o.getId() != id);
+        return removeIf(o -> !ArrayUtils.contains(id, o.getId()));
     }
 
-    public ItemContainerQuery withName(String name)
+    public InventoryQuery withName(String name)
     {
         return removeIf(o -> !o.getName().equalsIgnoreCase(name));
     }
 
-    public ItemContainerQuery withNameContains(String namePart)
+    public InventoryQuery withNameContains(String namePart)
     {
         return removeIf(o -> !o.getName().toLowerCase().contains(namePart.toLowerCase()));
     }
 
-    public ItemContainerQuery withAction(String action)
+    public InventoryQuery withAction(String action)
     {
         return removeIf(o -> !o.hasAction(action));
     }
 
-    public ItemContainerQuery withActionContains(String actionPart)
+    public InventoryQuery withActionContains(String actionPart)
     {
         return removeIf(o -> !o.hasActionContains(actionPart));
     }

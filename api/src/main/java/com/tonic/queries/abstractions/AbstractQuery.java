@@ -1,8 +1,9 @@
-package com.tonic.queries;
+package com.tonic.queries.abstractions;
 
 import com.tonic.Static;
 import net.runelite.api.Client;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -40,6 +41,12 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
         return self();
     }
 
+    public Q sort(Comparator<T> comparator)
+    {
+        cache.sort(comparator);
+        return self();
+    }
+
     /**
      * Get the first element from the current list
      * @return RSActor
@@ -65,5 +72,15 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
     public List<? extends T> collect()
     {
         return cache;
+    }
+
+    public int count()
+    {
+        return cache.size();
+    }
+
+    public boolean isEmpty()
+    {
+        return cache.isEmpty();
     }
 }
