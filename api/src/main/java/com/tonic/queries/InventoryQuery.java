@@ -86,9 +86,9 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
         return removeIf(o -> !ArrayUtils.contains(id, o.getId()) && !ArrayUtils.contains(id, o.getLinkedNoteId()));
     }
 
-    public InventoryQuery withName(String name)
+    public InventoryQuery withName(String... name)
     {
-        return removeIf(o -> !o.getName().equalsIgnoreCase(name));
+        return removeIf(o -> !ArrayUtils.contains(name, o.getName()));
     }
 
     public InventoryQuery withNameContains(String namePart)

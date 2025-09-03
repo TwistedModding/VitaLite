@@ -4,8 +4,12 @@ import com.tonic.Logger;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.queries.InventoryQuery;
+import com.tonic.types.ItemContainerEx;
 import com.tonic.types.ItemEx;
+import net.runelite.api.Client;
 import net.runelite.api.InventoryID;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.Prayer;
 import net.runelite.api.widgets.WidgetInfo;
 
 import java.util.List;
@@ -119,5 +123,82 @@ public class InventoryAPI
             }
         }
         return (index < 4) ? index + 2 : index + 3;
+    }
+
+    /**
+     * check if your inventory is full
+     * @return bool
+     */
+    public static boolean isFull()
+    {
+        return getEmptySlots() <= 0;
+    }
+
+    /**
+     * check if your inventory is empty
+     * @return bool
+     */
+    public static boolean isEmpty()
+    {
+        return getEmptySlots() == 28;
+    }
+
+    public static int getEmptySlots() {
+        ItemContainerEx inventory = new ItemContainerEx(InventoryID.INVENTORY);
+        return 28 - inventory.getItems().size();
+    }
+
+    public static boolean contains(int... itemIds)
+    {
+        ItemContainerEx inventory = new ItemContainerEx(InventoryID.INVENTORY);
+        for(int itemId : itemIds)
+        {
+            if(inventory.getFirst(itemId) == null)
+                return false;
+        }
+        return true;
+    }
+
+    public static boolean containsAny(int... itemIds)
+    {
+        ItemContainerEx inventory = new ItemContainerEx(InventoryID.INVENTORY);
+        for(int itemId : itemIds)
+        {
+            if(inventory.getFirst(itemId) != null)
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean contains(String... itemNames)
+    {
+        ItemContainerEx inventory = new ItemContainerEx(InventoryID.INVENTORY);
+        for(String name : itemNames)
+        {
+            if(inventory.getFirst(name) == null)
+                return false;
+        }
+        return true;
+    }
+
+    public static boolean containsAny(String... itemNames)
+    {
+        ItemContainerEx inventory = new ItemContainerEx(InventoryID.INVENTORY);
+        for(String name : itemNames)
+        {
+            if(inventory.getFirst(name) != null)
+                return true;
+        }
+        return false;
+    }
+
+    public static int count(int... itemIds)
+    {
+        return InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withId(itemIds).count();
+    }
+
+    public static int count(String... itemNames)
+    {
+        return InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withName(itemNames).count();
     }
 }

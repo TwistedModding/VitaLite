@@ -2,7 +2,9 @@ package com.tonic.api.widgets;
 
 import com.tonic.Static;
 import com.tonic.api.TClient;
+import com.tonic.types.WidgetInfoExtended;
 import net.runelite.api.Client;
+import net.runelite.api.Prayer;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
@@ -32,6 +34,11 @@ public class WidgetAPI
      * @param itemId item ID
      */
     public static void interact(int action, WidgetInfo widgetInfo, int childId, int itemId)
+    {
+        interact(action, widgetInfo.getId(), childId, itemId);
+    }
+
+    public static void interact(int action, WidgetInfoExtended widgetInfo, int childId, int itemId)
     {
         interact(action, widgetInfo.getId(), childId, itemId);
     }
