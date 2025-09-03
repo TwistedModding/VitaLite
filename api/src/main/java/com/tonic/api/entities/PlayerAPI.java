@@ -49,4 +49,9 @@ public class PlayerAPI
             client.getPacketWriter().playerActionPacket(option, index, false);
         });
     }
+
+    public static boolean isIdle(Player player)
+    {
+        return (player.getIdlePoseAnimation() == player.getPoseAnimation() && player.getAnimation() == -1);
+    }
 }

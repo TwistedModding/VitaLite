@@ -79,7 +79,7 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
      * get the current list
      * @return list of Actors
      */
-    public List<? extends T> collect()
+    public List<T> collect()
     {
         return cache;
     }

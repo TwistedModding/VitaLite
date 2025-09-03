@@ -3,6 +3,7 @@ package com.tonic.api.game;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import net.runelite.api.Client;
+import net.runelite.api.Player;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldArea;

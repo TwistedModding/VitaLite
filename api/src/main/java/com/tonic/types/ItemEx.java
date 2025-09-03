@@ -17,6 +17,11 @@ public class ItemEx {
         return item.getId();
     }
 
+    public int getLinkedNoteId() {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getItemDefinition(item.getId()).getLinkedNoteId());
+    }
+
     public String getName() {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getItemDefinition(item.getId()).getName());
