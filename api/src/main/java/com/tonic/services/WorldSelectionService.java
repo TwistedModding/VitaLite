@@ -38,7 +38,6 @@ public class WorldSelectionService
     public WorldSelectionService()
     {
         worldService = Static.getInjector().getInstance(WorldService.class);
-
         safeMembersWorlds = filter(world -> world.getTypes().contains(WorldType.MEMBERS) && safeFilter.test(world));
         safeF2pWorlds = filter(world -> !world.getTypes().contains(WorldType.MEMBERS) && safeFilter.test(world));
     }

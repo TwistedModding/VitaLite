@@ -4,7 +4,6 @@ import com.tonic.Static;
 import com.tonic.types.TileItemEx;
 import com.tonic.types.TileObjectEx;
 import net.runelite.api.*;
-import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
 import net.runelite.client.eventbus.Subscribe;
@@ -99,10 +98,13 @@ public class GameCache
     //singleton instance
     private final static GameCache INSTANCE = new GameCache();
 
-    //trigger static initialization
+
+    /**
+     * For internal use only, a call to this is injected into RL on
+     * startup to ensure static init of this class runs early on.
+     */
     public static void init()
     {
-        INSTANCE.tickCount = 0;
     }
 
     private GameCache()
