@@ -16,11 +16,6 @@ public class TileItemQuery extends AbstractQuery<TileItemEx, TileItemQuery>
         super(GameCache.tileItemList());
     }
 
-    @Override
-    protected TileItemQuery self() {
-        return this;
-    }
-
     public TileItemQuery withId(int... id)
     {
         return removeIf(o -> !ArrayUtils.contains(id, o.getId()));

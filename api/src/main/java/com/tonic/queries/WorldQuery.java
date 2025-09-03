@@ -16,11 +16,6 @@ public class WorldQuery extends AbstractQuery<World, WorldQuery>
         super(Objects.requireNonNull(Static.getInjector().getInstance(WorldService.class).getWorlds()).getWorlds());
     }
 
-    @Override
-    protected WorldQuery self() {
-        return this;
-    }
-
     public WorldQuery isF2p()
     {
         return keepIf(w -> !w.getTypes().contains(WorldType.MEMBERS));

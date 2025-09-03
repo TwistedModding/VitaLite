@@ -26,11 +26,6 @@ public class WidgetQuery extends AbstractQuery<Widget, WidgetQuery>
         super(new ArrayList<>(cache));
     }
 
-    @Override
-    protected WidgetQuery self() {
-        return this;
-    }
-
     public WidgetQuery withId(int... id)
     {
         return removeIf(w -> !ArrayUtils.contains(id, w.getId()));

@@ -13,6 +13,13 @@ import net.runelite.api.coords.WorldPoint;
 @Getter
 public class TileObjectEx
 {
+    public static TileObjectEx of(TileObject object)
+    {
+        if(object == null)
+            return null;
+        return new TileObjectEx(object);
+    }
+
     private final TileObject tileObject;
     private String[] actions;
 
@@ -42,6 +49,19 @@ public class TileObjectEx
             });
         }
         return actions;
+    }
+
+    public int getActionIndex(String action) {
+        String[] actions = getActions();
+        for(int i = 0; i < actions.length; i++)
+        {
+            if(actions[i] == null)
+                continue;
+            if(!actions[i].toLowerCase().contains(action.toLowerCase()))
+                continue;
+            return i;
+        }
+        return -1;
     }
 
     public WorldPoint getWorldLocation() {

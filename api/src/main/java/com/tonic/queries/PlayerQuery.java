@@ -9,9 +9,4 @@ public class PlayerQuery extends AbstractActorQuery<Player, PlayerQuery>
     public PlayerQuery() {
         super(GameCache.playerList());
     }
-
-    @Override
-    protected PlayerQuery self() {
-        return this;
-    }
 }

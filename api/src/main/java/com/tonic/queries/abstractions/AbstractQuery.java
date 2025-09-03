@@ -17,7 +17,10 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
         this.client = Static.getClient();
     }
 
-    protected abstract Q self();
+    protected Q self()
+    {
+        return (Q) this;
+    }
 
     /**
      * filter by predicate

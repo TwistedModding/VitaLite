@@ -81,11 +81,6 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
         super(cache);
     }
 
-    @Override
-    protected InventoryQuery self() {
-        return this;
-    }
-
     public InventoryQuery withId(int... id)
     {
         return removeIf(o -> !ArrayUtils.contains(id, o.getId()));
