@@ -5,6 +5,7 @@ import com.tonic.types.ItemContainerEx;
 import com.tonic.types.ItemEx;
 import com.tonic.types.ShopID;
 import net.runelite.api.InventoryID;
+import net.runelite.api.ItemContainer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +27,17 @@ public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery
         return new ItemContainerQuery(cache);
     }
 
+    public static ItemContainerQuery fromContainer(ItemContainer itemContainer)
+    {
+        return fromInventoryId(itemContainer.getId());
+    }
+
     public static ItemContainerQuery fromInventoryId(InventoryID inventoryId)
+    {
+        return fromInventoryId(inventoryId.getId());
+    }
+
+    public static ItemContainerQuery fromInventoryId(int inventoryId)
     {
         List<ItemEx> cache;
         ItemContainerEx itemContainer = new ItemContainerEx(inventoryId);
@@ -69,7 +80,7 @@ public class ItemContainerQuery extends AbstractQuery<ItemEx, ItemContainerQuery
 
     @Override
     protected ItemContainerQuery self() {
-        return null;
+        return this;
     }
 
     public ItemContainerQuery withId(int id)
