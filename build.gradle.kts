@@ -62,9 +62,12 @@ tasks.register<Copy>("copySubmoduleJar") {
     dependsOn(":api:jar")
     from(project(":api").tasks.named<Jar>("jar").flatMap { it.archiveFile })
     into("src/main/resources/com/tonic")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     rename {
-        "api.jar"
+        "api.jarData"
     }
+
+    outputs.upToDateWhen { false }
 }
 
 tasks.processResources {

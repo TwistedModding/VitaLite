@@ -33,7 +33,7 @@ public class RLClassLoader extends URLClassLoader
             File tempJar = File.createTempFile("api", ".jar");
             tempJar.deleteOnExit();
 
-            try (InputStream jarStream = VitaLite.class.getResourceAsStream("api.jar");
+            try (InputStream jarStream = VitaLite.class.getResourceAsStream("api.jarData");
                  FileOutputStream fos = new FileOutputStream(tempJar)) {
 
                 if (jarStream == null) {
