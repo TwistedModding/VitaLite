@@ -17,7 +17,7 @@ public class WidgetAPI
      */
     public static void interact(int action, int widgetId, int childId, int itemId)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetActionPacket(action, widgetId, childId, itemId);
@@ -48,7 +48,7 @@ public class WidgetAPI
 
     public static void onTileObject(int selectedWidgetId, int itemId, int slot, int objectID, int worldX, int worldY, boolean ctrl)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetTargetOnGameObjectPacket(selectedWidgetId, itemId, slot, objectID, worldX, worldY, ctrl);
@@ -57,7 +57,7 @@ public class WidgetAPI
 
     public static void onGroundItem(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetOnGroundItemPacket(selectedWidgetId, itemId, slot, groundItemID, worldX, worldY, ctrl);
@@ -66,7 +66,7 @@ public class WidgetAPI
 
     public static void onNpc(int selectedWidgetId, int itemId, int slot, int npcIndex, boolean ctrl)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetTargetOnNpcPacket(npcIndex, selectedWidgetId, itemId, slot, ctrl);
@@ -75,7 +75,7 @@ public class WidgetAPI
 
     public static void onPlayer(int selectedWidgetId, int itemId, int slot, int playerIndex, boolean ctrl)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetTargetOnPlayerPacket(playerIndex, selectedWidgetId, itemId, slot, ctrl);
@@ -84,7 +84,7 @@ public class WidgetAPI
 
     public static void onWidget(int selectedWidgetId, int itemId, int slot, int targetWidgetId, int itemId2, int slot2)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().widgetOnWidgetPacket(selectedWidgetId, itemId, slot, targetWidgetId, itemId2, slot2);

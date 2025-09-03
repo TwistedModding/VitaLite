@@ -57,7 +57,7 @@ public class MovementAPI {
 
     public static void walkToWorldPoint(int worldX, int worldY)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.getPacketWriter().walkPacket(worldX, worldY, false);

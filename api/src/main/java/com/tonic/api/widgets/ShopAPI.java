@@ -189,7 +189,7 @@ public class ShopAPI
      */
     public static void shopAction(int itemId, int slot, int action)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().clickPacket(0, -1, -1);
             client.invokeMenuAction("", "", action, MenuAction.CC_OP.getId(), slot + 1, SHOP_ID, itemId, -1, -1);

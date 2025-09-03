@@ -46,7 +46,7 @@ public class TileItemAPI
         if(!client.getGameState().equals(GameState.LOGGED_IN))
             return;
 
-        TClient tClient = Static.getTClient();
+        TClient tClient = Static.getClient();
         Static.invoke(() ->
         {
             tClient.getPacketWriter().clickPacket(0, -1, -1);

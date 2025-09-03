@@ -55,7 +55,7 @@ public class WorldsAPI
     public static void hop(World world)
     {
         Client client = Static.getClient();
-        TClient tClient = Static.getTClient();
+        TClient tClient = Static.getClient();
         Static.invoke(() -> {
             if (client.getWidget(InterfaceID.Worldswitcher.BUTTONS) == null) {
                 tClient.getPacketWriter().clickPacket(0, -1, -1);

@@ -59,7 +59,6 @@ public class Install
     public static void install() {
         Guice injector = Static.getRuneLite().getInjector();
         Static.set(injector.getBinding("net.runelite.api.Client"), "RL_CLIENT");
-        Static.set(injector.getBinding("com.tonic.api.TClient"), "T_CLIENT");
     }
 
     private List<Path> findJars() {

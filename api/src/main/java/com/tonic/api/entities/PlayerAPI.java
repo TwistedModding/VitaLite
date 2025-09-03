@@ -42,7 +42,7 @@ public class PlayerAPI
      */
     public static void interact(int index, int option)
     {
-        TClient client = Static.getTClient();
+        TClient client = Static.getClient();
         Static.invoke(() ->
         {
             client.getPacketWriter().clickPacket(0, -1, -1);

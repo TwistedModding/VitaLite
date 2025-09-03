@@ -5,7 +5,6 @@ import com.tonic.api.TClient;
 import com.tonic.headless.HeadlessMode;
 import com.tonic.model.RuneLite;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -15,17 +14,12 @@ public class Static
 {
     @Getter
     private static boolean headless = false;
-    private static Object RL_CLIENT;
-    private static TClient T_CLIENT;
+    private static Object CLIENT_OBJECT;
     private static RuneLite RL;
 
-    public static TClient getTClient()
-    {
-        return T_CLIENT;
-    }
     public static <T> T getClient()
     {
-        return (T) RL_CLIENT;
+        return (T) CLIENT_OBJECT;
     }
     public static RuneLite getRuneLite()
     {
@@ -42,10 +36,7 @@ public class Static
         switch (name)
         {
             case "RL_CLIENT":
-                RL_CLIENT = Objects.requireNonNull(object, "RL_CLIENT cannot be null");
-                break;
-            case "T_CLIENT":
-                T_CLIENT = (TClient) Objects.requireNonNull(object, "T_CLIENT cannot be null");
+                CLIENT_OBJECT = Objects.requireNonNull(object, "RL_CLIENT cannot be null");
                 break;
             case "RL":
                 RL = (RuneLite) Objects.requireNonNull(object, "RL cannot be null");
@@ -62,6 +53,7 @@ public class Static
      * @return return value
      */
     public static <T> T invoke(Supplier<T> supplier) {
+        TClient T_CLIENT = (TClient) CLIENT_OBJECT;
         if (!T_CLIENT.isClientThread()) {
             CompletableFuture<T> future = new CompletableFuture<>();
             Runnable runnable = () -> future.complete(supplier.get());
@@ -73,6 +65,7 @@ public class Static
     }
 
     public static void invoke(Runnable runnable) {
+        TClient T_CLIENT = (TClient) CLIENT_OBJECT;
         if (!T_CLIENT.isClientThread()) {
             getRuneLite().getClientThread().invoke(runnable);
         } else {

@@ -18,7 +18,7 @@ public class TileObjectAPI
     public static void interact(TileObjectEx object, int action)
     {
         Client client = Static.getClient();
-        TClient tclient = Static.getTClient();
+        TClient tclient = Static.getClient();
         if(!client.getGameState().equals(GameState.LOGGED_IN) || object == null)
             return;
 
@@ -37,7 +37,7 @@ public class TileObjectAPI
     public static void interact(TileObject object, int action)
     {
         Client client = Static.getClient();
-        TClient tclient = Static.getTClient();
+        TClient tclient = Static.getClient();
         if(!client.getGameState().equals(GameState.LOGGED_IN) || object == null)
             return;
 
@@ -56,7 +56,7 @@ public class TileObjectAPI
     public static void interact(TileObjectEx object, String action)
     {
         Client client = Static.getClient();
-        TClient tclient = Static.getTClient();
+        TClient tclient = Static.getClient();
         if(!client.getGameState().equals(GameState.LOGGED_IN) || object == null)
             return;
 
@@ -77,7 +77,7 @@ public class TileObjectAPI
     public static void interact(TileObject object, String action)
     {
         Client client = Static.getClient();
-        TClient tclient = Static.getTClient();
+        TClient tclient = Static.getClient();
         if(!client.getGameState().equals(GameState.LOGGED_IN) || object == null)
             return;
 
