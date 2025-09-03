@@ -19,7 +19,7 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
         this.client = Static.getClient();
     }
 
-    protected Q self()
+    protected final Q self()
     {
         return (Q) this;
     }

@@ -1,4 +1,4 @@
-package com.tonic.automation.widgets;
+package com.tonic.api.widgets;
 
 import com.tonic.types.EmoteID;
 

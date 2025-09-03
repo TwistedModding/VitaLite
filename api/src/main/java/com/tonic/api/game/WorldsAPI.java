@@ -1,4 +1,4 @@
-package com.tonic.automation.game;
+package com.tonic.api.game;
 
 import com.tonic.Static;
 import com.tonic.api.TClient;

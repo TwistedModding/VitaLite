@@ -1,4 +1,4 @@
-package com.tonic.automation.widgets;
+package com.tonic.api.widgets;
 
 import com.tonic.Static;
 import com.tonic.api.TClient;

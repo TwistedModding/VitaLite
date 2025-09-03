@@ -1,6 +1,6 @@
 package com.tonic.types;
 
-import com.tonic.automation.widgets.EmoteAPI;
+import com.tonic.api.widgets.EmoteAPI;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

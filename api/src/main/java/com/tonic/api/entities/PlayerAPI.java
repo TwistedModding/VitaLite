@@ -1,4 +1,4 @@
-package com.tonic.automation.entities;
+package com.tonic.api.entities;
 
 import com.tonic.Static;
 import com.tonic.api.TClient;
