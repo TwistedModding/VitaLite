@@ -105,4 +105,13 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
     {
         return removeIf(o -> !o.hasActionContains(actionPart));
     }
+
+    public int getQuantity() {
+        int count = 0;
+        for(ItemEx item : cache)
+        {
+            count += item.getQuantity();
+        }
+        return count;
+    }
 }

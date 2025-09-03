@@ -2,6 +2,7 @@ package com.tonic.queries;
 
 import com.tonic.Static;
 import com.tonic.queries.abstractions.AbstractQuery;
+import com.tonic.util.TextUtil;
 import net.runelite.client.game.WorldService;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldRegion;
@@ -33,7 +34,12 @@ public class WorldQuery extends AbstractQuery<World, WorldQuery>
 
     public WorldQuery withActivity(String activity)
     {
-        return keepIf(w -> w.getActivity() != null && w.getActivity().toLowerCase().contains(activity.toLowerCase()));
+        return keepIf(w -> w.getActivity() != null && TextUtil.sanitize(w.getActivity().toLowerCase()).contains(activity.toLowerCase()));
+    }
+
+    public WorldQuery withOutActivity(String activity)
+    {
+        return removeIf(world -> TextUtil.sanitize(world.getActivity().toLowerCase()).contains(activity.toLowerCase()));
     }
 
     public WorldQuery withTypes(WorldType... types)
@@ -74,5 +80,25 @@ public class WorldQuery extends AbstractQuery<World, WorldQuery>
     public WorldQuery sortByPlayerCountDesc()
     {
         return sort(Comparator.comparingInt(World::getPlayers).reversed());
+    }
+
+    public WorldQuery skillTotalWorlds(int total)
+    {
+        return withActivity(total + " skill total");
+    }
+
+    public WorldQuery notSkillTotalWorlds()
+    {
+        return withOutActivity("skill total");
+    }
+
+    public WorldQuery notPvp()
+    {
+        return withOutActivity("PvP World");
+    }
+
+    public WorldQuery isMainGame()
+    {
+        return withOutActivity("skill total").withOutActivity("Fresh").withOutActivity("Deadman").withOutActivity("PvP").withOutActivity("Beta").withOutActivity("Leagues");
     }
 }

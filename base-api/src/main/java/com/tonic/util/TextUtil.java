@@ -184,4 +184,14 @@ public class TextUtil
         }
         return false;
     }
+
+    public static String sanitize(String text)
+    {
+        if(text == null)
+        {
+            return null;
+        }
+        String cleaned = text.replace('\u00A0', ' ').replace('_', ' ');
+        return (cleaned.contains("<img") ? cleaned.substring(text.lastIndexOf('>') + 1) : cleaned).trim().replaceAll("<[^>]+>", "");
+    }
 }

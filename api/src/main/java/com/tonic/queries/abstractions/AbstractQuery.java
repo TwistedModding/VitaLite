@@ -5,12 +5,14 @@ import net.runelite.api.Client;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Predicate;
 
 public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
 {
     protected final List<T> cache;
     protected final Client client;
+    private final Random random = new Random();
 
     public AbstractQuery(List<T> cache) {
         this.cache = cache;
@@ -66,6 +68,11 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
     public T last()
     {
         return cache.get(cache.size() - 1);
+    }
+
+    public T random()
+    {
+        return cache.get(random.nextInt(cache.size()));
     }
 
     /**
