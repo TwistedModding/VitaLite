@@ -34,6 +34,16 @@ public enum WidgetInfoExtended {
     PRAYER_PIETY(WidgetID.PRAYER_GROUP_ID, Prayer.PIETY),
     PRAYER_RIGOUR(WidgetID.PRAYER_GROUP_ID, Prayer.RIGOUR),
     PRAYER_AUGURY(WidgetID.PRAYER_GROUP_ID, Prayer.AUGURY),
+
+
+    GRAND_EXCHANGE_OFFER1(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER1),
+    GRAND_EXCHANGE_OFFER2(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER2),
+    GRAND_EXCHANGE_OFFER3(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER3),
+    GRAND_EXCHANGE_OFFER4(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER4),
+    GRAND_EXCHANGE_OFFER5(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER5),
+    GRAND_EXCHANGE_OFFER6(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER6),
+    GRAND_EXCHANGE_OFFER7(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER7),
+    GRAND_EXCHANGE_OFFER8(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER8),
     ;
 
     private final int id;
@@ -167,5 +177,25 @@ public enum WidgetInfoExtended {
         static final int PIETY = 35;
         static final int RIGOUR = 33;
         static final int AUGURY = 36;
+    }
+
+    static class GrandExchange
+    {
+        static final int WINDOW_CONTAINER = 0;
+        static final int WINDOW_BORDERS = 2;
+        static final int HISTORY_BUTTON = 3;
+        static final int BACK_BUTTON = 4;
+        static final int OFFER1 = 7;
+        static final int OFFER2 = 8;
+        static final int OFFER3 = 9;
+        static final int OFFER4 = 10;
+        static final int OFFER5 = 11;
+        static final int OFFER6 = 12;
+        static final int OFFER7 = 13;
+        static final int OFFER8 = 14;
+        static final int OFFER_CONTAINER = 25;
+        static final int OFFER_DESCRIPTION = 26;
+        static final int OFFER_PRICE = 27;
+        static final int OFFER_CONFIRM_BUTTON = 29;
     }
 }
