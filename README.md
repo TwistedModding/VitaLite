@@ -78,22 +78,17 @@ java -jar VitaLite-shaded.jar -help
 # Note: You may need to restart ide after running this
 ./gradlew syncRuneLiteAPI
 
-# Clean and build all modules
-./gradlew clean build
-
-# Build with dependencies (fat JAR)
-./gradlew shadowJar
-
-# Publish to local Maven repository
-./gradlew publishToMavenLocal
-
 # Clean and publish everything
-./gradlew cleanAndPublishAll
+./gradlew buildAndPublishAll
 ```
 
-**Important**: You must run `./gradlew syncRuneLiteAPI` before building to ensure the RuneLite API dependencies are properly synchronized.
-
 The main executable will be located at `build/libs/VitaLite-*-shaded.jar`.
+
+### Running from IDE
+```bash
+1. Complete build steps above
+2. Run the `com.tonic.VitaLite` main class
+```
 
 ## Getting Started
 
@@ -120,4 +115,4 @@ VitaLite supports loading additional plugins:
 
 ## Disclaimer
 
-VitaLite is a third-party modification of RuneLite. Use at your own risk. The developers are not responsible for any consequences resulting from the use of this software.
+VitaLite is a third-party loader for RuneLite. Use at your own risk. The developers are not responsible for any consequences resulting from the use of this software.
