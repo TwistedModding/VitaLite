@@ -77,4 +77,31 @@ public class ReflectUtil
             }
         }
     }
+
+    /**
+     * Checks if the given object instance has overridden the specified method from its superclass.
+     * Returns true if the method is overridden, otherwise returns false.
+     *
+     * @param obj        the object instance to check for method overriding
+     * @param methodName the name of the method to check for
+     * @param argTypes   the types of the arguments of the method to check for
+     * @return true if the object instance has overridden the method, false otherwise
+     */
+    public static boolean isOverridden(Object obj, String methodName, Class<?>... argTypes) {
+        if (obj == null || methodName == null) {
+            return false;
+        }
+
+        Class<?> objClass = obj.getClass();
+        Class<?> superClass = objClass.getSuperclass();
+
+        try {
+            Method objMethod = objClass.getDeclaredMethod(methodName, argTypes);
+            Method superMethod = superClass.getMethod(methodName, argTypes);
+
+            return !objMethod.equals(superMethod);
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
 }

@@ -5,10 +5,8 @@ import com.tonic.injector.util.BytecodeBuilder;
 import com.tonic.model.ConditionType;
 import com.tonic.vitalite.Main;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +50,45 @@ public class PluginManagerMixin {
         method.instructions.insert(insertionPoint, code);
         method.instructions.remove(insertionPoint.getPrevious());
         method.instructions.remove(insertionPoint);
+
+        // Replace "getSuperclass() == Plugin.class" with "Plugin.class.isAssignableFrom(getSuperclass())"
+        InsnList instructions = method.instructions;
+        AbstractInsnNode target = null;
+        for(AbstractInsnNode insn : instructions.toArray())
+        {
+            if(insn.getOpcode() != Opcodes.INVOKEVIRTUAL)
+                continue;
+            MethodInsnNode methodInsn = (MethodInsnNode) insn;
+            if(!methodInsn.owner.equals("java/lang/Class") || !methodInsn.name.equals("getSuperclass"))
+                continue;
+
+            if(insn.getNext().getNext().getOpcode() != Opcodes.IF_ACMPEQ)
+                continue;
+
+            target = insn;
+        }
+
+        if(target != null) {
+            AbstractInsnNode ldc = target.getNext();
+            AbstractInsnNode jump = ldc.getNext();
+            LabelNode label = ((JumpInsnNode)jump).label;
+
+            // Remove the LDC and IF_ACMPEQ
+            instructions.remove(ldc);
+            instructions.remove(jump);
+
+            // Add: Plugin.class.isAssignableFrom(getSuperclass result)
+            instructions.insert(target, new LdcInsnNode(Type.getType("Lnet/runelite/client/plugins/Plugin;")));
+            instructions.insert(target.getNext(), new InsnNode(Opcodes.SWAP));
+            instructions.insert(target.getNext().getNext(), new MethodInsnNode(
+                    Opcodes.INVOKEVIRTUAL,
+                    "java/lang/Class",
+                    "isAssignableFrom",
+                    "(Ljava/lang/Class;)Z",
+                    false
+            ));
+            instructions.insert(target.getNext().getNext().getNext(), new JumpInsnNode(Opcodes.IFNE, label));
+        }
     }
 
     @Insert(
