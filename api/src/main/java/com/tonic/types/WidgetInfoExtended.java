@@ -44,6 +44,8 @@ public enum WidgetInfoExtended {
     GRAND_EXCHANGE_OFFER6(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER6),
     GRAND_EXCHANGE_OFFER7(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER7),
     GRAND_EXCHANGE_OFFER8(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER8),
+
+    DIALOG_OPTION_OPTION1(WidgetID.DIALOG_OPTION_GROUP_ID, DialogOption.OPTIONS),
     ;
 
     private final int id;
@@ -197,5 +199,10 @@ public enum WidgetInfoExtended {
         static final int OFFER_DESCRIPTION = 26;
         static final int OFFER_PRICE = 27;
         static final int OFFER_CONFIRM_BUTTON = 29;
+    }
+
+    static class DialogOption
+    {
+        static final int OPTIONS = 1;
     }
 }

@@ -184,7 +184,7 @@ public enum PrayerAPI {
     public static boolean isQuickPrayerEnabled()
     {
         Client client = Static.getClient();
-        return client.getVarbitValue(VarbitID.QUICKPRAYER_ACTIVE) == 1;
+        return Static.invoke(() -> client.getVarbitValue(VarbitID.QUICKPRAYER_ACTIVE) == 1);
     }
 
     /**

@@ -121,6 +121,12 @@ public class WidgetAPI
         return Static.invoke(() -> client.getWidget(info));
     }
 
+    public static Widget get(WidgetInfoExtended info)
+    {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getWidget(info.getGroupId(), info.getChildId()));
+    }
+
     public static Widget get(int groupId, int childId)
     {
         Client client = Static.getClient();
