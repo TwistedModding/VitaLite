@@ -56,6 +56,19 @@ public enum WidgetInfoExtended {
     DIALOG2_SPRITE_CONTINUE(11, DialogSprite2.CONTINUE),
     DIALOG_NOTIFICATION_CONTINUE(229, DialogNotification.CONTINUE),
     LEVEL_UP_CONTINUE(WidgetID.LEVEL_UP_GROUP_ID, LevelUp.CONTINUE),
+
+
+    EQUIPMENT_HELMET(WidgetID.EQUIPMENT_GROUP_ID, Equipment.HELMET),
+    EQUIPMENT_CAPE(WidgetID.EQUIPMENT_GROUP_ID, Equipment.CAPE),
+    EQUIPMENT_AMULET(WidgetID.EQUIPMENT_GROUP_ID, Equipment.AMULET),
+    EQUIPMENT_WEAPON(WidgetID.EQUIPMENT_GROUP_ID, Equipment.WEAPON),
+    EQUIPMENT_BODY(WidgetID.EQUIPMENT_GROUP_ID, Equipment.BODY),
+    EQUIPMENT_SHIELD(WidgetID.EQUIPMENT_GROUP_ID, Equipment.SHIELD),
+    EQUIPMENT_LEGS(WidgetID.EQUIPMENT_GROUP_ID, Equipment.LEGS),
+    EQUIPMENT_GLOVES(WidgetID.EQUIPMENT_GROUP_ID, Equipment.GLOVES),
+    EQUIPMENT_BOOTS(WidgetID.EQUIPMENT_GROUP_ID, Equipment.BOOTS),
+    EQUIPMENT_RING(WidgetID.EQUIPMENT_GROUP_ID, Equipment.RING),
+    EQUIPMENT_AMMO(WidgetID.EQUIPMENT_GROUP_ID, Equipment.AMMO),
     ;
 
     private final int id;
@@ -257,5 +270,26 @@ public enum WidgetInfoExtended {
         static final int SKILL = 1;
         static final int LEVEL = 2;
         static final int CONTINUE = 3;
+    }
+
+    static class Equipment
+    {
+        static final int STATS = 1;
+        static final int PRICES = 3;
+        static final int DEATH = 5;
+        static final int FOLLOWER = 7;
+        static final int HELMET = 15;
+        static final int CAPE = 16;
+        static final int AMULET = 17;
+        static final int WEAPON = 18;
+        static final int BODY = 19;
+        static final int SHIELD = 20;
+        static final int LEGS = 21;
+        static final int GLOVES = 22;
+        static final int BOOTS = 23;
+        static final int RING = 24;
+        static final int AMMO = 25;
+
+        static final int INVENTORY_ITEM_CONTAINER = 0;
     }
 }

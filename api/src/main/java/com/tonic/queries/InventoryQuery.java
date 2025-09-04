@@ -106,6 +106,11 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
         return removeIf(o -> !o.hasActionContains(actionPart));
     }
 
+    public InventoryQuery fromSlot(int... slots)
+    {
+        return removeIf(i -> !ArrayUtils.contains(slots, i.getSlot()));
+    }
+
     public int getQuantity() {
         int count = 0;
         for(ItemEx item : cache)
