@@ -8,7 +8,6 @@ import com.tonic.types.ShopID;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +34,7 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
         return fromInventoryId(itemContainer.getId());
     }
 
+    @SuppressWarnings("deprecation")
     public static InventoryQuery fromInventoryId(InventoryID inventoryId)
     {
         return fromInventoryId(inventoryId.getId());

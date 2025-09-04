@@ -6,8 +6,14 @@ import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
+/**
+ * ClientScript API
+ */
 public class ClientScriptAPI
 {
+    /**
+     * Closes the numeric input dialogue if it is open
+     */
     public static void closeNumericInputDialogue()
     {
         Client client = Static.getClient();
@@ -21,18 +27,32 @@ public class ClientScriptAPI
         });
     }
 
+
+    /**
+     * Switches to the specified tab
+     * @param tab The tab index to switch to
+     */
     public static void switchTabs(int tab)
     {
         Client client = Static.getClient();
         Static.invoke(() -> client.runScript(915, tab));
     }
 
+    /**
+     * Switches to the specified tab
+     * @param tab The tab to switch to
+     */
     public static void switchTabs(Tab tab)
     {
         Client client = Static.getClient();
         Static.invoke(() -> client.runScript(915, tab.getTabVarbit()));
     }
 
+    /**
+     * Runs a client script with the specified id and arguments
+     * @param id The script id
+     * @param args The script arguments
+     */
     public static void runScript(int id, Object... args)
     {
         Client client = Static.getClient();

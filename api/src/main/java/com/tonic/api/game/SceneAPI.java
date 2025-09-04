@@ -4,13 +4,18 @@ import com.tonic.Static;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 public class SceneAPI {
+    /**
+     * Returns a list of all reachable tiles from the player's current position using a breadth-first search algorithm.
+     * This method considers the collision data to determine which tiles can be reached.
+     *
+     * @return A list of WorldPoint objects representing all reachable tiles.
+     */
     public static List<WorldPoint> reachableTiles() {
         Client client = Static.getClient();
         boolean[][] visited = new boolean[104][104];
@@ -62,6 +67,11 @@ public class SceneAPI {
         return finalPoints;
     }
 
+    /**
+     * Returns a list of all tiles in the current scene that match the given filter.
+     * @param filter A predicate to filter the tiles.
+     * @return A list of tiles that match the filter.
+     */
     public static List<Tile> getAll(Predicate<Tile> filter)
     {
         List<Tile> out = new ArrayList<>();
@@ -82,16 +92,30 @@ public class SceneAPI {
         return out;
     }
 
+    /**
+     * Returns a list of all tiles in the current scene.
+     * @return A list of all tiles.
+     */
     public static List<Tile> getAll()
     {
         return getAll(x -> true);
     }
 
+    /**
+     * Returns the tile at the specified world point.
+     * @param worldPoint The world point to get the tile at.
+     * @return The tile at the specified world point, or null if the point is out of bounds.
+     */
     public static Tile getAt(WorldPoint worldPoint)
     {
         return getAt(worldPoint.getX(), worldPoint.getY(), worldPoint.getPlane());
     }
 
+    /**
+     * Returns the tile at the specified local point.
+     * @param localPoint The local point to get the tile at.
+     * @return The tile at the specified local point, or null if the point is out of bounds.
+     */
     public static Tile getAt(LocalPoint localPoint)
     {
         Client client = Static.getClient();
@@ -99,6 +123,13 @@ public class SceneAPI {
         return worldView.getScene().getTiles()[worldView.getPlane()][localPoint.getSceneX()][localPoint.getSceneY()];
     }
 
+    /**
+     * Returns the tile at the specified world coordinates and plane.
+     * @param worldX The world X coordinate.
+     * @param worldY The world Y coordinate.
+     * @param plane The plane (z-level).
+     * @return The tile at the specified coordinates and plane, or null if the coordinates are out of bounds.
+     */
     public static Tile getAt(int worldX, int worldY, int plane)
     {
         Client client = Static.getClient();
@@ -117,6 +148,12 @@ public class SceneAPI {
         return worldView.getScene().getTiles()[plane][x][y];
     }
 
+    /**
+     * Returns a list of tiles surrounding the specified world point within the given radius.
+     * @param worldPoint The center world point.
+     * @param radius The radius around the center point to include tiles.
+     * @return A list of tiles surrounding the specified world point.
+     */
     public static List<Tile> getSurrounding(WorldPoint worldPoint, int radius)
     {
         List<Tile> out = new ArrayList<>();
@@ -131,6 +168,10 @@ public class SceneAPI {
         return out;
     }
 
+    /**
+     * Returns the tile currently hovered by the mouse cursor.
+     * @return The hovered tile, or null if no tile is hovered.
+     */
     public static Tile getHoveredTile()
     {
         Client client = Static.getClient();
@@ -138,6 +179,12 @@ public class SceneAPI {
         return worldView.getSelectedSceneTile();
     }
 
+    /**
+     * Finds a path from one world point to another and returns a list of waypoints (WorldPoints) along the path.
+     * @param from The starting WorldPoint.
+     * @param to The destination WorldPoint.
+     * @return A list of WorldPoints representing the path, or null if no path is found or if the points are on different planes.
+     */
     public static List<WorldPoint> pathTo(WorldPoint from, WorldPoint to)
     {
         if (from.getPlane() != to.getPlane())
@@ -146,12 +193,13 @@ public class SceneAPI {
         }
 
         Client client = Static.getClient();
+        WorldView worldView = client.getTopLevelWorldView();
         int x = from.getX();
         int y = from.getY();
         int plane = from.getPlane();
 
-        LocalPoint sourceLp = LocalPoint.fromWorld(client, x, y);
-        LocalPoint targetLp = LocalPoint.fromWorld(client, to.getX(), to.getY());
+        LocalPoint sourceLp = LocalPoint.fromWorld(worldView, x, y);
+        LocalPoint targetLp = LocalPoint.fromWorld(worldView, to.getX(), to.getY());
         if (sourceLp == null || targetLp == null)
         {
             return null;
@@ -162,7 +210,7 @@ public class SceneAPI {
         int otherX = targetLp.getSceneX();
         int otherY = targetLp.getSceneY();
 
-        Tile[][][] tiles = client.getScene().getTiles();
+        Tile[][][] tiles = worldView.getScene().getTiles();
         Tile sourceTile = tiles[plane][thisX][thisY];
         Tile targetTile = tiles[plane][otherX][otherY];
 
@@ -186,6 +234,12 @@ public class SceneAPI {
         return checkpointWPs;
     }
 
+    /**
+     * Finds a path from one tile to another and returns a list of tiles along the path.
+     * @param from The starting tile.
+     * @param to The destination tile.
+     * @return A list of tiles representing the path, or null if no path is found or if the tiles are on different planes.
+     */
     public static List<Tile> pathTo(Tile from, Tile to)
     {
         int z = from.getPlane();
@@ -436,6 +490,12 @@ public class SceneAPI {
         return checkpointTiles;
     }
 
+    /**
+     * Determines if the destination tile is reachable from the starting tile.
+     * @param from The starting tile.
+     * @param to The destination tile.
+     * @return True if the destination tile is reachable, false otherwise.
+     */
     public static boolean isReachable(Tile from, Tile to) {
         List<Tile> path  = pathTo(from, to);
         if(path == null || path.isEmpty())
@@ -443,6 +503,12 @@ public class SceneAPI {
         return (path.get(path.size()-1) == to);
     }
 
+    /**
+     * Determines if the destination world point is reachable from the starting world point.
+     * @param from The starting WorldPoint.
+     * @param to The destination WorldPoint.
+     * @return True if the destination WorldPoint is reachable, false otherwise.
+     */
     public static boolean isReachable(WorldPoint from, WorldPoint to)
     {
         Client client = Static.getClient();

@@ -5,6 +5,9 @@ import com.tonic.api.TClient;
 import net.runelite.api.Client;
 import net.runelite.api.Player;
 
+/**
+ * Player API
+ */
 public class PlayerAPI
 {
     /**
@@ -50,6 +53,11 @@ public class PlayerAPI
         });
     }
 
+    /**
+     * check if a player is idle
+     * @param player player
+     * @return true if idle
+     */
     public static boolean isIdle(Player player)
     {
         return (player.getIdlePoseAnimation() == player.getPoseAnimation() && player.getAnimation() == -1);

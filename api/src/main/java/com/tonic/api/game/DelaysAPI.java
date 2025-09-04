@@ -2,6 +2,9 @@ package com.tonic.api.game;
 
 import com.tonic.services.GameCache;
 
+/**
+ * Utility class for handling delays and ticks in the game. (For threaded automation)
+ */
 public class DelaysAPI
 {
     /**

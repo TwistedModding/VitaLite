@@ -9,23 +9,36 @@ import com.tonic.types.ItemEx;
 import net.runelite.api.Client;
 import net.runelite.api.GrandExchangeOffer;
 import net.runelite.api.GrandExchangeOfferState;
+import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
+
+/**
+ * Grand Exchange API
+ */
 public class GrandExchangeAPI
 {
+    /**
+     * Bypasses the high offer warning dialog if it is open.
+     */
     public static void bypassHighOfferWarning()
     {
         Client client = Static.getClient();
         TClient tclient = Static.getClient();
         Static.invoke(() -> {
-            if(client.getWidget(289, 8) != null && !client.getWidget(289, 8).isHidden())
-            {
-                tclient.getPacketWriter().clickPacket(0, -1, -1);
-                tclient.getPacketWriter().resumeCountDialoguePacket(1);
-            }
+            Widget w = client.getWidget(289, 8);
+            if(w == null || w.isHidden() || w.isSelfHidden())
+                return;
+
+            tclient.getPacketWriter().clickPacket(0, -1, -1);
+            tclient.getPacketWriter().resumeCountDialoguePacket(1);
         });
     }
 
+    /**
+     * Returns the first free Grand Exchange slot (1-8) or -1 if none are free.
+     * @return slot
+     */
     public static int freeSlot()
     {
         try
@@ -45,6 +58,13 @@ public class GrandExchangeAPI
         return -1;
     }
 
+    /**
+     * Starts a buy offer in the first free Grand Exchange slot.
+     * @param itemId The item ID to buy.
+     * @param amount The amount to buy.
+     * @param price The price per item.
+     * @return The GrandExchangeSlot object representing the slot used, or null if no slot is free or an error occurs.
+     */
     public static GrandExchangeSlot startBuyOffer(int itemId, int amount, int price)
     {
         int slotNumber = freeSlot();
@@ -67,14 +87,21 @@ public class GrandExchangeAPI
         return slot;
     }
 
-    public static int startSellOffer(int itemId, int amount, int price)
+    /**
+     * Starts a sell offer in the first free Grand Exchange slot.
+     * @param itemId The item ID to sell.
+     * @param amount The amount to sell. Use -1 to sell all available.
+     * @param price The price per item.
+     * @return The GrandExchangeSlot object representing the slot used, or null if no slot is free or an error occurs.
+     */
+    public static GrandExchangeSlot startSellOffer(int itemId, int amount, int price)
     {
         int slotNumber = freeSlot();
         if(slotNumber == -1)
-            return slotNumber;
+            return null;
         GrandExchangeSlot slot = GrandExchangeSlot.getBySlot(slotNumber);
         if(slot == null)
-            return -1;
+            return null;
         TClient client = Static.getClient();
         Static.invoke(() -> {
             client.getPacketWriter().widgetActionPacket(1, slot.getId(), slot.getSellChild(), 65535);
@@ -91,9 +118,15 @@ public class GrandExchangeAPI
             client.getPacketWriter().resumeCountDialoguePacket(1);
         });
         ClientScriptAPI.closeNumericInputDialogue();
-        return slotNumber;
+        return slot;
     }
 
+    /**
+     * Collects items from a specified Grand Exchange slot.
+     * @param slotNumber The slot number (1-8) to collect from.
+     * @param noted True to collect items as noted, false for unnoted.
+     * @param amount The amount to collect. Use 1 for a single item, or any other number for all available.
+     */
     public static void collectFromSlot(int slotNumber, boolean noted, int amount)
     {
         GrandExchangeSlot slot = GrandExchangeSlot.getBySlot(slotNumber);
@@ -112,7 +145,7 @@ public class GrandExchangeAPI
         });
     }
 
-    public static int getItemSlot(int id)
+    private static int getItemSlot(int id)
     {
         ItemEx item = InventoryAPI.getItem(id);
         return item.getSlot();

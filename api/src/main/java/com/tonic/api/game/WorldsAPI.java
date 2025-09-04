@@ -11,26 +11,43 @@ import net.runelite.client.util.WorldUtil;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
 
+/**
+ * Worlds related API
+ */
 public class WorldsAPI
 {
+    /**
+     * Get the current world the client is logged into
+     * @return The current world
+     */
     public static World getCurrentWorld()
     {
         Client client = Static.getClient();
         return new WorldQuery().withId(client.getWorld()).first();
     }
 
+    /**
+     * Hop to a random members world (not skill total, not pvp, main game)
+     */
     public static void hopRandomMembers()
     {
         World world = new WorldQuery().isP2p().notSkillTotalWorlds().isMainGame().notPvp().random();
         hop(world);
     }
 
+    /**
+     * Hop to a random free to play world (not skill total, not pvp, main game)
+     */
     public static void hopRandomF2p()
     {
         World world = new WorldQuery().isF2p().notSkillTotalWorlds().isMainGame().notPvp().random();
         hop(world);
     }
 
+    /**
+     * Hop to a specific world by its ID
+     * @param worldId The ID of the world to hop to
+     */
     public static void hop(int worldId)
     {
         WorldResult worldResult = Static.getInjector().getInstance(WorldService.class).getWorlds();
@@ -46,12 +63,20 @@ public class WorldsAPI
         hop(world);
     }
 
+    /**
+     * Hop to a specific world
+     * @param world The world to hop to
+     */
     public static void hopTo(World world)
     {
         // this is called from the panel, on edt
         hop(world);
     }
 
+    /**
+     * Hop to a specific world
+     * @param world The world to hop to
+     */
     public static void hop(World world)
     {
         Client client = Static.getClient();

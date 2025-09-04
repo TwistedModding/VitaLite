@@ -9,6 +9,11 @@ import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.WidgetInfo;
 import java.util.Arrays;
 
+/**
+ * PrayerAPI provides methods to interact with and manage prayers in the game.
+ * It allows checking prayer levels, toggling prayers, managing quick prayers,
+ * and retrieving the highest available prayers based on the player's level.
+ */
 @Getter
 public enum PrayerAPI {
     /**
@@ -143,6 +148,10 @@ public enum PrayerAPI {
         this.quickPrayerIndex = quickPrayerIndex;
     }
 
+    /**
+     * check if the player has the level for this prayer
+     * @return bool
+     */
     public boolean hasLevelFor()
     {
         Client client = Static.getClient();
@@ -329,6 +338,9 @@ public enum PrayerAPI {
         return PrayerGroup.MELEE_DEFENSE.getHighestAvailable();
     }
 
+    /**
+     * Disables all active prayers for the given client.
+     */
     public static void disableAll()
     {
         for(PrayerAPI prayer : values())

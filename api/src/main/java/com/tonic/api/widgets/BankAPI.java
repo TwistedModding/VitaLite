@@ -5,12 +5,19 @@ import com.tonic.api.game.VarAPI;
 import com.tonic.queries.InventoryQuery;
 import com.tonic.types.ItemEx;
 import net.runelite.api.Client;
-import net.runelite.api.InventoryID;
+import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.WidgetInfo;
 
+/**
+ * Bank API
+ */
 public class BankAPI
 {
+    /**
+     * Sets the withdraw amount to the specified amount.
+     * @param amount The amount to set the withdraw amount to.
+     */
     public static void setX(int amount)
     {
         int withdrawMode = VarAPI.getVar(VarbitID.BANK_QUANTITY_TYPE);
@@ -27,8 +34,12 @@ public class BankAPI
         }
     }
 
-    public static void setWithdrawMode(boolean b) {
-        if(b) {
+    /**
+     * Sets the withdraw mode to either noted or unnoted.
+     * @param noted True for noted, false for unnoted.
+     */
+    public static void setWithdrawMode(boolean noted) {
+        if(noted) {
             WidgetAPI.interact(1, 786458, -1, -1);
         }
         else {
@@ -36,6 +47,12 @@ public class BankAPI
         }
     }
 
+    /**
+     * Withdraws the specified amount of the item with the given id from the bank.
+     * @param id The id of the item to withdraw.
+     * @param amount The amount to withdraw. Use -1 for "all" option.
+     * @param noted True to withdraw as noted, false to withdraw as unnoted.
+     */
     public static void withdraw(int id, int amount, boolean noted) {
         setWithdrawMode(noted);
         ItemEx item = Static.invoke(() ->
@@ -48,6 +65,12 @@ public class BankAPI
         withdrawAction(item.getId(), amount, item.getSlot());
     }
 
+    /**
+     * Withdraws the specified amount of the item with the given name from the bank.
+     * @param name The name of the item to withdraw.
+     * @param amount The amount to withdraw. Use -1 for "all" option.
+     * @param noted True to withdraw as noted, false to withdraw as unnoted.
+     */
     public static void withdraw(String name, int amount, boolean noted) {
         setWithdrawMode(noted);
         ItemEx item = Static.invoke(() ->
@@ -60,28 +83,44 @@ public class BankAPI
         withdrawAction(item.getId(), amount, item.getSlot());
     }
 
+    /**
+     * Deposits the specified amount of the item with the given id into the bank.
+     * @param id The id of the item to deposit.
+     * @param amount The amount to deposit. Use -1 for "all" option.
+     */
     public static void deposit(int id, int amount) {
         ItemEx item = Static.invoke(() ->
-                InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withId(id).first()
+                InventoryQuery.fromInventoryId(InventoryID.INV).withId(id).first()
         );
 
         if(item == null)
             return;
 
-        invokeDepositAction(item.getId(), amount, item.getSlot());
+        depositAction(item.getId(), amount, item.getSlot());
     }
 
+    /**
+     * Deposits the specified amount of the item with the given name into the bank.
+     * @param name The name of the item to deposit.
+     * @param amount The amount to deposit. Use -1 for "all" option.
+     */
     public static void deposit(String name, int amount) {
         ItemEx item = Static.invoke(() ->
-                InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withName(name).first()
+                InventoryQuery.fromInventoryId(InventoryID.INV).withName(name).first()
         );
 
         if(item == null)
             return;
 
-        invokeDepositAction(item.getId(), amount, item.getSlot());
+        depositAction(item.getId(), amount, item.getSlot());
     }
 
+    /**
+     * Invokes the withdraw action on the bank item.
+     * @param id The id of the item to withdraw.
+     * @param amount The amount to withdraw.
+     * @param slot The slot of the item in the bank.
+     */
     public static void withdrawAction(int id, int amount, int slot) {
         setX(amount);
         if(amount == 1) {
@@ -101,7 +140,13 @@ public class BankAPI
         }
     }
 
-    public static void invokeDepositAction(int id, int amount, int slot) {
+    /**
+     * Invokes the deposit action on the inventory item.
+     * @param id The id of the item to deposit.
+     * @param amount The amount to deposit.
+     * @param slot The slot of the item in the inventory.
+     */
+    public static void depositAction(int id, int amount, int slot) {
         setX(amount);
         if(amount == 1) {
             WidgetAPI.interact(3, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
@@ -120,52 +165,90 @@ public class BankAPI
         }
     }
 
+    /**
+     * Deposits all items from the inventory into the bank.
+     */
     public static void depositAll() {
         WidgetAPI.interact(1, WidgetInfo.BANK_DEPOSIT_INVENTORY, -1, -1);
     }
 
+    /**
+     * Deposits all items from the equipment into the bank.
+     */
     public static void depositEquipment() {
         WidgetAPI.interact(1, WidgetInfo.BANK_DEPOSIT_EQUIPMENT, -1, -1);
     }
 
+    /**
+     * Checks if the bank is currently open.
+     * @return True if the bank is open, false otherwise.
+     */
     public static boolean isOpen()
     {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getItemContainer(InventoryID.BANK) != null);
     }
 
+    /**
+     * Checks if the bank contains an item with the specified id.
+     * @param itemId The id of the item to check for.
+     * @return True if the item is in the bank, false otherwise.
+     */
     public static boolean contains(int itemId)
     {
         return InventoryQuery.fromInventoryId(InventoryID.BANK).withId(itemId).first() != null;
     }
 
+    /**
+     * Checks if the bank contains an item with the specified name.
+     * @param itemName The name of the item to check for.
+     * @return True if the item is in the bank, false otherwise.
+     */
     public static boolean contains(String itemName)
     {
         return InventoryQuery.fromInventoryId(InventoryID.BANK).withName(itemName).first() != null;
     }
 
+    /**
+     * Counts the total quantity of the item with the specified id in the bank.
+     * @param itemId The id of the item to count.
+     * @return The total quantity of the item in the bank.
+     */
     public static int count(int itemId)
     {
         return InventoryQuery.fromInventoryId(InventoryID.BANK).withId(itemId).count();
     }
 
+    /**
+     * Counts the total quantity of the item with the specified name in the bank.
+     * @param itemName The name of the item to count.
+     * @return The total quantity of the item in the bank.
+     */
     public static int count(String itemName)
     {
         return InventoryQuery.fromInventoryId(InventoryID.BANK).withName(itemName).count();
     }
 
+    /**
+     * Uses the item with the specified id from the inventory.
+     * @param itemId The id of the item to use.
+     */
     public static void use(int itemId) {
         ItemEx item = Static.invoke(() ->
-                InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withId(itemId).first()
+                InventoryQuery.fromInventoryId(InventoryID.INV).withId(itemId).first()
         );
         if(item == null)
             return;
         WidgetAPI.interact(9, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), item.getId(), itemId);
     }
 
+    /**
+     * Uses the item with the specified name from the inventory.
+     * @param itemName The name of the item to use.
+     */
     public static void use(String itemName) {
         ItemEx item = Static.invoke(() ->
-                InventoryQuery.fromInventoryId(InventoryID.INVENTORY).withName(itemName).first()
+                InventoryQuery.fromInventoryId(InventoryID.INV).withName(itemName).first()
         );
         if(item == null)
             return;

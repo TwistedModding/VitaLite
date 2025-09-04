@@ -8,6 +8,9 @@ import net.runelite.api.GameState;
 import net.runelite.api.TileItem;
 import net.runelite.api.coords.WorldPoint;
 
+/**
+ * TileItem API
+ */
 public class TileItemAPI
 {
     /**

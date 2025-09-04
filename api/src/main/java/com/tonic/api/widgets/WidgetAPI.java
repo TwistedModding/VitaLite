@@ -4,10 +4,12 @@ import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.types.WidgetInfoExtended;
 import net.runelite.api.Client;
-import net.runelite.api.Prayer;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
+/**
+ * Widget API
+ */
 public class WidgetAPI
 {
     /**
@@ -27,7 +29,7 @@ public class WidgetAPI
     }
 
     /**
-     * invoke a widget packet
+     * invoke a widget action
      * @param action action type
      * @param widgetInfo widget info
      * @param childId child ID
@@ -38,21 +40,51 @@ public class WidgetAPI
         interact(action, widgetInfo.getId(), childId, itemId);
     }
 
+    /**
+     * invoke a widget action
+     * @param action action type
+     * @param widgetInfo widget info
+     * @param childId child ID
+     * @param itemId item ID
+     */
     public static void interact(int action, WidgetInfoExtended widgetInfo, int childId, int itemId)
     {
         interact(action, widgetInfo.getId(), childId, itemId);
     }
 
+    /**
+     * invoke a widget action
+     * @param action action type
+     * @param widgetInfo widget info
+     * @param childId child ID
+     */
     public static void interact(int action, WidgetInfo widgetInfo, int childId)
     {
         interact(action, widgetInfo.getId(), childId, -1);
     }
 
+    /**
+     * invoke a widget action
+     * @param action action type
+     * @param widgetId widget iid
+     * @param childId child ID
+     */
     public static void interact(int action, int widgetId, int childId)
     {
         interact(action, widgetId, childId, -1);
     }
 
+    /**
+     * Use a widget on a game object
+     *
+     * @param selectedWidgetId selected widget ID
+     * @param itemId item ID
+     * @param slot slot
+     * @param objectID object ID
+     * @param worldX worldX
+     * @param worldY worldY
+     * @param ctrl if ctrl is held
+     */
     public static void onTileObject(int selectedWidgetId, int itemId, int slot, int objectID, int worldX, int worldY, boolean ctrl)
     {
         TClient client = Static.getClient();
@@ -62,6 +94,17 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Use a widget on a ground item
+     *
+     * @param selectedWidgetId selected widget ID
+     * @param itemId item ID
+     * @param slot slot
+     * @param groundItemID ground item ID
+     * @param worldX worldX
+     * @param worldY worldY
+     * @param ctrl if ctrl is held
+     */
     public static void onGroundItem(int selectedWidgetId, int itemId, int slot, int groundItemID, int worldX, int worldY, boolean ctrl)
     {
         TClient client = Static.getClient();
@@ -71,6 +114,15 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Use a widget on an NPC
+     *
+     * @param selectedWidgetId selected widget ID
+     * @param itemId item ID
+     * @param slot slot
+     * @param npcIndex npc index
+     * @param ctrl if ctrl is held
+     */
     public static void onNpc(int selectedWidgetId, int itemId, int slot, int npcIndex, boolean ctrl)
     {
         TClient client = Static.getClient();
@@ -80,6 +132,15 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Use a widget on a player
+     *
+     * @param selectedWidgetId selected widget ID
+     * @param itemId item ID
+     * @param slot slot
+     * @param playerIndex player index
+     * @param ctrl if ctrl is held
+     */
     public static void onPlayer(int selectedWidgetId, int itemId, int slot, int playerIndex, boolean ctrl)
     {
         TClient client = Static.getClient();
@@ -89,6 +150,16 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Use a widget on another widget
+     *
+     * @param selectedWidgetId selected widget ID
+     * @param itemId item ID
+     * @param slot slot
+     * @param targetWidgetId target widget ID
+     * @param itemId2 target item ID
+     * @param slot2 target slot
+     */
     public static void onWidget(int selectedWidgetId, int itemId, int slot, int targetWidgetId, int itemId2, int slot2)
     {
         TClient client = Static.getClient();
@@ -98,11 +169,22 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Get the text of a widget
+     * @param widgetInfo widget info
+     * @return text
+     */
     public static String getText(WidgetInfo widgetInfo)
     {
         return getText(widgetInfo.getGroupId(), widgetInfo.getChildId());
     }
 
+    /**
+     * Get the text of a widget
+     * @param groupId groupId
+     * @param childId childId
+     * @return text
+     */
     public static String getText(int groupId, int childId)
     {
         Client client = Static.getClient();
@@ -115,24 +197,47 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Get a widget by WidgetInfo
+     * @param info widget info
+     * @return widget
+     */
     public static Widget get(WidgetInfo info)
     {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getWidget(info));
     }
 
+    /**
+     * Get a widget by WidgetInfoExtended
+     * @param info widget info
+     * @return widget
+     */
     public static Widget get(WidgetInfoExtended info)
     {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getWidget(info.getGroupId(), info.getChildId()));
     }
 
+    /**
+     * Get a widget by groupId and childId
+     * @param groupId groupId
+     * @param childId childId
+     * @return widget
+     */
     public static Widget get(int groupId, int childId)
     {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getWidget(groupId, childId));
     }
 
+    /**
+     * Get a child widget by groupId, childId and child index
+     * @param groupId groupId
+     * @param childId childId
+     * @param child child index
+     * @return widget
+     */
     public static Widget get(int groupId, int childId, int child)
     {
         Client client = Static.getClient();
@@ -144,11 +249,22 @@ public class WidgetAPI
         });
     }
 
+    /**
+     * Check if a widget is visible
+     * @param widget widget
+     * @return true if visible
+     */
     public static boolean isVisible(Widget widget)
     {
         return widget != null && !widget.isHidden() && !widget.isSelfHidden();
     }
 
+    /**
+     * Check if a widget is visible
+     * @param groupId groupId
+     * @param childId childId
+     * @return true if visible
+     */
     public static boolean isVisible(int groupId, int childId)
     {
         return isVisible(get(groupId, childId));

@@ -9,8 +9,17 @@ import net.runelite.api.widgets.WidgetInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * DialogueAPI provides methods to interact with in-game dialogues, including retrieving dialogue text,
+ * continuing dialogues, selecting options, and handling various dialogue types.
+ */
 public class DialogueAPI
 {
+    /**
+     * Retrieves the header of the current dialogue, which may indicate the speaker or context.
+     *
+     * @return The dialogue header as a String. Possible values include NPC names, "Player", "Select an Option", or "UNKNOWN".
+     */
     public static String getDialogueHeader()
     {
         return Static.invoke(() -> {
@@ -27,6 +36,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Retrieves the main text content of the current dialogue.
+     *
+     * @return The dialogue text as a String. If no dialogue is present, returns an empty string.
+     */
     public static String getDialogueText()
     {
         return Static.invoke(() -> {
@@ -53,6 +67,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Continues the current dialogue by clicking the "Continue" button if present.
+     *
+     * @return true if a continue action was performed, false otherwise.
+     */
     public static boolean continueDialogue() {
         TClient client = Static.getClient();
         return Static.invoke(() -> {
@@ -104,6 +123,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Checks if any dialogue is currently present on the screen.
+     *
+     * @return true if a dialogue is present, false otherwise.
+     */
     public static boolean dialoguePresent() {
         return Static.invoke(() -> {
             if (WidgetAPI.get(WidgetInfoExtended.DIALOG_NPC_CONTINUE) != null) {
@@ -141,10 +165,21 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Selects a dialogue option based on its index.
+     *
+     * @param option The index of the option to select (0-based).
+     */
     public static void selectOption(int option) {
         resumePause(WidgetInfoExtended.DIALOG_OPTION_OPTION1.getId(), option);
     }
 
+    /**
+     * Selects a dialogue option based on its text.
+     *
+     * @param option The text of the option to select. Case-insensitive and partial matches are supported.
+     * @return true if the option was found and selected, false otherwise.
+     */
     public static boolean selectOption(String option) {
 
         return Static.invoke(() -> {
@@ -168,6 +203,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Resumes an object dialogue
+     *
+     * @param id The dialogue object ID
+     */
     public static void resumeObjectDialogue(int id)
     {
         TClient client = Static.getClient();
@@ -178,6 +218,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Resumes a name dialogue
+     *
+     * @param text The name to input
+     */
     public static void resumeNameDialogue(String text)
     {
         TClient client = Static.getClient();
@@ -188,6 +233,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Resumes a numeric dialogue
+     *
+     * @param value The number to input
+     */
     public static void resumeNumericDialogue(int value)
     {
         TClient client = Static.getClient();
@@ -197,11 +247,22 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Sends a resume/pause for a specific widget and option index.
+     *
+     * @param widgetID    The ID of the widget to interact with.
+     * @param optionIndex The index of the option to select within the widget.
+     */
     public static void resumePause(int widgetID, int optionIndex) {
         TClient client = Static.getClient();
         Static.invoke(() -> client.getPacketWriter().resumePauseWidgetPacket(widgetID, optionIndex));
     }
 
+    /**
+     * Sends a "make X" dialogue input with the specified quantity.
+     *
+     * @param quantity The quantity to input in the "make X" dialogue.
+     */
     public static void makeX(int quantity)
     {
         TClient client = Static.getClient();
@@ -211,6 +272,11 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Retrieves a list of available dialogue options.
+     *
+     * @return A list of dialogue option texts. If no options are present, returns an empty list.
+     */
     public static List<String> getOptions() {
         return Static.invoke(() -> {
             List<String> options = new ArrayList<>();
@@ -239,6 +305,12 @@ public class DialogueAPI
         });
     }
 
+    /**
+     * Checks if a specific dialogue option is present.
+     *
+     * @param option The text of the option to check for. Case-insensitive and partial matches are supported.
+     * @return true if the option is present, false otherwise.
+     */
     public static boolean optionPresent(String option)
     {
         List<String> options = getOptions();

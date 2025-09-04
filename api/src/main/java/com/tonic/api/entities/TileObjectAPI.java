@@ -8,6 +8,9 @@ import net.runelite.api.GameState;
 import net.runelite.api.ObjectComposition;
 import net.runelite.api.TileObject;
 
+/**
+ * TileObject API
+ */
 public class TileObjectAPI
 {
     /**
@@ -90,6 +93,21 @@ public class TileObjectAPI
         });
     }
 
+    /**
+     * get the actions of a tile object
+     * @param tileObject tile object
+     * @return actions
+     */
+    public static String[] getActions(TileObject tileObject) {
+        Client client = Static.getClient();
+        return Static.invoke(() -> {
+            ObjectComposition composition = client.getObjectDefinition(tileObject.getId());
+            if(composition == null)
+                return new String[]{};
+            return composition.getActions();
+        });
+    }
+
     private static int getAction(TileObject object, String action) {
         String[] actions = getActions(object);
         for(int i = 0; i < actions.length; i++)
@@ -101,15 +119,5 @@ public class TileObjectAPI
             return i;
         }
         return -1;
-    }
-
-    private static String[] getActions(TileObject tileObject) {
-        Client client = Static.getClient();
-        return Static.invoke(() -> {
-            ObjectComposition composition = client.getObjectDefinition(tileObject.getId());
-            if(composition == null)
-                return new String[]{};
-            return composition.getActions();
-        });
     }
 }

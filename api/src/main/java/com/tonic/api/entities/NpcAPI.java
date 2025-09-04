@@ -5,6 +5,9 @@ import com.tonic.api.TClient;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 
+/**
+ * NPC API
+ */
 public class NpcAPI
 {
     /**

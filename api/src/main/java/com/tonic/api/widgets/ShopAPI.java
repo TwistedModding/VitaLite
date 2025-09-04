@@ -7,10 +7,17 @@ import com.tonic.types.ItemEx;
 import com.tonic.types.ShopID;
 import net.runelite.api.MenuAction;
 
+/**
+ * ShopAPI - methods for interacting with shops
+ */
 public class ShopAPI
 {
-    private static int SHOP_ID = 19660816;
+    private static final int SHOP_ID = 19660816;
 
+    /**
+     * buy 1 of an item from the shop by its id
+     * @param itemId item id
+     */
     public static void buy1(int itemId)
     {
         ItemEx item = getShopItem(itemId);
@@ -19,6 +26,10 @@ public class ShopAPI
         buy_1(item);
     }
 
+    /**
+     * buy 1 of an item from the shop by its name
+     * @param itemName item name
+     */
     public static void buy1(String itemName)
     {
         ItemEx item = getShopItem(itemName);
@@ -27,6 +38,10 @@ public class ShopAPI
         buy_1(item);
     }
 
+    /**
+     * buy 5 of an item from the shop by its id
+     * @param itemId item id
+     */
     public static void buy5(int itemId)
     {
         ItemEx item = getShopItem(itemId);
@@ -35,6 +50,10 @@ public class ShopAPI
         buy_5(item);
     }
 
+    /**
+     * buy 5 of an item from the shop by its name
+     * @param itemName item name
+     */
     public static void buy5(String itemName)
     {
         ItemEx item = getShopItem(itemName);
@@ -43,6 +62,10 @@ public class ShopAPI
         buy_5(item);
     }
 
+    /**
+     * buy 10 of an item from the shop by its id
+     * @param itemId item id
+     */
     public static void buy10(int itemId)
     {
         ItemEx item = getShopItem(itemId);
@@ -51,6 +74,10 @@ public class ShopAPI
         buy_10(item);
     }
 
+    /**
+     * buy 10 of an item from the shop by its name
+     * @param itemName item name
+     */
     public static void buy10(String itemName)
     {
         ItemEx item = getShopItem(itemName);
@@ -59,6 +86,10 @@ public class ShopAPI
         buy_10(item);
     }
 
+    /**
+     * buy 50 of an item from the shop by its id
+     * @param itemId item id
+     */
     public static void buy50(int itemId)
     {
         ItemEx item = getShopItem(itemId);
@@ -67,6 +98,10 @@ public class ShopAPI
         buy_50(item);
     }
 
+    /**
+     * buy 50 of an item from the shop by its name
+     * @param itemName item name
+     */
     public static void buy50(String itemName)
     {
         ItemEx item = getShopItem(itemName);
