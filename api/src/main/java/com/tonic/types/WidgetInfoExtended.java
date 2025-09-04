@@ -46,6 +46,16 @@ public enum WidgetInfoExtended {
     GRAND_EXCHANGE_OFFER8(WidgetID.GRAND_EXCHANGE_GROUP_ID, GrandExchange.OFFER8),
 
     DIALOG_OPTION_OPTION1(WidgetID.DIALOG_OPTION_GROUP_ID, DialogOption.OPTIONS),
+    DIALOG2_SPRITE_TEXT(11, 2),
+    MINIGAME_DIALOG_TEXT(229, MinigameDialog.TEXT),
+    MINIGAME_DIALOG_CONTINUE(229, MinigameDialog.CONTINUE),
+    DIALOG_NOTIFICATION_TEXT(229, DialogNotification.TEXT),
+    DIALOG_NPC_CONTINUE(WidgetID.DIALOG_NPC_GROUP_ID, DialogNPC.CONTINUE),
+    DIALOG_PLAYER_CONTINUE(WidgetID.DIALOG_PLAYER_GROUP_ID, DialogPlayer.CONTINUE),
+    DIALOG2_SPRITE(11, 0),
+    DIALOG2_SPRITE_CONTINUE(11, DialogSprite2.CONTINUE),
+    DIALOG_NOTIFICATION_CONTINUE(229, DialogNotification.CONTINUE),
+    LEVEL_UP_CONTINUE(WidgetID.LEVEL_UP_GROUP_ID, LevelUp.CONTINUE),
     ;
 
     private final int id;
@@ -204,5 +214,48 @@ public enum WidgetInfoExtended {
     static class DialogOption
     {
         static final int OPTIONS = 1;
+    }
+
+    static class DialogNPC
+    {
+        static final int HEAD_MODEL = 2;
+        static final int NAME = 4;
+        static final int CONTINUE = 5;
+        static final int TEXT = 6;
+    }
+
+    static class DialogPlayer
+    {
+        static final int HEAD_MODEL = 2;
+        static final int NAME = 4;
+        static final int CONTINUE = 5;
+        static final int TEXT = 6;
+    }
+
+    static class DialogSprite2
+    {
+        static final int SPRITE1 = 1;
+        static final int TEXT = 2;
+        static final int SPRITE2 = 3;
+        static final int CONTINUE = 4;
+    }
+
+    static class MinigameDialog
+    {
+        static final int TEXT = 1;
+        static final int CONTINUE = 2;
+    }
+
+    static class DialogNotification
+    {
+        static final int TEXT = 0;
+        static final int CONTINUE = 1;
+    }
+
+    static class LevelUp
+    {
+        static final int SKILL = 1;
+        static final int LEVEL = 2;
+        static final int CONTINUE = 3;
     }
 }
