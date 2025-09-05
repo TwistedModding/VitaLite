@@ -18,44 +18,44 @@ public enum Ancient implements Spell
             0,
             InterfaceID.MagicSpellbook.TELEPORT_HOME_ZAROS
     ),
-//    PADDEWWA_TELEPORT(
-//            54,
-//            InterfaceID.MagicSpellbook.PADDEWWA_TELEPORT,
-//            new RuneRequirement(1, Rune.AIR),
-//            new RuneRequirement(1, Rune.FIRE),
-//            new RuneRequirement(2, Rune.LAW)
-//    ),
-//    SENNTISTEN_TELEPORT(
-//            60,
-//            InterfaceID.MagicSpellbook.SENNTISTEN_TELEPORT,
-//            new RuneRequirement(2, Rune.LAW),
-//            new RuneRequirement(1, Rune.SOUL)
-//    ),
-//    KHARYRLL_TELEPORT(
-//            66,
-//            InterfaceID.MagicSpellbook.KHARYRLL_TELEPORT,
-//            new RuneRequirement(2, Rune.LAW),
-//            new RuneRequirement(1, Rune.BLOOD)
-//    ),
-//    LASSAR_TELEPORT(
-//            72,
-//            InterfaceID.MagicSpellbook.LASSAR_TELEPORT,
-//            new RuneRequirement(4, Rune.WATER),
-//            new RuneRequirement(2, Rune.LAW)
-//    ),
-//    DAREEYAK_TELEPORT(
-//            78,
-//            InterfaceID.MagicSpellbook.DAREEYAK_TELEPORT,
-//            new RuneRequirement(2, Rune.AIR),
-//            new RuneRequirement(3, Rune.FIRE),
-//            new RuneRequirement(2, Rune.LAW)
-//    ),
-//    CARRALLANGER_TELEPORT(
-//            84,
-//            InterfaceID.MagicSpellbook.CARRALLANGER_TELEPORT,
-//            new RuneRequirement(2, Rune.LAW),
-//            new RuneRequirement(2, Rune.SOUL)
-//    ),
+    PADDEWWA_TELEPORT(
+            54,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT1,
+            new RuneRequirement(1, Rune.AIR),
+            new RuneRequirement(1, Rune.FIRE),
+            new RuneRequirement(2, Rune.LAW)
+    ),
+    SENNTISTEN_TELEPORT(
+            60,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT2,
+            new RuneRequirement(2, Rune.LAW),
+            new RuneRequirement(1, Rune.SOUL)
+    ),
+    KHARYRLL_TELEPORT(
+            66,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT3,
+            new RuneRequirement(2, Rune.LAW),
+            new RuneRequirement(1, Rune.BLOOD)
+    ),
+    LASSAR_TELEPORT(
+            72,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT4,
+            new RuneRequirement(4, Rune.WATER),
+            new RuneRequirement(2, Rune.LAW)
+    ),
+    DAREEYAK_TELEPORT(
+            78,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT5,
+            new RuneRequirement(2, Rune.AIR),
+            new RuneRequirement(3, Rune.FIRE),
+            new RuneRequirement(2, Rune.LAW)
+    ),
+    CARRALLANGER_TELEPORT(
+            84,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT6,
+            new RuneRequirement(2, Rune.LAW),
+            new RuneRequirement(2, Rune.SOUL)
+    ),
     BOUNTY_TARGET_TELEPORT(
             85,
             InterfaceID.MagicSpellbook.BOUNTY_TARGET,
@@ -63,15 +63,15 @@ public enum Ancient implements Spell
             new RuneRequirement(1, Rune.DEATH),
             new RuneRequirement(1, Rune.LAW)
     ),
-//    ANNAKARL_TELEPORT(
-//            90,
-//            InterfaceID.MagicSpellbook.ANNAKARL_TELEPORT,
-//            new RuneRequirement(2, Rune.LAW),
-//            new RuneRequirement(2, Rune.BLOOD)
-//    ),
+    ANNAKARL_TELEPORT(
+            90,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT7,
+            new RuneRequirement(2, Rune.LAW),
+            new RuneRequirement(2, Rune.BLOOD)
+    ),
     GHORROCK_TELEPORT(
             96,
-            InterfaceID.MagicSpellbook.TELE_GHORROCK,
+            InterfaceID.MagicSpellbook.ZAROSTELEPORT8,
             new RuneRequirement(8, Rune.WATER),
             new RuneRequirement(2, Rune.LAW)
     ),
