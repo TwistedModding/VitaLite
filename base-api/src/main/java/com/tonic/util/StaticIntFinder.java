@@ -17,11 +17,7 @@ public class StaticIntFinder {
      */
     public static String find(Class<?> root, int target) {
         if (root == null) return null;
-
-        // Get or build cache for this class
         Map<Integer, String> cache = CLASS_CACHE.computeIfAbsent(root, StaticIntFinder::buildCache);
-
-        // Fast O(1) lookup
         String result = cache.get(target);
         return result != null ? result : String.valueOf(target);
     }
@@ -36,8 +32,6 @@ public class StaticIntFinder {
 
         while (!stack.isEmpty()) {
             final Class<?> cls = stack.pop();
-
-            // Add inner classes to stack
             Class<?>[] inners;
             try {
                 inners = cls.getDeclaredClasses();
@@ -49,8 +43,6 @@ public class StaticIntFinder {
                     stack.push(inner);
                 }
             }
-
-            // Process fields
             Field[] fields;
             try {
                 fields = cls.getDeclaredFields();
@@ -69,14 +61,12 @@ public class StaticIntFinder {
 
                 Integer value = null;
 
-                // Try public access first
                 if (classPublic && Modifier.isPublic(mods)) {
                     try {
                         value = f.getInt(null);
                     } catch (IllegalAccessException ignored) {}
                 }
 
-                // Try private access if needed
                 if (value == null) {
                     if (!f.canAccess(null)) {
                         if (!f.trySetAccessible()) {
@@ -90,8 +80,7 @@ public class StaticIntFinder {
                     }
                 }
 
-                // Store in cache if we got a value and it's not already there (first match wins)
-                if (value != null && !cache.containsKey(value)) {
+                if (!cache.containsKey(value)) {
                     cache.put(value, qualify(root, cls, f.getName()));
                 }
             }
