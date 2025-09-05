@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.tonic.packets.types.MapEntry;
 import com.tonic.packets.types.PacketDefinition;
+import com.tonic.util.StaticIntFinder;
+import net.runelite.api.gameval.InterfaceID;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +77,16 @@ public class PacketMapReader
             else
             {
                 num = doRead(buffer, entry.getReads().get(i));
+                if(num == 65535)
+                {
+                    num = -1;
+                }
+                else if(entry.getArgs().get(i).toLowerCase().contains("widgetid") || entry.getArgs().get(i).toLowerCase().contains("childid"))
+                {
+                    String name = StaticIntFinder.find(InterfaceID.class, (int) num);
+                    out.append(entry.getArgs().get(i)).append("=").append(name).append(", ");
+                    continue;
+                }
                 out.append(entry.getArgs().get(i)).append("=").append(num).append(", ");
             }
         }

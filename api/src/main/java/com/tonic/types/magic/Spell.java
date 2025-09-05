@@ -18,12 +18,12 @@ public interface Spell {
     default void setAutoCast()
     {
         WidgetAPI.interact(1, InterfaceID.CombatInterface.AUTOCAST_NORMAL, -1, -1);
-        WidgetAPI.interact(1, 13172737, getAutoCastIndex(), -1);
+        WidgetAPI.interact(1, InterfaceID.Autocast.SPELLS, getAutoCastIndex(), -1);
     }
 
     default void setDefensiveAutoCast()
     {
         WidgetAPI.interact(1, InterfaceID.CombatInterface.AUTOCAST_DEFENSIVE, -1, -1);
-        WidgetAPI.interact(1, 13172737, getAutoCastIndex(), -1);
+        WidgetAPI.interact(1, InterfaceID.Autocast.SPELLS, getAutoCastIndex(), -1);
     }
 }
