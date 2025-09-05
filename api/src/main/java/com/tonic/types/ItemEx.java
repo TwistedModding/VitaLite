@@ -5,10 +5,14 @@ import lombok.*;
 import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
+import net.runelite.api.gameval.ItemID;
+import net.runelite.client.game.ItemManager;
+import net.runelite.client.util.QuantityFormatter;
 
 @Getter
 @RequiredArgsConstructor
-public class ItemEx {
+public class ItemEx
+{
     private final Item item;
     private final int slot;
     private String[] actions = null;

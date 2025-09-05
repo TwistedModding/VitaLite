@@ -29,15 +29,14 @@ public class GameAPI
 
     public static int getWildyLevel()
     {
-        Widget wildyLevelWidget = WidgetAPI.get(WidgetInfo.PVP_WILDERNESS_LEVEL);
+        Widget wildyLevelWidget = WidgetAPI.get(InterfaceID.PvpIcons.WILDERNESSLEVEL);
         if (!WidgetAPI.isVisible(wildyLevelWidget))
         {
             return 0;
         }
 
         // Dmm
-        if (wildyLevelWidget.getText().contains("Guarded")
-                || wildyLevelWidget.getText().contains("Protection"))
+        if (wildyLevelWidget.getText().contains("Guarded") || wildyLevelWidget.getText().contains("Protection"))
         {
             return 0;
         }

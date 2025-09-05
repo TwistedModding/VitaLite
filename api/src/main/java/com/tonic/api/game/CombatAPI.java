@@ -2,70 +2,107 @@ package com.tonic.api.game;
 
 import com.tonic.Static;
 import com.tonic.api.widgets.WidgetAPI;
+import com.tonic.types.AttackStyle;
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.VarPlayer;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarPlayerID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
 import java.util.Arrays;
 
+/**
+ * A collection of combat related methods
+ */
 public class CombatAPI
 {
-    private static final int SPEC_VARP = 301;
-    private static final int SPEC_ENERGY_VARP = 300;
     private static final int VENOM_THRESHOLD = 1000000;
-    private static final int ANTIFIRE = 3981;
-    private static final int SUPER_ANTIFIRE = 6101;
 
+    /**
+     * Checks if the player is currently retaliating
+     * @return true if the player is retaliating, false otherwise
+     */
     public static boolean isRetaliating()
     {
         return VarAPI.getVarp(VarPlayerID.OPTION_NODEF) == 0;
     }
 
+    /**
+     * Toggles the player's auto-retaliate setting
+     * @param bool true to enable auto-retaliate, false to disable
+     */
     public static void toggleRetaliate(boolean bool)
     {
         if(!isRetaliating() && bool)
         {
-            WidgetAPI.interact(1, WidgetInfo.COMBAT_AUTO_RETALIATE, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.CombatInterface.RETALIATE, -1, -1);
         }
         else if(isRetaliating() && !bool)
         {
-            WidgetAPI.interact(1, WidgetInfo.COMBAT_AUTO_RETALIATE, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.CombatInterface.RETALIATE, -1, -1);
         }
     }
 
+    /**
+     * Checks if the player is currently poisoned
+     * @return true if the player is poisoned, false otherwise
+     */
     public static boolean isPoisoned()
     {
         return VarAPI.getVarp(VarPlayerID.POISON) > 0;
     }
 
+    /**
+     * Checks if the player is currently venomed
+     * @return true if the player is venomed, false otherwise
+     */
     public static boolean isVenomed()
     {
         return VarAPI.getVarp(VarPlayerID.POISON) >= VENOM_THRESHOLD;
     }
 
+    /**
+     * Checks if the player's special attack is enabled
+     * @return true if the special attack is enabled, false otherwise
+     */
     public static boolean isSpecEnabled()
     {
-        return VarAPI.getVarp(SPEC_VARP) == 1;
+        return VarAPI.getVarp(VarPlayerID.SA_ATTACK) == 1;
     }
 
+    /**
+     * Gets the player's current special attack energy
+     * @return the player's special attack energy (0-100)
+     */
     public static int getSpecEnergy()
     {
-        return VarAPI.getVarp(SPEC_ENERGY_VARP) / 10;
+        return VarAPI.getVarp(VarPlayerID.SA_ENERGY) / 10;
     }
 
+    /**
+     * Checks if the player has an antifire potion effect active
+     * @return true if the player has an antifire potion effect active, false otherwise
+     */
     public static boolean isAntifired()
     {
-        return VarAPI.getVar(ANTIFIRE) > 0;
+        return VarAPI.getVar(VarbitID.ANTIFIRE_POTION) > 0;
     }
 
+    /**
+     * Checks if the player has a super antifire potion effect active
+     * @return true if the player has a super antifire potion effect active, false otherwise
+     */
     public static boolean isSuperAntifired()
     {
-        return VarAPI.getVar(SUPER_ANTIFIRE) > 0;
+        return VarAPI.getVar(VarbitID.SUPER_ANTIFIRE_POTION) > 0;
     }
 
+    /**
+     * Toggles the player's special attack
+     */
     public static void toggleSpec()
     {
         if (isSpecEnabled())
@@ -73,54 +110,30 @@ public class CombatAPI
             return;
         }
 
-        WidgetAPI.interact(1, 38862885, -1, -1);
+        WidgetAPI.interact(1, InterfaceID.CombatInterface.SP_ATTACKBAR, -1, -1);
     }
 
+    /**
+     * Sets the player's attack style
+     * @param attackStyle the attack style to set
+     */
     public static void setAttackStyle(AttackStyle attackStyle)
     {
-        if (attackStyle.widgetInfo == null)
+        if (attackStyle.getInterfaceId() == -1)
         {
             return;
         }
 
         Client client = Static.getClient();
-        Widget widget = Static.invoke(() -> client.getWidget(attackStyle.widgetInfo));
+        Widget widget = Static.invoke(() -> client.getWidget(attackStyle.getInterfaceId()));
         if (widget != null)
         {
-            WidgetAPI.interact(1, attackStyle.widgetInfo, -1, -1);
+            WidgetAPI.interact(1, attackStyle.getInterfaceId(), -1, -1);
         }
     }
 
     public static AttackStyle getAttackStyle()
     {
         return AttackStyle.fromIndex(VarAPI.getVarp(43));
-    }
-
-    @Getter
-    public enum AttackStyle
-    {
-        FIRST(0, WidgetInfo.COMBAT_STYLE_ONE),
-        SECOND(1, WidgetInfo.COMBAT_STYLE_TWO),
-        THIRD(2, WidgetInfo.COMBAT_STYLE_THREE),
-        FOURTH(3, WidgetInfo.COMBAT_STYLE_FOUR),
-        SPELLS(4, WidgetInfo.COMBAT_SPELL_BOX),
-        SPELLS_DEFENSIVE(4, WidgetInfo.COMBAT_DEFENSIVE_SPELL_BOX),
-        UNKNOWN(-1, null);
-
-        private final int index;
-        private final WidgetInfo widgetInfo;
-
-        AttackStyle(int index, WidgetInfo widgetInfo)
-        {
-            this.index = index;
-            this.widgetInfo = widgetInfo;
-        }
-
-        public static AttackStyle fromIndex(int index)
-        {
-            return Arrays.stream(values()).filter(x -> x.index == index)
-                    .findFirst()
-                    .orElse(UNKNOWN);
-        }
     }
 }
