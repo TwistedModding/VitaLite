@@ -81,7 +81,7 @@ public class PacketMapReader
                 {
                     num = -1;
                 }
-                else if(entry.getArgs().get(i).toLowerCase().contains("widgetid") || entry.getArgs().get(i).toLowerCase().contains("childid"))
+                else if(entry.getArgs().get(i).toLowerCase().contains("widgetid"))
                 {
                     String name = StaticIntFinder.find(InterfaceID.class, (int) num);
                     out.append(entry.getArgs().get(i)).append("=").append(name).append(", ");
