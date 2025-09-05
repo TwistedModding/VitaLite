@@ -2,13 +2,10 @@ package com.tonic.api.game;
 
 import com.tonic.Static;
 import com.tonic.api.widgets.WidgetAPI;
-import com.tonic.types.WidgetInfoExtended;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
-import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 
 public class GameAPI
 {

@@ -1,4 +1,4 @@
-package com.tonic.types;
+package com.tonic.data;
 
 import com.tonic.Static;
 import lombok.*;
@@ -7,7 +7,6 @@ import net.runelite.api.Item;
 import net.runelite.api.ItemComposition;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.client.game.ItemManager;
-import net.runelite.client.util.QuantityFormatter;
 
 @Getter
 @RequiredArgsConstructor

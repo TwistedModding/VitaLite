@@ -1,8 +1,7 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import com.tonic.api.game.VarAPI;
 import com.tonic.api.widgets.InventoryAPI;
-import net.runelite.api.Varbits;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.gameval.VarbitID;
 

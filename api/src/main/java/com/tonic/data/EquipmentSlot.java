@@ -1,7 +1,6 @@
-package com.tonic.types;
+package com.tonic.data;
 
 import lombok.Getter;
-import net.runelite.api.widgets.WidgetInfo;
 
 import java.util.HashMap;
 import java.util.Map;

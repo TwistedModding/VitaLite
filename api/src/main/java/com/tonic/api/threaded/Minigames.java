@@ -7,7 +7,7 @@ import com.tonic.api.game.VarAPI;
 import com.tonic.api.game.WorldsAPI;
 import com.tonic.api.widgets.TabsAPI;
 import com.tonic.api.widgets.WidgetAPI;
-import com.tonic.types.Tab;
+import com.tonic.data.Tab;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.runelite.api.*;
@@ -20,7 +20,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Minigames

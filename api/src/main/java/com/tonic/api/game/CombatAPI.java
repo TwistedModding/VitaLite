@@ -2,17 +2,12 @@ package com.tonic.api.game;
 
 import com.tonic.Static;
 import com.tonic.api.widgets.WidgetAPI;
-import com.tonic.types.AttackStyle;
-import lombok.Getter;
+import com.tonic.data.AttackStyle;
 import net.runelite.api.Client;
-import net.runelite.api.VarPlayer;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
-
-import java.util.Arrays;
 
 /**
  * A collection of combat related methods

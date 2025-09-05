@@ -1,4 +1,4 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import net.runelite.api.gameval.ItemID;
 

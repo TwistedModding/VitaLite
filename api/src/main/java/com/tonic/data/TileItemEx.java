@@ -1,4 +1,4 @@
-package com.tonic.types;
+package com.tonic.data;
 
 import com.tonic.Static;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.tonic.types;
+package com.tonic.data;
 
 import com.tonic.Static;
 import com.tonic.api.widgets.WidgetAPI;
@@ -6,7 +6,6 @@ import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
-import org.lwjgl.system.linux.Stat;
 
 @Getter
 public enum GrandExchangeSlot

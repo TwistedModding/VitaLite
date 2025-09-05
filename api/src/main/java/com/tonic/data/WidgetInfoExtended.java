@@ -1,4 +1,4 @@
-package com.tonic.types;
+package com.tonic.data;
 
 import net.runelite.api.widgets.WidgetID;
 import java.util.Arrays;

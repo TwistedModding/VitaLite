@@ -2,9 +2,9 @@ package com.tonic.queries;
 
 import com.tonic.Static;
 import com.tonic.queries.abstractions.AbstractQuery;
-import com.tonic.types.ItemContainerEx;
-import com.tonic.types.ItemEx;
-import com.tonic.types.ShopID;
+import com.tonic.data.ItemContainerEx;
+import com.tonic.data.ItemEx;
+import com.tonic.data.ShopID;
 import net.runelite.api.InventoryID;
 import net.runelite.api.ItemContainer;
 import org.apache.commons.lang3.ArrayUtils;

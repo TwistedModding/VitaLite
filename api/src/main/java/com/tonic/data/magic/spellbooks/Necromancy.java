@@ -1,16 +1,16 @@
-package com.tonic.types.magic.spellbooks;
+package com.tonic.data.magic.spellbooks;
 
 import com.tonic.api.game.GameAPI;
 import com.tonic.api.game.WorldsAPI;
 import com.tonic.api.widgets.MagicAPI;
-import com.tonic.types.magic.Rune;
-import com.tonic.types.magic.RuneRequirement;
-import com.tonic.types.magic.Spell;
+import com.tonic.data.magic.Rune;
+import com.tonic.data.magic.RuneRequirement;
+import com.tonic.data.magic.Spell;
 import lombok.Getter;
 import net.runelite.api.Skill;
 import net.runelite.api.gameval.InterfaceID;
 
-import static com.tonic.types.magic.SpellBook.*;
+import static com.tonic.data.magic.SpellBook.*;
 
 public enum Necromancy implements Spell
 {

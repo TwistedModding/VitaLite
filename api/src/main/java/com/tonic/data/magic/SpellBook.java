@@ -1,9 +1,9 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import com.tonic.Static;
 import com.tonic.api.game.VarAPI;
-import com.tonic.types.magic.spellbooks.Ancient;
-import com.tonic.types.magic.spellbooks.Standard;
+import com.tonic.data.magic.spellbooks.Ancient;
+import com.tonic.data.magic.spellbooks.Standard;
 import net.runelite.api.gameval.VarbitID;
 
 import java.util.*;

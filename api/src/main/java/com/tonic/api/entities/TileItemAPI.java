@@ -2,7 +2,7 @@ package com.tonic.api.entities;
 
 import com.tonic.Static;
 import com.tonic.api.TClient;
-import com.tonic.types.TileItemEx;
+import com.tonic.data.TileItemEx;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.TileItem;

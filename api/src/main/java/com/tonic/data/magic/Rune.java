@@ -1,9 +1,9 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import com.tonic.api.widgets.EquipmentAPI;
 import com.tonic.api.widgets.InventoryAPI;
-import com.tonic.types.EquipmentSlot;
-import com.tonic.types.ItemEx;
+import com.tonic.data.EquipmentSlot;
+import com.tonic.data.ItemEx;
 import net.runelite.api.gameval.ItemID;
 
 public enum Rune

@@ -1,4 +1,4 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import com.tonic.api.widgets.WidgetAPI;
 import net.runelite.api.gameval.InterfaceID;

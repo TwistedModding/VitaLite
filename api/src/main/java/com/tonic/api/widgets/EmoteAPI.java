@@ -1,6 +1,6 @@
 package com.tonic.api.widgets;
 
-import com.tonic.types.EmoteID;
+import com.tonic.data.EmoteID;
 
 /**
  * Emote automation api

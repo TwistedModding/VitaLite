@@ -3,12 +3,11 @@ package com.tonic.api.widgets;
 import com.tonic.Static;
 import com.tonic.api.game.VarAPI;
 import com.tonic.queries.InventoryQuery;
-import com.tonic.types.ItemEx;
+import com.tonic.data.ItemEx;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
-import net.runelite.api.widgets.WidgetInfo;
 
 /**
  * Bank API

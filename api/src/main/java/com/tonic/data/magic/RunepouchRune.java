@@ -1,4 +1,4 @@
-package com.tonic.types.magic;
+package com.tonic.data.magic;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.Getter;

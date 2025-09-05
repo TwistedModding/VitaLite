@@ -2,8 +2,8 @@ package com.tonic.api.widgets;
 
 import com.tonic.api.game.GameAPI;
 import com.tonic.api.game.VarAPI;
-import com.tonic.types.magic.Spell;
-import com.tonic.types.magic.SpellBook;
+import com.tonic.data.magic.Spell;
+import com.tonic.data.magic.SpellBook;
 import net.runelite.api.Skill;
 import net.runelite.api.gameval.VarPlayerID;
 import java.time.Instant;

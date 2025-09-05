@@ -1,6 +1,6 @@
 package com.tonic.api.game;
 
-import com.tonic.types.WorldLocation;
+import com.tonic.data.WorldLocation;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 

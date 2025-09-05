@@ -1,7 +1,7 @@
 package com.tonic.api.game;
 
 import com.tonic.Static;
-import com.tonic.types.Tab;
+import com.tonic.data.Tab;
 import net.runelite.api.Client;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;

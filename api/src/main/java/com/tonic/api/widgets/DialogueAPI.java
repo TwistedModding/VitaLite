@@ -3,7 +3,7 @@ package com.tonic.api.widgets;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.api.game.ClientScriptAPI;
-import com.tonic.types.WidgetInfoExtended;
+import com.tonic.data.WidgetInfoExtended;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import java.util.ArrayList;

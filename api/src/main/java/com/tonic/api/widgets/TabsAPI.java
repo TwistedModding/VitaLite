@@ -2,7 +2,7 @@ package com.tonic.api.widgets;
 
 import com.tonic.Static;
 import com.tonic.api.game.ClientScriptAPI;
-import com.tonic.types.Tab;
+import com.tonic.data.Tab;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.gameval.VarClientID;

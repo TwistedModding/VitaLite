@@ -2,7 +2,7 @@ package com.tonic.queries;
 
 import com.tonic.queries.abstractions.AbstractQuery;
 import com.tonic.services.GameCache;
-import com.tonic.types.TileItemEx;
+import com.tonic.data.TileItemEx;
 import com.tonic.util.Location;
 import com.tonic.util.TextUtil;
 import net.runelite.api.coords.WorldPoint;

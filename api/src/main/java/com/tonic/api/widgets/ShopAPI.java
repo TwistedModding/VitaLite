@@ -1,11 +1,8 @@
 package com.tonic.api.widgets;
 
-import com.tonic.Static;
-import com.tonic.api.TClient;
 import com.tonic.queries.InventoryQuery;
-import com.tonic.types.ItemEx;
-import com.tonic.types.ShopID;
-import net.runelite.api.MenuAction;
+import com.tonic.data.ItemEx;
+import com.tonic.data.ShopID;
 import net.runelite.api.gameval.InterfaceID;
 
 /**

@@ -2,7 +2,7 @@ package com.tonic.api.threaded;
 
 import com.tonic.Logger;
 import com.tonic.api.game.ClientScriptAPI;
-import com.tonic.types.GrandExchangeSlot;
+import com.tonic.data.GrandExchangeSlot;
 
 import static com.tonic.api.widgets.GrandExchangeAPI.*;
 
