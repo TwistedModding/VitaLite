@@ -21,6 +21,11 @@ public class TileItemQuery extends AbstractQuery<TileItemEx, TileItemQuery>
         return removeIf(o -> !ArrayUtils.contains(id, o.getId()));
     }
 
+    public TileItemQuery withCanonicalId(int... id)
+    {
+        return removeIf(o -> !ArrayUtils.contains(id, o.getCanonicalId()));
+    }
+
     public TileItemQuery withName(String name)
     {
         return keepIf(o -> o.getName() != null && o.getName().equalsIgnoreCase(name));
@@ -29,6 +34,51 @@ public class TileItemQuery extends AbstractQuery<TileItemEx, TileItemQuery>
     public TileItemQuery withNames(String... names)
     {
         return keepIf(o -> o.getName() != null && TextUtil.containsIgnoreCase(o.getName(), names));
+    }
+
+    public TileItemQuery greaterThanShopPrice(int price)
+    {
+        return removeIf(o -> o.getShopPrice() <= price);
+    }
+
+    public TileItemQuery lessThanShopPrice(int price)
+    {
+        return removeIf(o -> o.getShopPrice() >= price);
+    }
+
+    public TileItemQuery greaterThanGePrice(int price)
+    {
+        return removeIf(o -> o.getGePrice() <= price);
+    }
+
+    public TileItemQuery lessThanGePrice(int price)
+    {
+        return removeIf(o -> o.getGePrice() >= price);
+    }
+
+    public TileItemQuery greaterThanHighAlchValue(int value)
+    {
+        return removeIf(o -> o.getHighAlchValue() <= value);
+    }
+
+    public TileItemQuery lessThanHighAlchValue(int value)
+    {
+        return removeIf(o -> o.getHighAlchValue() >= value);
+    }
+
+    public TileItemQuery greaterThanLowAlchValue(int value)
+    {
+        return removeIf(o -> o.getLowAlchValue() <= value);
+    }
+
+    public TileItemQuery lessThanLowAlchValue(int value)
+    {
+        return removeIf(o -> o.getLowAlchValue() >= value);
+    }
+
+    public TileItemQuery withNameContains(String namePart)
+    {
+        return removeIf(o -> !o.getName().toLowerCase().contains(namePart.toLowerCase()));
     }
 
     public TileItemQuery within(int distance)

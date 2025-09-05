@@ -83,12 +83,57 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
 
     public InventoryQuery withId(int... id)
     {
-        return removeIf(o -> !ArrayUtils.contains(id, o.getId()) && !ArrayUtils.contains(id, o.getLinkedNoteId()));
+        return removeIf(o -> !ArrayUtils.contains(id, o.getId()));
+    }
+
+    public InventoryQuery withCanonicalId(int... id)
+    {
+        return removeIf(o -> !ArrayUtils.contains(id, o.getCanonicalId()));
     }
 
     public InventoryQuery withName(String... name)
     {
         return removeIf(o -> !ArrayUtils.contains(name, o.getName()));
+    }
+
+    public InventoryQuery greaterThanShopPrice(int price)
+    {
+        return removeIf(o -> o.getShopPrice() <= price);
+    }
+
+    public InventoryQuery lessThanShopPrice(int price)
+    {
+        return removeIf(o -> o.getShopPrice() >= price);
+    }
+
+    public InventoryQuery greaterThanGePrice(int price)
+    {
+        return removeIf(o -> o.getGePrice() <= price);
+    }
+
+    public InventoryQuery lessThanGePrice(int price)
+    {
+        return removeIf(o -> o.getGePrice() >= price);
+    }
+
+    public InventoryQuery greaterThanHighAlchValue(int value)
+    {
+        return removeIf(o -> o.getHighAlchValue() <= value);
+    }
+
+    public InventoryQuery lessThanHighAlchValue(int value)
+    {
+        return removeIf(o -> o.getHighAlchValue() >= value);
+    }
+
+    public InventoryQuery greaterThanLowAlchValue(int value)
+    {
+        return removeIf(o -> o.getLowAlchValue() <= value);
+    }
+
+    public InventoryQuery lessThanLowAlchValue(int value)
+    {
+        return removeIf(o -> o.getLowAlchValue() >= value);
     }
 
     public InventoryQuery withNameContains(String namePart)

@@ -11,14 +11,23 @@ import net.runelite.client.util.QuantityFormatter;
 
 @Getter
 @RequiredArgsConstructor
-public class ItemEx
-{
+public class ItemEx {
     private final Item item;
     private final int slot;
     private String[] actions = null;
 
     public int getId() {
         return item.getId();
+    }
+
+    public boolean isNoted() {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getItemDefinition(item.getId()).getNote()) == 799;
+    }
+
+    public int getCanonicalId() {
+        ItemManager itemManager = Static.getInjector().getInstance(ItemManager.class);
+        return itemManager.canonicalize(item.getId());
     }
 
     public int getLinkedNoteId() {
@@ -73,5 +82,44 @@ public class ItemEx
                 return true;
         }
         return false;
+    }
+
+    public int getShopPrice() {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getItemDefinition(item.getId()).getPrice());
+    }
+
+    public long getGePrice()
+    {
+        ItemManager itemManager = Static.getInjector().getInstance(ItemManager.class);
+        int id = itemManager.canonicalize(item.getId());
+        if (id == ItemID.COINS)
+        {
+            return getQuantity();
+        }
+        else if (id == ItemID.PLATINUM)
+        {
+            return getQuantity() * 1000L;
+        }
+
+        ItemComposition itemDef = itemManager.getItemComposition(id);
+        // Only check prices for things with store prices
+        if (itemDef.getPrice() <= 0)
+        {
+            return 0;
+        }
+
+        return itemManager.getItemPrice(id);
+    }
+
+    public int getHighAlchValue()
+    {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getItemDefinition(item.getId()).getHaPrice());
+    }
+
+    public int getLowAlchValue()
+    {
+        return (int) Math.floor(getHighAlchValue() * 0.6);
     }
 }
