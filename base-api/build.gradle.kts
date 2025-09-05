@@ -47,6 +47,7 @@ val apiFilePatterns = mapOf(
     NullNpcID\.java|
     NullObjectID\.java|
     ObjectID\.java|
+    ObjectID1\.java|
     Opcodes\.java|
     ParamID\.java|
     SettingID\.java|

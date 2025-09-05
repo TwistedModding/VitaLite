@@ -4,21 +4,40 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class StaticIntFinder
-{
+public class StaticIntFinder {
+    private static final Map<Class<?>, Map<Integer, String>> CLASS_CACHE = new ConcurrentHashMap<>();
+
     /**
      * Returns "pkg.Outer.Inner.FIELD" (dots for $), or null if not found.
+     * Cached version - builds cache on first call per class.
      */
     public static String find(Class<?> root, int target) {
         if (root == null) return null;
 
+        // Get or build cache for this class
+        Map<Integer, String> cache = CLASS_CACHE.computeIfAbsent(root, StaticIntFinder::buildCache);
+
+        // Fast O(1) lookup
+        String result = cache.get(target);
+        return result != null ? result : String.valueOf(target);
+    }
+
+    /**
+     * Builds complete cache for a class and all its inner classes
+     */
+    private static Map<Integer, String> buildCache(Class<?> root) {
+        final Map<Integer, String> cache = new HashMap<>(256); // Size hint for large classes
         final Deque<Class<?>> stack = new ArrayDeque<>(8);
         stack.push(root);
 
         while (!stack.isEmpty()) {
             final Class<?> cls = stack.pop();
 
+            // Add inner classes to stack
             Class<?>[] inners;
             try {
                 inners = cls.getDeclaredClasses();
@@ -31,6 +50,7 @@ public class StaticIntFinder
                 }
             }
 
+            // Process fields
             Field[] fields;
             try {
                 fields = cls.getDeclaredFields();
@@ -47,31 +67,37 @@ public class StaticIntFinder
                 if (f.getType() != int.class) continue;
                 if (f.isSynthetic()) continue;
 
+                Integer value = null;
+
+                // Try public access first
                 if (classPublic && Modifier.isPublic(mods)) {
                     try {
-                        if (f.getInt(null) == target) {
-                            return qualify(root, cls, f.getName());
-                        }
-                    } catch (IllegalAccessException ignored) {
-                    }
+                        value = f.getInt(null);
+                    } catch (IllegalAccessException ignored) {}
                 }
 
-                if (!f.canAccess(null)) {
-                    if (!f.trySetAccessible()) {
+                // Try private access if needed
+                if (value == null) {
+                    if (!f.canAccess(null)) {
+                        if (!f.trySetAccessible()) {
+                            continue;
+                        }
+                    }
+                    try {
+                        value = f.getInt(null);
+                    } catch (Throwable ignored) {
                         continue;
                     }
                 }
 
-                try {
-                    if (f.getInt(null) == target) {
-                        return qualify(root, cls, f.getName());
-                    }
-                } catch (Throwable ignored) {
+                // Store in cache if we got a value and it's not already there (first match wins)
+                if (value != null && !cache.containsKey(value)) {
+                    cache.put(value, qualify(root, cls, f.getName()));
                 }
             }
         }
 
-        return target + "";
+        return cache;
     }
 
     private static String qualify(Class<?> root, Class<?> cls, String fieldName) {
@@ -80,5 +106,28 @@ public class StaticIntFinder
         String simple = n.indexOf('$') >= 0 ? n.replace('$', '.') : n;
         String simpleRoot = r.indexOf('$') >= 0 ? r.replace('$', '.') : r;
         return (simple + "." + fieldName).replace(simpleRoot + ".", "");
+    }
+
+    /**
+     * Clear cache for a specific class (useful if class is reloaded)
+     */
+    public static void clearCache(Class<?> clazz) {
+        CLASS_CACHE.remove(clazz);
+    }
+
+    /**
+     * Clear entire cache
+     */
+    public static void clearAllCaches() {
+        CLASS_CACHE.clear();
+    }
+
+    /**
+     * Pre-warm cache for a class (optional - useful during startup)
+     */
+    public static void warmCache(Class<?> clazz) {
+        if (clazz != null && !CLASS_CACHE.containsKey(clazz)) {
+            CLASS_CACHE.put(clazz, buildCache(clazz));
+        }
     }
 }

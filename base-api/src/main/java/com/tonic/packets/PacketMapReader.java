@@ -6,7 +6,9 @@ import com.google.gson.reflect.TypeToken;
 import com.tonic.packets.types.MapEntry;
 import com.tonic.packets.types.PacketDefinition;
 import com.tonic.util.StaticIntFinder;
-import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.NullNpcID;
+import net.runelite.api.NullObjectID;
+import net.runelite.api.gameval.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -68,6 +70,7 @@ public class PacketMapReader
 
         StringBuilder out = new StringBuilder("[" + entry.getName() + "(" + entry.getPacket().getId() + ")] ");
         long num;
+        String name;
         for(int i = 0; i < entry.getReads().size(); i++)
         {
             if(isParsableAsNumber(entry.getArgs().get(i)))
@@ -81,9 +84,25 @@ public class PacketMapReader
                 {
                     num = -1;
                 }
-                else if(entry.getArgs().get(i).toLowerCase().contains("widgetid"))
+                if(entry.getArgs().get(i).toLowerCase().contains("widgetid"))
                 {
-                    String name = StaticIntFinder.find(InterfaceID.class, (int) num);
+                    name = StaticIntFinder.find(InterfaceID.class, (int) num);
+                    out.append(entry.getArgs().get(i)).append("=").append(name).append(", ");
+                    continue;
+                }
+                if(entry.getArgs().get(i).toLowerCase().contains("itemid"))
+                {
+                    name = StaticIntFinder.find(ItemID.class, (int) num);
+                    out.append(entry.getArgs().get(i)).append("=").append(name).append(", ");
+                    continue;
+                }
+                if(entry.getName().startsWith("OP_GAME_OBJECT_ACTION_") && entry.getArgs().get(i).equals("identifier"))
+                {
+                    name = StaticIntFinder.find(ObjectID.class, (int) num);
+                    if(name.equals(num + ""))
+                    {
+                        name = StaticIntFinder.find(ObjectID1.class, (int) num);
+                    }
                     out.append(entry.getArgs().get(i)).append("=").append(name).append(", ");
                     continue;
                 }
