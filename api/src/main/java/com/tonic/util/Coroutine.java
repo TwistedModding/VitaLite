@@ -1,7 +1,7 @@
-package com.tonic.abstractions;
+package com.tonic.util;
 
 import com.tonic.Logger;
-import com.tonic.api.game.DelaysAPI;
+import com.tonic.api.threaded.Delays;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -33,7 +33,7 @@ public class Coroutine implements Runnable {
 
     public static boolean _isCancelled()
     {
-        return canceled;
+        return live != null && canceled;
     }
 
     public boolean isCancelled()
@@ -81,7 +81,7 @@ public class Coroutine implements Runnable {
         {
             while (live.getAwait().get())
             {
-                DelaysAPI.wait(100);
+                Delays.wait(100);
             }
         }
 

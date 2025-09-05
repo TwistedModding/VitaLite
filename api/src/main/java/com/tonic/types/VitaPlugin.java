@@ -1,6 +1,7 @@
-package com.tonic.abstractions;
+package com.tonic.types;
 
 import com.tonic.Logger;
+import com.tonic.util.Coroutine;
 import com.tonic.util.ReflectUtil;
 import com.tonic.util.ThreadPool;
 import net.runelite.api.events.GameTick;
@@ -27,7 +28,7 @@ public class VitaPlugin extends Plugin
      * as necessary.
      */
     @Subscribe
-    public final void handleLoop(GameTick event) {
+    public final void onGameTick(GameTick event) {
         if (!ReflectUtil.isOverridden(this, "loop"))
             return;
 

@@ -10,6 +10,7 @@ import net.runelite.client.game.WorldService;
 import net.runelite.client.util.WorldUtil;
 import net.runelite.http.api.worlds.World;
 import net.runelite.http.api.worlds.WorldResult;
+import net.runelite.http.api.worlds.WorldType;
 
 /**
  * Worlds related API
@@ -67,16 +68,6 @@ public class WorldsAPI
      * Hop to a specific world
      * @param world The world to hop to
      */
-    public static void hopTo(World world)
-    {
-        // this is called from the panel, on edt
-        hop(world);
-    }
-
-    /**
-     * Hop to a specific world
-     * @param world The world to hop to
-     */
     public static void hop(World world)
     {
         Client client = Static.getClient();
@@ -99,5 +90,9 @@ public class WorldsAPI
                 client.changeWorld(rsWorld);
             }
         });
+    }
+
+    public static boolean inMembersWorld() {
+        return getCurrentWorld().getTypes().contains(WorldType.MEMBERS);
     }
 }

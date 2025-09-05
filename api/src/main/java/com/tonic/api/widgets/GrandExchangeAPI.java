@@ -4,11 +4,13 @@ import com.tonic.Logger;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.api.game.ClientScriptAPI;
+import com.tonic.api.threaded.Delays;
 import com.tonic.types.GrandExchangeSlot;
 import com.tonic.types.ItemEx;
 import net.runelite.api.Client;
 import net.runelite.api.GrandExchangeOffer;
 import net.runelite.api.GrandExchangeOfferState;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
@@ -33,6 +35,14 @@ public class GrandExchangeAPI
             tclient.getPacketWriter().clickPacket(0, -1, -1);
             tclient.getPacketWriter().resumeCountDialoguePacket(1);
         });
+    }
+
+    public static void cancel(GrandExchangeSlot slot)
+    {
+        WidgetAPI.interact(1, slot.getId(), 2, -1);
+        WidgetAPI.interact(1, 30474263, 0, -1);
+        Delays.tick(2);
+        WidgetAPI.interact(1, 30474264, 2, 995);
     }
 
     /**
@@ -88,6 +98,47 @@ public class GrandExchangeAPI
     }
 
     /**
+     * start a buy offer priced by a # of 5%s
+     * @param itemId item id
+     * @param amount amount
+     * @param FivePercents price
+     * @param slotNumber slot
+     * @return slot number
+     */
+    public static int startBuyOfferPercentage(int itemId, int amount, int FivePercents, int slotNumber)
+    {
+        GrandExchangeSlot slot = GrandExchangeSlot.getBySlot(slotNumber);
+        if(slot == null)
+            return -1;
+        Static.invoke(() -> {
+            WidgetAPI.interact(1, slot.getId(), slot.getBuyChild(), -1);
+            DialogueAPI.resumeObjectDialogue(itemId);
+            WidgetAPI.interact(1, 30474266, 7, -1);
+            DialogueAPI.resumeNumericDialogue(amount);
+        });
+        int ticker;
+        if(FivePercents < 0)
+        {
+            ticker = 10;
+            FivePercents = FivePercents * -1;
+        }
+        else
+        {
+            ticker = 13;
+        }
+        int finalFivePercents = FivePercents;
+        Static.invoke(() -> {
+            for(int i = finalFivePercents; i > 0; i--) {
+                WidgetAPI.interact(1, 30474266, ticker, 65535);
+            }
+            WidgetAPI.interact(1, 30474270, 65535, 65535);
+        });
+        Delays.tick((finalFivePercents/10));
+        ClientScriptAPI.closeNumericInputDialogue();
+        return slotNumber;
+    }
+
+    /**
      * Starts a sell offer in the first free Grand Exchange slot.
      * @param itemId The item ID to sell.
      * @param amount The amount to sell. Use -1 to sell all available.
@@ -119,6 +170,43 @@ public class GrandExchangeAPI
         });
         ClientScriptAPI.closeNumericInputDialogue();
         return slot;
+    }
+
+    /**
+     * start a sell offer priced by a # of 5%s
+     * @param itemId item id
+     * @param amount amount
+     * @param FivePercents price
+     * @param slotNumber slot
+     */
+    public static void startSellOfferPercentage(int itemId, int amount, int FivePercents, int slotNumber)
+    {
+        GrandExchangeSlot slot = GrandExchangeSlot.getBySlot(slotNumber);
+        if(slot == null)
+            return;
+        WidgetAPI.interact(1, slot.getId(), slot.getSellChild(), -1);
+        WidgetAPI.interact(1, WidgetInfo.GRAND_EXCHANGE_INVENTORY_ITEMS_CONTAINER.getId(), getItemSlot(itemId), itemId);
+        int ticker;
+        if(FivePercents < 0) {
+            ticker = 10;
+            FivePercents = FivePercents * -1;
+        }
+        else {
+            ticker = 13;
+        }
+        int finalFivePercents = FivePercents;
+        Static.invoke(() -> {
+            for(int i = finalFivePercents; i > 0; i--) {
+                WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, ticker, -1);
+            }
+            if(amount != -1)
+            {
+                WidgetAPI.interact(1, 30474266, 7, -1);
+                DialogueAPI.resumeNumericDialogue(amount);
+            }
+            WidgetAPI.interact(1, 30474270, -1, -1);
+        });
+        ClientScriptAPI.closeNumericInputDialogue();
     }
 
     /**

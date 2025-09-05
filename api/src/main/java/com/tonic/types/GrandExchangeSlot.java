@@ -3,19 +3,22 @@ package com.tonic.types;
 import com.tonic.Static;
 import lombok.Getter;
 import net.runelite.api.Client;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
 
 @Getter
 public enum GrandExchangeSlot
 {
-    SLOT_1(30474247, 1, WidgetInfoExtended.GRAND_EXCHANGE_OFFER1),
-    SLOT_2(30474248, 2, WidgetInfoExtended.GRAND_EXCHANGE_OFFER2),
-    SLOT_3(30474249, 3, WidgetInfoExtended.GRAND_EXCHANGE_OFFER3),
-    SLOT_4(30474250, 4, WidgetInfoExtended.GRAND_EXCHANGE_OFFER4),
-    SLOT_5(30474251, 5, WidgetInfoExtended.GRAND_EXCHANGE_OFFER5),
-    SLOT_6(30474252, 6, WidgetInfoExtended.GRAND_EXCHANGE_OFFER6),
-    SLOT_7(30474253, 7, WidgetInfoExtended.GRAND_EXCHANGE_OFFER7),
-    SLOT_8(30474254, 8, WidgetInfoExtended.GRAND_EXCHANGE_OFFER8);
+    SLOT_1(InterfaceID.GeOffers.INDEX_0, 1), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER1),
+    SLOT_2(InterfaceID.GeOffers.INDEX_1, 2), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER2),
+    SLOT_3(InterfaceID.GeOffers.INDEX_2, 3), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER3),
+    SLOT_4(InterfaceID.GeOffers.INDEX_3, 4), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER4),
+    SLOT_5(InterfaceID.GeOffers.INDEX_4, 5), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER5),
+    SLOT_6(InterfaceID.GeOffers.INDEX_5, 6), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER6),
+    SLOT_7(InterfaceID.GeOffers.INDEX_6, 7), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER7),
+    SLOT_8(InterfaceID.GeOffers.INDEX_7, 8), //, WidgetInfoExtended.GRAND_EXCHANGE_OFFER8);
+
+    ;
 
     private final int id;
 
@@ -25,20 +28,17 @@ public enum GrandExchangeSlot
 
     private final int sellChild = 4;
 
-    private final WidgetInfoExtended info;
-
-    GrandExchangeSlot(int id, int slot, WidgetInfoExtended info)
+    GrandExchangeSlot(int id, int slot)
     {
         this.id = id;
         this.slot = slot;
-        this.info = info;
     }
 
     public boolean isDone()
     {
         Client client = Static.getClient();
         return Static.invoke(() ->{
-            Widget widget = client.getWidget(info.getGroupId(), info.getChildId());
+            Widget widget = client.getWidget(id);
             if(widget == null)
             {
                 return false;

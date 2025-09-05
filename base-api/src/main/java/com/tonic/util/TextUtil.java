@@ -194,4 +194,8 @@ public class TextUtil
         String cleaned = text.replace('\u00A0', ' ').replace('_', ' ');
         return (cleaned.contains("<img") ? cleaned.substring(text.lastIndexOf('>') + 1) : cleaned).trim().replaceAll("<[^>]+>", "");
     }
+
+    public static String indent(String text) {
+        return text.replaceAll("(?m)^", "\t");
+    }
 }

@@ -1,0 +1,68 @@
+package com.tonic.types.magic;
+
+import com.google.common.collect.ImmutableMap;
+import lombok.Getter;
+
+import java.util.Map;
+
+import static net.runelite.api.gameval.ItemID.*;
+
+public enum RunepouchRune
+{
+    AIR(1, AIRRUNE),
+    WATER(2, WATERRUNE),
+    EARTH(3, EARTHRUNE),
+    FIRE(4, FIRERUNE),
+    MIND(5, MINDRUNE),
+    CHAOS(6, CHAOSRUNE),
+    DEATH(7, DEATHRUNE),
+    BLOOD(8, BLOODRUNE),
+    COSMIC(9, COSMICRUNE),
+    NATURE(10, NATURERUNE),
+    LAW(11, LAWRUNE),
+    BODY(12, BODYRUNE),
+    SOUL(13, SOULRUNE),
+    ASTRAL(14, ASTRALRUNE),
+    MIST(15, MISTRUNE),
+    MUD(16, MUDRUNE),
+    DUST(17, DUSTRUNE),
+    LAVA(18, LAVARUNE),
+    STEAM(19, STEAMRUNE),
+    SMOKE(20, SMOKERUNE),
+    WRATH(21, WRATHRUNE);
+
+    @Getter
+    private final int id;
+    @Getter
+    private final int itemId;
+
+    private static final Map<Integer, RunepouchRune> runes;
+
+    static
+    {
+        ImmutableMap.Builder<Integer, RunepouchRune> builder = new ImmutableMap.Builder<>();
+        for (RunepouchRune rune : values())
+        {
+            builder.put(rune.getId(), rune);
+        }
+        runes = builder.build();
+    }
+
+    RunepouchRune(int id, int itemId)
+    {
+        this.id = id;
+        this.itemId = itemId;
+    }
+
+    public static RunepouchRune getRune(int varbit)
+    {
+        return runes.get(varbit);
+    }
+
+    public String getName()
+    {
+        String name = this.name();
+        name = name.substring(0, 1) + name.substring(1).toLowerCase();
+        return name;
+    }
+}

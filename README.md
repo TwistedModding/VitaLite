@@ -85,7 +85,7 @@ java -jar VitaLite-shaded.jar -help
 The main executable will be located at `build/libs/VitaLite-*-shaded.jar`.
 
 ### Running from IDE
-```bash
+```
 1. Complete build steps above
 2. Run the `com.tonic.VitaLite` main class
 ```

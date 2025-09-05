@@ -1,13 +1,17 @@
 package com.tonic.util;
 
 import com.tonic.Static;
+import com.tonic.api.game.SceneAPI;
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.Tile;
+import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.gameval.InterfaceID;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,19 +148,17 @@ public class Location {
 
         try {
             Tile[][][] tiles = client.getScene().getTiles();
-            Tile sourceTile = tiles[start.getPlane()][thisX][thisY];
-            Tile targetTile = tiles[end.getPlane()][otherX][otherY];
-            //TODO: impliment
-            return new ArrayList<>(); //return sourceTile.pathTo(targetTile);
+            Tile source = tiles[start.getPlane()][thisX][thisY];
+            Tile dest = tiles[end.getPlane()][otherX][otherY];
+            return SceneAPI.pathTo(source, dest);
         } catch (Exception ignored) {
             return new ArrayList<>();
         }
     }
 
     public static  boolean isReachable(Tile source, Tile dest) {
-        //todo: impliment
-        List<Tile> path  = new ArrayList<>(); //source.pathTo(dest);
-        return (path.get(path.size()-1) == dest);
+        List<Tile> path  = SceneAPI.pathTo(source, dest);
+        return path != null && path.get(path.size()-1) == dest;
     }
 
     /**
@@ -167,8 +169,11 @@ public class Location {
     public static Tile getTile(WorldPoint wp)
     {
         Client client = Static.getClient();
-        LocalPoint lp = LocalPoint.fromWorld(client, wp.getX(), wp.getY());
-        Tile[][][] tiles = client.getScene().getTiles();
+        WorldView worldView = client.getTopLevelWorldView();
+        LocalPoint lp = LocalPoint.fromWorld(worldView, wp.getX(), wp.getY());
+        Tile[][][] tiles = worldView.getScene().getTiles();
+        if(lp == null || tiles == null)
+            return null;
         try
         {
             return tiles[wp.getPlane()][lp.getSceneX()][lp.getSceneY()];

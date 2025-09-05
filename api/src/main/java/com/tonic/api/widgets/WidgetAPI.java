@@ -12,6 +12,26 @@ import net.runelite.api.widgets.WidgetInfo;
  */
 public class WidgetAPI
 {
+    public static void interact(Widget widget, String action) {
+        if (widget == null || widget.getActions() == null)
+            return;
+        for(int i = 0; i < widget.getActions().length; i++)
+        {
+            String option = widget.getActions()[i];
+            if(option != null && option.toLowerCase().contains(action.toLowerCase()))
+            {
+                interact(widget, i);
+                return;
+            }
+        }
+    }
+
+    public static void interact(Widget widget, int action) {
+        if (widget == null)
+            return;
+        WidgetAPI.interact(action, widget.getId(), widget.getIndex(), widget.getItemId());
+    }
+
     /**
      * invoke a widget packet
      * @param action action type
@@ -50,6 +70,11 @@ public class WidgetAPI
     public static void interact(int action, WidgetInfoExtended widgetInfo, int childId, int itemId)
     {
         interact(action, widgetInfo.getId(), childId, itemId);
+    }
+
+    public static void interact(int action, WidgetInfoExtended widgetInfo, int childId)
+    {
+        interact(action, widgetInfo.getId(), childId);
     }
 
     /**

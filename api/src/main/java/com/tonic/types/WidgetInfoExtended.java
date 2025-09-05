@@ -1,5 +1,6 @@
 package com.tonic.types;
 
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.WidgetID;
 
 import java.util.Arrays;
@@ -69,6 +70,8 @@ public enum WidgetInfoExtended {
     EQUIPMENT_BOOTS(WidgetID.EQUIPMENT_GROUP_ID, Equipment.BOOTS),
     EQUIPMENT_RING(WidgetID.EQUIPMENT_GROUP_ID, Equipment.RING),
     EQUIPMENT_AMMO(WidgetID.EQUIPMENT_GROUP_ID, Equipment.AMMO),
+
+    WORLD_SWITCHER_LOGOUT_BUTTON(4522009),
     ;
 
     private final int id;
