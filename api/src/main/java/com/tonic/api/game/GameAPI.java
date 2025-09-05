@@ -5,6 +5,7 @@ import com.tonic.api.widgets.WidgetAPI;
 import com.tonic.types.WidgetInfoExtended;
 import net.runelite.api.*;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
@@ -13,16 +14,16 @@ public class GameAPI
 {
     public static void logout()
     {
-        Widget logoutButton = WidgetAPI.get(WidgetInfo.LOGOUT_BUTTON);
+        Widget logoutButton = WidgetAPI.get(InterfaceID.Logout.LOGOUT);
         if (logoutButton != null)
         {
-            WidgetAPI.interact(1, ComponentID.LOGOUT_PANEL_LOGOUT_BUTTON, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.Logout.LOGOUT, -1, -1);
         }
 
-        logoutButton = WidgetAPI.get(WidgetInfoExtended.WORLD_SWITCHER_LOGOUT_BUTTON);
+        logoutButton = WidgetAPI.get(InterfaceID.Worldswitcher.LOGOUT);
         if (logoutButton != null)
         {
-            WidgetAPI.interact(1, WidgetInfoExtended.WORLD_SWITCHER_LOGOUT_BUTTON, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.Worldswitcher.LOGOUT, -1, -1);
         }
     }
 

@@ -12,8 +12,8 @@ public class StaticIntFinder {
     private static final Map<Class<?>, Map<Integer, String>> CLASS_CACHE = new ConcurrentHashMap<>();
 
     /**
-     * Returns "pkg.Outer.Inner.FIELD" (dots for $), or null if not found.
-     * Cached version - builds cache on first call per class.
+     * Returns "pkg.Outer.Inner.FIELD"
+     * builds cache on first call per class.
      */
     public static String find(Class<?> root, int target) {
         if (root == null) return null;

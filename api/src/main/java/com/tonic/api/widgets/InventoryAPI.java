@@ -6,6 +6,7 @@ import com.tonic.api.TClient;
 import com.tonic.queries.InventoryQuery;
 import com.tonic.types.ItemContainerEx;
 import com.tonic.types.ItemEx;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.widgets.WidgetInfo;
 import java.util.List;
@@ -143,11 +144,7 @@ public class InventoryAPI
         if(id == 6512 || id == -1)
             return;
 
-        TClient client = Static.getClient();
-        Static.invoke(() -> {
-            client.getPacketWriter().clickPacket(0, -1, -1);
-            client.getPacketWriter().widgetActionPacket(action, WidgetInfo.INVENTORY.getId(), slot, id);
-        });
+        WidgetAPI.interact(action, InterfaceID.Inventory.ITEMS, slot, id);
     }
 
     /**

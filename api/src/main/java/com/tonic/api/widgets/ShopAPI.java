@@ -6,13 +6,13 @@ import com.tonic.queries.InventoryQuery;
 import com.tonic.types.ItemEx;
 import com.tonic.types.ShopID;
 import net.runelite.api.MenuAction;
+import net.runelite.api.gameval.InterfaceID;
 
 /**
  * ShopAPI - methods for interacting with shops
  */
 public class ShopAPI
 {
-    private static final int SHOP_ID = 19660816;
 
     /**
      * buy 1 of an item from the shop by its id
@@ -224,10 +224,6 @@ public class ShopAPI
      */
     public static void shopAction(int itemId, int slot, int action)
     {
-        TClient client = Static.getClient();
-        Static.invoke(() -> {
-            client.getPacketWriter().clickPacket(0, -1, -1);
-            client.invokeMenuAction("", "", action, MenuAction.CC_OP.getId(), slot + 1, SHOP_ID, itemId, -1, -1);
-        });
+        WidgetAPI.interact(action, InterfaceID.Shopmain.ITEMS, slot, itemId);
     }
 }

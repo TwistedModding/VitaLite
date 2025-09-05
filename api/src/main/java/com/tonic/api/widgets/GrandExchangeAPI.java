@@ -11,8 +11,8 @@ import net.runelite.api.Client;
 import net.runelite.api.GrandExchangeOffer;
 import net.runelite.api.GrandExchangeOfferState;
 import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.ItemID;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetInfo;
 
 
 /**
@@ -37,12 +37,16 @@ public class GrandExchangeAPI
         });
     }
 
+    /**
+     * Cancels an active Grand Exchange offer in the specified slot.
+     * @param slot The GrandExchangeSlot to cancel.
+     */
     public static void cancel(GrandExchangeSlot slot)
     {
+        WidgetAPI.interact(2, slot.getId(), 2, -1);
         WidgetAPI.interact(1, slot.getId(), 2, -1);
-        WidgetAPI.interact(1, 30474263, 0, -1);
         Delays.tick(2);
-        WidgetAPI.interact(1, 30474264, 2, 995);
+        WidgetAPI.interact(2, InterfaceID.GeOffers.DETAILS_COLLECT, 2, ItemID.COINS);
     }
 
     /**
@@ -86,12 +90,12 @@ public class GrandExchangeAPI
         TClient client = Static.getClient();
         Static.invoke(() -> {
             WidgetAPI.interact(1, slot.getId(), slot.getBuyChild(), -1);
-            client.getPacketWriter().resumeObjectDialoguePacket(itemId);
-            WidgetAPI.interact(1, 30474266, 12, -1);
-            client.getPacketWriter().resumeCountDialoguePacket(price);
-            WidgetAPI.interact(1, 30474266, 7, -1);
-            client.getPacketWriter().resumeCountDialoguePacket(amount);
-            WidgetAPI.interact(1, 30474270, -1, -1);
+            DialogueAPI.resumeObjectDialogue(itemId);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, 12, -1);
+            DialogueAPI.resumeNumericDialogue(price);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, 7, -1);
+            DialogueAPI.resumeNumericDialogue(amount);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP_CONFIRM, -1, -1);
         });
         ClientScriptAPI.closeNumericInputDialogue();
         return slot;
@@ -113,7 +117,7 @@ public class GrandExchangeAPI
         Static.invoke(() -> {
             WidgetAPI.interact(1, slot.getId(), slot.getBuyChild(), -1);
             DialogueAPI.resumeObjectDialogue(itemId);
-            WidgetAPI.interact(1, 30474266, 7, -1);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, 7, -1);
             DialogueAPI.resumeNumericDialogue(amount);
         });
         int ticker;
@@ -129,9 +133,9 @@ public class GrandExchangeAPI
         int finalFivePercents = FivePercents;
         Static.invoke(() -> {
             for(int i = finalFivePercents; i > 0; i--) {
-                WidgetAPI.interact(1, 30474266, ticker, 65535);
+                WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, ticker, -1);
             }
-            WidgetAPI.interact(1, 30474270, 65535, 65535);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP_CONFIRM, -1, -1);
         });
         Delays.tick((finalFivePercents/10));
         ClientScriptAPI.closeNumericInputDialogue();
@@ -155,17 +159,17 @@ public class GrandExchangeAPI
             return null;
         TClient client = Static.getClient();
         Static.invoke(() -> {
-            client.getPacketWriter().widgetActionPacket(1, slot.getId(), slot.getSellChild(), 65535);
-            client.getPacketWriter().widgetActionPacket(1, WidgetInfo.GRAND_EXCHANGE_INVENTORY_ITEMS_CONTAINER.getId(), getItemSlot(itemId), itemId);
+            client.getPacketWriter().widgetActionPacket(1, slot.getId(), slot.getSellChild(), -1);
+            client.getPacketWriter().widgetActionPacket(1, InterfaceID.GeOffersSide.ITEMS, getItemSlot(itemId), itemId);
 
-            client.getPacketWriter().widgetActionPacket(1, 30474266, 12, 65535);
+            client.getPacketWriter().widgetActionPacket(1, InterfaceID.GeOffers.SETUP, 12, -1);
             client.getPacketWriter().resumeCountDialoguePacket(price);
             if(amount != -1)
             {
-                client.getPacketWriter().widgetActionPacket(1, 30474266, 7, 65535);
+                client.getPacketWriter().widgetActionPacket(1, InterfaceID.GeOffers.SETUP, 7, -1);
                 client.getPacketWriter().resumeCountDialoguePacket(amount);
             }
-            client.getPacketWriter().widgetActionPacket(1, 30474270, 65535, 65535);
+            client.getPacketWriter().widgetActionPacket(1, InterfaceID.GeOffers.SETUP_CONFIRM, -1, -1);
             client.getPacketWriter().resumeCountDialoguePacket(1);
         });
         ClientScriptAPI.closeNumericInputDialogue();
@@ -185,7 +189,7 @@ public class GrandExchangeAPI
         if(slot == null)
             return;
         WidgetAPI.interact(1, slot.getId(), slot.getSellChild(), -1);
-        WidgetAPI.interact(1, WidgetInfo.GRAND_EXCHANGE_INVENTORY_ITEMS_CONTAINER.getId(), getItemSlot(itemId), itemId);
+        WidgetAPI.interact(1, InterfaceID.GeOffersSide.ITEMS, getItemSlot(itemId), itemId);
         int ticker;
         if(FivePercents < 0) {
             ticker = 10;
@@ -201,10 +205,10 @@ public class GrandExchangeAPI
             }
             if(amount != -1)
             {
-                WidgetAPI.interact(1, 30474266, 7, -1);
+                WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP, 7, -1);
                 DialogueAPI.resumeNumericDialogue(amount);
             }
-            WidgetAPI.interact(1, 30474270, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.SETUP_CONFIRM, -1, -1);
         });
         ClientScriptAPI.closeNumericInputDialogue();
     }
@@ -220,16 +224,16 @@ public class GrandExchangeAPI
         GrandExchangeSlot slot = GrandExchangeSlot.getBySlot(slotNumber);
         if(slot == null)
             return;
-        TClient client = Static.getClient();
         Static.invoke(() -> {
             int n = noted ? 1 : 2;
             if(amount == 1)
             {
                 n = noted ? 2 : 1;
             }
-            client.getPacketWriter().widgetActionPacket(1, slot.getId(), 2, 65535);
-            client.getPacketWriter().widgetActionPacket(n, 30474264, 2, 2572);
-            client.getPacketWriter().widgetActionPacket(1, 30474264, 3, 995);
+            int itemId = slot.getItemId();
+            WidgetAPI.interact(1, slot.getId(), 2, -1);
+            WidgetAPI.interact(n, InterfaceID.GeOffers.DETAILS_COLLECT, 2, itemId);
+            WidgetAPI.interact(1, InterfaceID.GeOffers.DETAILS_COLLECT, 3, ItemID.COINS);
         });
     }
 

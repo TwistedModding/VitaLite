@@ -5,6 +5,7 @@ import com.tonic.api.game.VarAPI;
 import com.tonic.queries.InventoryQuery;
 import com.tonic.types.ItemEx;
 import net.runelite.api.Client;
+import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.WidgetInfo;
@@ -23,13 +24,13 @@ public class BankAPI
         int withdrawMode = VarAPI.getVar(VarbitID.BANK_QUANTITY_TYPE);
         if(withdrawMode != 3)
         {
-            WidgetAPI.interact(1, 786468, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.Bankmain.QUANTITYX, -1, -1);
         }
 
         int xQuantity = VarAPI.getVar(VarbitID.BANK_REQUESTEDQUANTITY);
         if(xQuantity != amount && amount != 1 && amount != 5 && amount != 10 && amount != -1)
         {
-            WidgetAPI.interact(2, 786468, -1, -1);
+            WidgetAPI.interact(2, InterfaceID.Bankmain.QUANTITYX, -1, -1);
             DialogueAPI.resumeNumericDialogue(amount);
         }
     }
@@ -40,10 +41,10 @@ public class BankAPI
      */
     public static void setWithdrawMode(boolean noted) {
         if(noted) {
-            WidgetAPI.interact(1, 786458, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.Bankmain.NOTE, -1, -1);
         }
         else {
-            WidgetAPI.interact(1, 786456, -1, -1);
+            WidgetAPI.interact(1, InterfaceID.Bankmain.ITEM, -1, -1);
         }
     }
 
@@ -124,19 +125,19 @@ public class BankAPI
     public static void withdrawAction(int id, int amount, int slot) {
         setX(amount);
         if(amount == 1) {
-            WidgetAPI.interact(2, WidgetInfo.BANK_ITEM_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(2, InterfaceID.Bankmain.ITEMS, slot, id);
         }
         else if(amount == 5) {
-            WidgetAPI.interact(3, WidgetInfo.BANK_ITEM_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(3, InterfaceID.Bankmain.ITEMS, slot, id);
         }
         else if(amount == 10) {
-            WidgetAPI.interact(4, WidgetInfo.BANK_ITEM_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(4, InterfaceID.Bankmain.ITEMS, slot, id);
         }
         else if(amount == -1) {
-            WidgetAPI.interact(6, WidgetInfo.BANK_ITEM_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(6, InterfaceID.Bankmain.ITEMS, slot, id);
         }
         else {
-            WidgetAPI.interact(1, WidgetInfo.BANK_ITEM_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(1, InterfaceID.Bankmain.ITEMS, slot, id);
         }
     }
 
@@ -149,19 +150,19 @@ public class BankAPI
     public static void depositAction(int id, int amount, int slot) {
         setX(amount);
         if(amount == 1) {
-            WidgetAPI.interact(3, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(2, InterfaceID.Bankside.ITEMS, slot, id);
         }
         else if(amount == 5) {
-            WidgetAPI.interact(4, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(3, InterfaceID.Bankside.ITEMS, slot, id);
         }
         else if(amount == 10) {
-            WidgetAPI.interact(5, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(4, InterfaceID.Bankside.ITEMS, slot, id);
         }
         else if(amount == -1) {
-            WidgetAPI.interact(8, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(7, InterfaceID.Bankside.ITEMS, slot, id);
         }
         else {
-            WidgetAPI.interact(1, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), slot, id);
+            WidgetAPI.interact(1, InterfaceID.Bankside.ITEMS, slot, id);
         }
     }
 
@@ -169,14 +170,14 @@ public class BankAPI
      * Deposits all items from the inventory into the bank.
      */
     public static void depositAll() {
-        WidgetAPI.interact(1, WidgetInfo.BANK_DEPOSIT_INVENTORY, -1, -1);
+        WidgetAPI.interact(1, InterfaceID.Bankmain.DEPOSITINV, -1, -1);
     }
 
     /**
      * Deposits all items from the equipment into the bank.
      */
     public static void depositEquipment() {
-        WidgetAPI.interact(1, WidgetInfo.BANK_DEPOSIT_EQUIPMENT, -1, -1);
+        WidgetAPI.interact(1, InterfaceID.Bankmain.DEPOSITWORN, -1, -1);
     }
 
     /**
@@ -239,7 +240,7 @@ public class BankAPI
         );
         if(item == null)
             return;
-        WidgetAPI.interact(9, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), item.getId(), itemId);
+        WidgetAPI.interact(9, InterfaceID.Bankside.ITEMS, item.getId(), itemId);
     }
 
     /**
@@ -252,6 +253,6 @@ public class BankAPI
         );
         if(item == null)
             return;
-        WidgetAPI.interact(9, WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER.getId(), item.getId(), item.getId());
+        WidgetAPI.interact(9, InterfaceID.Bankside.ITEMS, item.getId(), item.getId());
     }
 }

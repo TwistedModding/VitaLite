@@ -1,10 +1,12 @@
 package com.tonic.types;
 
 import com.tonic.Static;
+import com.tonic.api.widgets.WidgetAPI;
 import lombok.Getter;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.widgets.Widget;
+import org.lwjgl.system.linux.Stat;
 
 @Getter
 public enum GrandExchangeSlot
@@ -49,6 +51,23 @@ public enum GrandExchangeSlot
                 return false;
             }
             return Integer.toString(child.getTextColor(), 16).equals("5f00");
+        });
+    }
+
+    public int getItemId()
+    {
+        return Static.invoke(() -> {
+            Widget widget = WidgetAPI.get(id);
+            if(widget == null)
+            {
+                return -1;
+            }
+            Widget child = widget.getChild(18);
+            if(child == null)
+            {
+                return -1;
+            }
+            return child.getItemId();
         });
     }
 

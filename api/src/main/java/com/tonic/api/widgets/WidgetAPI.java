@@ -55,6 +55,7 @@ public class WidgetAPI
      * @param childId child ID
      * @param itemId item ID
      */
+    @SuppressWarnings("deprecation")
     public static void interact(int action, WidgetInfo widgetInfo, int childId, int itemId)
     {
         interact(action, widgetInfo.getId(), childId, itemId);
@@ -83,6 +84,7 @@ public class WidgetAPI
      * @param widgetInfo widget info
      * @param childId child ID
      */
+    @SuppressWarnings("deprecation")
     public static void interact(int action, WidgetInfo widgetInfo, int childId)
     {
         interact(action, widgetInfo.getId(), childId, -1);
@@ -199,6 +201,7 @@ public class WidgetAPI
      * @param widgetInfo widget info
      * @return text
      */
+    @SuppressWarnings("deprecation")
     public static String getText(WidgetInfo widgetInfo)
     {
         return getText(widgetInfo.getGroupId(), widgetInfo.getChildId());
@@ -227,6 +230,7 @@ public class WidgetAPI
      * @param info widget info
      * @return widget
      */
+    @SuppressWarnings("deprecation")
     public static Widget get(WidgetInfo info)
     {
         Client client = Static.getClient();
@@ -238,6 +242,7 @@ public class WidgetAPI
      * @param info widget info
      * @return widget
      */
+    @SuppressWarnings("deprecation")
     public static Widget get(WidgetInfoExtended info)
     {
         Client client = Static.getClient();
@@ -254,6 +259,17 @@ public class WidgetAPI
     {
         Client client = Static.getClient();
         return Static.invoke(() -> client.getWidget(groupId, childId));
+    }
+
+    /**
+     * Get a widget by interfaceId
+     * @param interfaceId interfaceId
+     * @return widget
+     */
+    public static Widget get(int interfaceId)
+    {
+        Client client = Static.getClient();
+        return Static.invoke(() -> client.getWidget(interfaceId));
     }
 
     /**

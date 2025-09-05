@@ -5,7 +5,7 @@ import com.tonic.api.game.ClientScriptAPI;
 import com.tonic.types.Tab;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
-import net.runelite.api.VarClientInt;
+import net.runelite.api.gameval.VarClientID;
 
 import java.util.Arrays;
 
@@ -25,6 +25,6 @@ public class TabsAPI
     public static boolean isOpen(Tab tab)
     {
         Client client = Static.getClient();
-        return client.getVarcIntValue(VarClientInt.INVENTORY_TAB) == Arrays.asList(Tab.values()).indexOf(tab);
+        return client.getVarcIntValue(VarClientID.TOPLEVEL_PANEL) == Arrays.asList(Tab.values()).indexOf(tab);
     }
 }
