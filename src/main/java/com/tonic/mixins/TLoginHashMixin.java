@@ -17,7 +17,6 @@ public class TLoginHashMixin
     private static String[] generatedPackedPairs;
 
     @MethodOverride("callStackPacker1")
-    @SkipPoison
     public static void callStackPacker1()
     {
         generateNumberPair();
@@ -25,7 +24,6 @@ public class TLoginHashMixin
     }
 
     @MethodOverride("callStackPacker2")
-    @SkipPoison
     public static void callStackPacker2()
     {
         generateNumberPair();
@@ -33,7 +31,6 @@ public class TLoginHashMixin
     }
 
     @MethodOverride("callStackCheck")
-    @SkipPoison
     public static String callStackCheck(long l) {
         return "client18126wi\n" +
                 "client50773cp\n" +
