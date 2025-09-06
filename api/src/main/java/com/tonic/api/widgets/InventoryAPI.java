@@ -2,9 +2,14 @@ package com.tonic.api.widgets;
 
 import com.tonic.Logger;
 import com.tonic.Static;
+import com.tonic.data.TileItemEx;
+import com.tonic.data.TileObjectEx;
 import com.tonic.queries.InventoryQuery;
 import com.tonic.data.ItemContainerEx;
 import com.tonic.data.ItemEx;
+import net.runelite.api.NPC;
+import net.runelite.api.Player;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.gameval.InterfaceID;
 import net.runelite.api.gameval.InventoryID;
 
@@ -290,5 +295,47 @@ public class InventoryAPI
     public static int count(String... itemNames)
     {
         return InventoryQuery.fromInventoryId(InventoryID.INV).withName(itemNames).count();
+    }
+
+    public static void useOn(ItemEx item, TileObjectEx tileObject)
+    {
+        if(item == null || tileObject == null)
+            return;
+
+        WorldPoint wp = tileObject.getWorldLocation();
+        WidgetAPI.onTileObject(InterfaceID.Inventory.ITEMS, item.getId(), item.getSlot(), tileObject.getId(), wp.getX(), wp.getY(), false);
+    }
+
+    public static void useOn(ItemEx item, TileItemEx tileItem)
+    {
+        if(item == null || tileItem == null)
+            return;
+
+        WorldPoint wp = tileItem.getWorldLocation();
+        WidgetAPI.onGroundItem(InterfaceID.Inventory.ITEMS, item.getId(), item.getSlot(), tileItem.getId(), wp.getX(), wp.getY(), false);
+    }
+
+    public static void useOn(ItemEx item, Player player)
+    {
+        if(item == null || player == null)
+            return;
+
+        WidgetAPI.onPlayer(InterfaceID.Inventory.ITEMS, item.getId(), item.getSlot(), player.getId(), false);
+    }
+
+    public static void useOn(ItemEx item, NPC npc)
+    {
+        if(item == null || npc == null)
+            return;
+
+        WidgetAPI.onNpc(InterfaceID.Inventory.ITEMS, item.getId(), item.getSlot(), npc.getId(), false);
+    }
+
+    public static void useOn(ItemEx item, ItemEx target)
+    {
+        if(item == null || target == null)
+            return;
+
+        WidgetAPI.onWidget(InterfaceID.Inventory.ITEMS, item.getId(), item.getSlot(), InterfaceID.Inventory.ITEMS, target.getId(), target.getSlot());
     }
 }

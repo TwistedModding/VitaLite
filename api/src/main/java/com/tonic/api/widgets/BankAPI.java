@@ -230,6 +230,36 @@ public class BankAPI
     }
 
     /**
+     * Gets the slot of the item with the specified id in the bank.
+     * @param itemId The id of the item to get the slot for.
+     * @return The slot of the item in the bank, or -1 if the item is not found.
+     */
+    public static int getSlot(int itemId)
+    {
+        ItemEx item = Static.invoke(() ->
+                InventoryQuery.fromInventoryId(InventoryID.BANK).withId(itemId).first()
+        );
+        if(item == null)
+            return -1;
+        return item.getSlot();
+    }
+
+    /**
+     * Gets the slot of the item with the specified name in the bank.
+     * @param itemName The name of the item to get the slot for.
+     * @return The slot of the item in the bank, or -1 if the item is not found.
+     */
+    public static int getSlot(String itemName)
+    {
+        ItemEx item = Static.invoke(() ->
+                InventoryQuery.fromInventoryId(InventoryID.BANK).withName(itemName).first()
+        );
+        if(item == null)
+            return -1;
+        return item.getSlot();
+    }
+
+    /**
      * Uses the item with the specified id from the inventory.
      * @param itemId The id of the item to use.
      */

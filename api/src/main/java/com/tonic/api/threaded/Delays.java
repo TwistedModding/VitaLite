@@ -1,9 +1,16 @@
 package com.tonic.api.threaded;
 
+import com.tonic.Static;
+import com.tonic.api.entities.PlayerAPI;
 import com.tonic.util.Coroutine;
 import com.tonic.services.GameCache;
+import net.runelite.api.Client;
+import net.runelite.api.Player;
 
 import java.util.function.Supplier;
+
+import static net.runelite.api.GameState.LOADING;
+import static net.runelite.api.GameState.LOGGED_IN;
 
 /**
  * Utility class for handling delays and ticks in the game. (For threaded automation)
@@ -25,6 +32,7 @@ public class Delays
     {
         int tick = GameCache.getTickCount() + ticks;
         int start = GameCache.getTickCount();
+        Client client = Static.getClient();
         while(GameCache.getTickCount() < tick && GameCache.getTickCount() >= start)
         {
             if(Thread.currentThread().isInterrupted() || Coroutine._isCancelled())
@@ -110,5 +118,26 @@ public class Delays
             wait(100);
         }
         return true;
+    }
+
+    public static void waitUntilIdle()
+    {
+        tick(1);
+        Client client = Static.getClient();
+        Player player = client.getLocalPlayer();
+        while(!Static.invoke(() -> PlayerAPI.isIdle(player)))
+        {
+            tick(1);
+        }
+    }
+
+    public static void waitUntilOnTile(int worldX, int worldY)
+    {
+        Client client = Static.getClient();
+        Player player = client.getLocalPlayer();
+        while((player.getWorldLocation().getX() != worldX || player.getWorldLocation().getY() != worldY))
+        {
+            tick(1);
+        }
     }
 }

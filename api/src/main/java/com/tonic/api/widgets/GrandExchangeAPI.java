@@ -240,6 +240,18 @@ public class GrandExchangeAPI
     private static int getItemSlot(int id)
     {
         ItemEx item = InventoryAPI.getItem(id);
+        if(item == null)
+            return -1;
         return item.getSlot();
+    }
+
+    public static boolean isOpen()
+    {
+        return WidgetAPI.isVisible(InterfaceID.GeOffers.UNIVERSE);
+    }
+
+    public static void collectAll()
+    {
+        WidgetAPI.interact(1, InterfaceID.GeOffers.COLLECTALL, 0, -1);
     }
 }

@@ -37,6 +37,23 @@ public class GrandExchange
         Delays.tick();
     }
 
+    public static void buy(int id, int quantity, int price)
+    {
+        GrandExchangeSlot slot = startBuyOffer(id, quantity, price);
+        if(slot == null)
+        {
+            Logger.warn("Failed to buy '" + id + "' from the ge. No free slots.");
+            return;
+        }
+        while(!slot.isDone())
+        {
+            Delays.tick();
+        }
+        Delays.tick();
+        collectFromSlot(slot.getSlot(), true, quantity);
+        Delays.tick();
+    }
+
     private static boolean buyNow(int id, int quantity, GrandExchangeSlot slot, int percents)
     {
         startBuyOfferPercentage(id, quantity, percents, slot.getSlot());

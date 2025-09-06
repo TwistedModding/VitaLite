@@ -3,6 +3,7 @@ package com.tonic.api.widgets;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.api.game.ClientScriptAPI;
+import com.tonic.data.VarrockMuseumAnswer;
 import com.tonic.data.WidgetInfoExtended;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
@@ -320,5 +321,42 @@ public class DialogueAPI
             }
         }
         return false;
+    }
+
+    public static boolean continueQuestHelper() {
+        Widget widget = WidgetAPI.get(WidgetInfoExtended.DIALOG_OPTION_OPTION1);
+        if(widget == null)
+            return false;
+        Widget[] dialogOption1kids = widget.getChildren();
+        if(dialogOption1kids == null)
+            return false;
+        int i = 0;
+        for(Widget w : dialogOption1kids) {
+            if(w.getTextColor() == -0xff4d4e) {
+                selectOption(i);
+                return true;
+            }
+            ++i;
+        }
+        return false;
+    }
+
+    public static boolean continueMuseumQuiz() {
+        Widget questionWidget = WidgetAPI.get(WidgetInfo.VARROCK_MUSEUM_QUESTION);
+        if(questionWidget == null)
+            return false;
+
+        final Widget answerWidget = VarrockMuseumAnswer.findCorrect(
+                Static.getClient(),
+                questionWidget.getText(),
+                WidgetInfo.VARROCK_MUSEUM_FIRST_ANSWER,
+                WidgetInfo.VARROCK_MUSEUM_SECOND_ANSWER,
+                WidgetInfo.VARROCK_MUSEUM_THIRD_ANSWER);
+
+        if (answerWidget == null)
+            return false;
+
+        WidgetAPI.interact(1, answerWidget.getId(), -1, -1);
+        return true;
     }
 }

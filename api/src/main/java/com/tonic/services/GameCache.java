@@ -10,6 +10,7 @@ import net.runelite.client.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 public class GameCache
@@ -31,66 +32,42 @@ public class GameCache
 
     public static Stream<Player> playerStream()
     {
-        synchronized (INSTANCE.playerCache)
-        {
-            return new ArrayList<>(INSTANCE.playerCache).stream();
-        }
+        return new ArrayList<>(INSTANCE.playerCache).stream();
     }
 
     public static Stream<NPC> npcStream()
     {
-        synchronized (INSTANCE.npcCache)
-        {
-            return new ArrayList<>(INSTANCE.npcCache).stream();
-        }
+        return new ArrayList<>(INSTANCE.npcCache).stream();
     }
 
     public static ArrayList<Player> playerList()
     {
-        synchronized (INSTANCE.playerCache)
-        {
-            return new ArrayList<>(INSTANCE.playerCache);
-        }
+        return new ArrayList<>(INSTANCE.playerCache);
     }
 
     public static ArrayList<NPC> npcList()
     {
-        synchronized (INSTANCE.npcCache)
-        {
-            return new ArrayList<>(INSTANCE.npcCache);
-        }
+        return new ArrayList<>(INSTANCE.npcCache);
     }
 
     public static Stream<TileObjectEx> objectStream()
     {
-        synchronized (INSTANCE.objectCache)
-        {
-            return new ArrayList<>(INSTANCE.objectCache).stream();
-        }
+        return new ArrayList<>(INSTANCE.objectCache).stream();
     }
 
     public static ArrayList<TileObjectEx> objectList()
     {
-        synchronized (INSTANCE.objectCache)
-        {
-            return new ArrayList<>(INSTANCE.objectCache);
-        }
+        return new ArrayList<>(INSTANCE.objectCache);
     }
 
     public static Stream<TileItemEx> tileItemStream()
     {
-        synchronized (INSTANCE.tileItemCache)
-        {
-            return new ArrayList<>(INSTANCE.tileItemCache).stream();
-        }
+        return new ArrayList<>(INSTANCE.tileItemCache).stream();
     }
 
     public static ArrayList<TileItemEx> tileItemList()
     {
-        synchronized (INSTANCE.tileItemCache)
-        {
-            return new ArrayList<>(INSTANCE.tileItemCache);
-        }
+        return new ArrayList<>(INSTANCE.tileItemCache);
     }
 
 
@@ -114,10 +91,10 @@ public class GameCache
         System.out.println("GameCache initialized");
     }
 
-    private final List<TileObjectEx> objectCache = new ArrayList<>(256);
-    private final List<TileItemEx> tileItemCache = new ArrayList<>(2048);
-    private final List<NPC> npcCache = new ArrayList<>(128);
-    private final List<Player> playerCache = new ArrayList<>(128);
+    private final List<TileObjectEx> objectCache = new CopyOnWriteArrayList<>();
+    private final List<TileItemEx> tileItemCache = new CopyOnWriteArrayList<>();
+    private final List<NPC> npcCache = new CopyOnWriteArrayList<>();
+    private final List<Player> playerCache = new CopyOnWriteArrayList<>();
     private Actor lastInteracting = null;
     private int tickCount = 0;
 
@@ -139,37 +116,25 @@ public class GameCache
     @Subscribe
     public void onPlayerSpawned(PlayerSpawned event)
     {
-        synchronized (playerCache)
-        {
-            playerCache.add(event.getPlayer());
-        }
+        playerCache.add(event.getPlayer());
     }
 
     @Subscribe
     public void onNpcSpawned(NpcSpawned event)
     {
-        synchronized (npcCache)
-        {
-            npcCache.add(event.getNpc());
-        }
+        npcCache.add(event.getNpc());
     }
 
     @Subscribe
     public void onPlayerDespawned(PlayerDespawned event)
     {
-        synchronized (playerCache)
-        {
-            playerCache.remove(event.getPlayer());
-        }
+        playerCache.remove(event.getPlayer());
     }
 
     @Subscribe
     public void onNpcDespawned(NpcDespawned event)
     {
-        synchronized (npcCache)
-        {
-            npcCache.remove(event.getNpc());
-        }
+        npcCache.remove(event.getNpc());
     }
 
     @Subscribe
@@ -245,27 +210,12 @@ public class GameCache
 
     private void addTileObject(TileObject tileObject)
     {
-        synchronized (objectCache)
-        {
-            objectCache.add(new TileObjectEx(tileObject));
-        }
+        objectCache.add(new TileObjectEx(tileObject));
     }
 
     private void removeTileObject(TileObject tileObject)
     {
-        synchronized (objectCache)
-        {
-            Iterator<TileObjectEx> iterator = objectCache.iterator();
-            while (iterator.hasNext())
-            {
-                TileObjectEx obj = iterator.next();
-                if (obj.getTileObject().equals(tileObject))
-                {
-                    iterator.remove();
-                    break;
-                }
-            }
-        }
+        objectCache.removeIf(ex -> ex.getTileObject().equals(tileObject));
     }
 
     //tile items
@@ -273,15 +223,12 @@ public class GameCache
     @Subscribe
     public void onItemSpawned(ItemSpawned event)
     {
-        synchronized (tileItemCache)
-        {
-            tileItemCache.add(
-                    new TileItemEx(
-                            event.getItem(),
-                            WorldPoint.fromLocal(Static.getClient(), event.getTile().getLocalLocation()),
-                            event.getTile().getLocalLocation()
-                    )
-            );
-        }
+        tileItemCache.add(
+                new TileItemEx(
+                        event.getItem(),
+                        WorldPoint.fromLocal(Static.getClient(), event.getTile().getLocalLocation()),
+                        event.getTile().getLocalLocation()
+                )
+        );
     }
 }

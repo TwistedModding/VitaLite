@@ -532,4 +532,11 @@ public class SceneAPI {
             return false;
         }
     }
+
+    public static boolean isReachable(WorldPoint to)
+    {
+        Client client = Static.getClient();
+        WorldPoint from = client.getLocalPlayer().getWorldLocation();
+        return isReachable(from, to);
+    }
 }

@@ -141,7 +141,10 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    implementation("com.google.inject:guice:5.1.0")
+    //implementation("com.google.inject:guice:4.2.3:no_aop")
+    implementation("com.google.guava:guava:23.2-jre")
+    implementation("com.google.inject:guice:4.1.0:no_aop")
+    implementation("javax.inject:javax.inject:1")
 }
 
 tasks.test {

@@ -1,6 +1,7 @@
 package com.tonic.data.magic;
 
 import com.tonic.api.widgets.WidgetAPI;
+import com.tonic.data.ItemEx;
 import net.runelite.api.gameval.InterfaceID;
 
 public interface Spell {

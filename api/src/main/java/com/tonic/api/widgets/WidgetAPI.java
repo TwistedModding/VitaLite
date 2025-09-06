@@ -310,4 +310,9 @@ public class WidgetAPI
     {
         return isVisible(get(groupId, childId));
     }
+
+    public static boolean isVisible(int interfaceId)
+    {
+        return isVisible(get(interfaceId));
+    }
 }

@@ -1,11 +1,11 @@
 package com.tonic.runelite;
 
-import com.google.common.io.ByteStreams;
 import com.tonic.vitalite.Main;
 import com.tonic.Static;
 import com.tonic.model.Guice;
 import com.tonic.services.CallStackFilter;
-import java.io.ByteArrayInputStream;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -95,7 +95,7 @@ public class Install
                 String name = entry.getName();
 
                 try (InputStream in = jar.getInputStream(entry)) {
-                    byte[] data = ByteStreams.toByteArray(in);
+                    byte[] data = in.readAllBytes();
 
                     if (name.endsWith(".class")) {
                         String fqcn = name.substring(0, name.length() - 6)

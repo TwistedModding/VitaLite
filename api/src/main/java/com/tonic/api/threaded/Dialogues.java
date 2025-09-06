@@ -1,12 +1,12 @@
 package com.tonic.api.threaded;
 
-import com.tonic.api.widgets.DialogueAPI;
+import static com.tonic.api.widgets.DialogueAPI.*;
 
 public class Dialogues
 {
     public static void processDialogues()
     {
-        while(DialogueAPI.continueDialogue())
+        while(continueDialogue())
         {
             Delays.tick();
         }
@@ -19,8 +19,27 @@ public class Dialogues
 
     public static void waitForDialogues()
     {
-        while(!DialogueAPI.dialoguePresent())
+        while(!dialoguePresent())
         {
+            Delays.tick();
+        }
+    }
+
+    public static void continueAllDialogue()
+    {
+        while(true)
+        {
+            if(!continueDialogue())
+            {
+                if(!continueQuestHelper())
+                {
+                    if(!continueMuseumQuiz())
+                    {
+                        Delays.tick();
+                        break;
+                    }
+                }
+            }
             Delays.tick();
         }
     }

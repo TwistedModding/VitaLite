@@ -29,6 +29,7 @@ public class TileObjectQuery<T extends TileObjectEx> extends AbstractQuery<TileO
 
     public TileObjectQuery<T> withNames(String... names)
     {
+        System.out.println(names.length);
         return keepIf(o -> o.getName() != null && TextUtil.containsIgnoreCase(o.getName(), names));
     }
 
