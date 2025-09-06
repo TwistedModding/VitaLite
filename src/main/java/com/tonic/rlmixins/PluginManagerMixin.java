@@ -134,7 +134,7 @@ public class PluginManagerMixin {
                         "()V"
                 )
 
-                // RuneLite.injector.getInstance(Install.class).start(plugins);
+                // RuneLite.injector.getInstance(Install.class).injectSideLoadPlugins(plugins);
                 .invokeStatic("com/tonic/Static",
                         "getInjector",
                         "()Lcom/google/inject/Injector;")

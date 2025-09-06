@@ -27,9 +27,19 @@ public class TileObjectQuery<T extends TileObjectEx> extends AbstractQuery<TileO
         return keepIf(o -> o.getName() != null && o.getName().equalsIgnoreCase(name));
     }
 
+    public TileObjectQuery<T> withNameContains(String name)
+    {
+        return keepIf(o -> o.getName() != null && o.getName().toLowerCase().contains(name.toLowerCase()));
+    }
+
     public TileObjectQuery<T> withNames(String... names)
     {
-        System.out.println(names.length);
+        return keepIf(o -> o.getName() != null && ArrayUtils.contains(names, o.getName()));
+    }
+
+    public TileObjectQuery<T> withNamesContains(String... names)
+    {
+        System.out.println("Names: " + names.length);
         return keepIf(o -> o.getName() != null && TextUtil.containsIgnoreCase(o.getName(), names));
     }
 

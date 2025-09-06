@@ -39,7 +39,8 @@ public class Install
                     it.remove();
                     loadedThisPass++;
                     Class<?> parent = cls.getSuperclass();
-                    if (parent != null && parent.getName().endsWith(".Plugin")) {
+                    String parentName = parent != null ? parent.getName() : "null";
+                    if (parent != null && (parentName.endsWith(".Plugin") || parentName.endsWith(".VitaPlugin"))) {
                         System.out.println("Loaded: " + cls.getName());
                         plugins.add(cls);
                     }

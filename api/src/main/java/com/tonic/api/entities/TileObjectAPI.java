@@ -3,10 +3,13 @@ package com.tonic.api.entities;
 import com.tonic.Static;
 import com.tonic.api.TClient;
 import com.tonic.data.TileObjectEx;
+import com.tonic.queries.TileObjectQuery;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.ObjectComposition;
 import net.runelite.api.TileObject;
+
+import java.util.function.Predicate;
 
 /**
  * TileObject API
@@ -119,5 +122,25 @@ public class TileObjectAPI
             return i;
         }
         return -1;
+    }
+
+    public static TileObjectEx get(Predicate<TileObjectEx> filter)
+    {
+        return Static.invoke(() -> new TileObjectQuery<>().keepIf(filter).sortNearest().first());
+    }
+
+    public static TileObjectEx get(String... names)
+    {
+        return Static.invoke(() -> new TileObjectQuery<>().withNames(names).sortNearest().first());
+    }
+
+    public static TileObjectEx getContains(String... names)
+    {
+        return Static.invoke(() -> new TileObjectQuery<>().withNamesContains(names).sortNearest().first());
+    }
+
+    public static TileObjectEx get(int... ids)
+    {
+        return Static.invoke(() -> new TileObjectQuery<>().withId(ids).sortNearest().first());
     }
 }
