@@ -10,7 +10,10 @@ import net.runelite.api.ItemContainer;
 import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
 {
@@ -156,12 +159,39 @@ public class InventoryQuery extends AbstractQuery<ItemEx, InventoryQuery>
         return removeIf(i -> !ArrayUtils.contains(slots, i.getSlot()));
     }
 
+    /**
+     * Get total quantity - terminal operation
+     */
     public int getQuantity() {
-        int count = 0;
-        for(ItemEx item : cache)
-        {
-            count += item.getQuantity();
-        }
-        return count;
+        return aggregate(stream ->
+                stream.mapToInt(ItemEx::getQuantity).sum()
+        );
+    }
+
+    /**
+     * Get total GE value - terminal operation
+     */
+    public long getTotalGeValue() {
+        return aggregate(stream ->
+                stream.mapToLong(item -> item.getQuantity() * item.getGePrice()).sum()
+        );
+    }
+
+    /**
+     * Get total shop value - terminal operation
+     */
+    public int getTotalShopValue() {
+        return aggregate(stream ->
+                stream.mapToInt(item -> item.getQuantity() * item.getShopPrice()).sum()
+        );
+    }
+
+    /**
+     * Get total high alch value - terminal operation
+     */
+    public int getTotalHighAlchValue() {
+        return aggregate(stream ->
+                stream.mapToInt(item -> item.getQuantity() * item.getHighAlchValue()).sum()
+        );
     }
 }

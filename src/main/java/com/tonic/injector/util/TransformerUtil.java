@@ -95,4 +95,22 @@ public class TransformerUtil
                 .findFirst()
                 .orElse(null);
     }
+
+    public static MethodNode getTargetMethod(ClassNode mixin, String targetMethodName, String descriptor)
+    {
+        String className = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
+        if(className != null && className.contains("/"))
+        {
+            ClassNode rlClass = RLInjector.runelite.get(className);
+            if(rlClass == null)
+            {
+                throw new RuntimeException("Could not find runelite class for: " + className);
+            }
+            return rlClass.methods.stream()
+                    .filter(m -> m.name.equals(targetMethodName) && m.desc.equals(descriptor))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
 }

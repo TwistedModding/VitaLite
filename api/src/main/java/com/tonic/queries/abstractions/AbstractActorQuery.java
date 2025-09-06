@@ -22,8 +22,7 @@ public abstract class AbstractActorQuery<T extends Actor, Q extends AbstractActo
      */
     public Q withName(String name)
     {
-        cache.removeIf(o -> !name.equalsIgnoreCase(o.getName()));
-        return self();
+        return removeIf(o -> !name.equalsIgnoreCase(o.getName()));
     }
 
     /**
@@ -31,10 +30,11 @@ public abstract class AbstractActorQuery<T extends Actor, Q extends AbstractActo
      * @param distance distance
      * @return ActorQuery
      */
-    public Q within(int distance)
-    {
-        cache.removeIf(o -> Location.getDistance(client.getLocalPlayer().getWorldLocation(), o.getWorldLocation()) > distance);
-        return self();
+    public Q within(int distance) {
+        return keepIf(o -> {
+            WorldPoint playerLoc = client.getLocalPlayer().getWorldLocation();
+            return Location.getDistance(playerLoc, o.getWorldLocation()) <= distance;
+        });
     }
 
     public Q within(WorldPoint center, int distance)
@@ -78,23 +78,35 @@ public abstract class AbstractActorQuery<T extends Actor, Q extends AbstractActo
     }
 
     /**
-     * Get the nearest RSActor from the current list
-     * @return RSActor
+     * Get the nearest Actor from the filtered list
+     * Terminal operation - executes the query
      */
-    public T nearest()
-    {
-        cache.sort(Comparator.comparing(o -> Location.getDistance(client.getLocalPlayer().getWorldLocation(), o.getWorldLocation())));
-        return cache.get(0);
+    public T nearest() {
+        // Apply filters and sort by distance, then get first
+        return this.sortNearest().first();
     }
 
     /**
-     * Get the farthest RSActor from the current list
-     * @return RSActor
+     * Get the nearest Actor to a specific point
+     * Terminal operation - executes the query
      */
-    public T farthest()
-    {
-        cache.sort(Comparator.comparing(o -> Location.getDistance(client.getLocalPlayer().getWorldLocation(), o.getWorldLocation())));
-        Collections.reverse(cache);
-        return cache.get(0);
+    public T nearest(WorldPoint center) {
+        return this.sortNearest(center).first();
+    }
+
+    /**
+     * Get the farthest Actor from the filtered list
+     * Terminal operation - executes the query
+     */
+    public T farthest() {
+        return this.sortFurthest().first();
+    }
+
+    /**
+     * Get the farthest Actor from a specific point
+     * Terminal operation - executes the query
+     */
+    public T farthest(WorldPoint center) {
+        return this.sortFurthest(center).first();
     }
 }

@@ -3,94 +3,190 @@ package com.tonic.queries.abstractions;
 import com.tonic.Static;
 import net.runelite.api.Client;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>>
-{
-    protected final List<T> cache;
+public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
+    protected final Supplier<List<T>> dataSource;
     protected final Client client;
     private final Random random = new Random();
 
+    // Store operations instead of applying them immediately
+    private final List<Predicate<T>> filters = new ArrayList<>();
+    private final List<Comparator<T>> sorters = new ArrayList<>();
+    private boolean negate = false;  // For removeIf vs keepIf
+
     public AbstractQuery(List<T> cache) {
-        this.cache = cache;
+        // Convert the initial cache to a supplier
+        this.dataSource = () -> new ArrayList<>(cache);
         this.client = Static.getClient();
     }
 
-    protected final Q self()
-    {
+    protected AbstractQuery(Supplier<List<T>> dataSource) {
+        this.dataSource = dataSource;
+        this.client = Static.getClient();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final Q self() {
         return (Q) this;
     }
 
     /**
-     * filter by predicate
-     * @param predicate condition
-     * @return ActorQuery
+     * Lazily filter by predicate (removes matching items)
      */
-    public Q removeIf(Predicate<T> predicate)
-    {
-        cache.removeIf(predicate);
+    public Q removeIf(Predicate<T> predicate) {
+        filters.add(predicate.negate());
         return self();
     }
 
     /**
-     * filter by predicate
-     * @param predicate condition
-     * @return ActorQuery
+     * Lazily filter by predicate (keeps matching items)
      */
-    public Q keepIf(Predicate<T> predicate)
-    {
-        cache.removeIf(predicate.negate());
-        return self();
-    }
-
-    public Q sort(Comparator<T> comparator)
-    {
-        cache.sort(comparator);
+    public Q keepIf(Predicate<T> predicate) {
+        filters.add(predicate);
         return self();
     }
 
     /**
-     * Get the first element from the current list
-     * @return RSActor
+     * Lazily add sorting
      */
-    public T first()
-    {
-        return cache.get(0);
+    public Q sort(Comparator<T> comparator) {
+        sorters.add(comparator);
+        return self();
+    }
+
+    // ============= Terminal Operations (execute in invoke) =============
+
+    /**
+     * Execute the query and get results
+     */
+    private List<T> execute() {
+        return Static.invoke(() -> {
+            Stream<T> stream = dataSource.get().stream();
+
+            // Apply all filters
+            for (Predicate<T> filter : filters) {
+                stream = stream.filter(filter);
+            }
+
+            // Apply sorting (chain comparators if multiple)
+            if (!sorters.isEmpty()) {
+                Comparator<T> combined = sorters.stream()
+                        .reduce(Comparator::thenComparing)
+                        .orElse(null);
+                if (combined != null) {
+                    stream = stream.sorted(combined);
+                }
+            }
+
+            return stream.collect(Collectors.toList());
+        });
     }
 
     /**
-     * Get the last element from the current list
-     * @return RSActor
+     * Get the first element from the filtered/sorted list
      */
-    public T last()
-    {
-        return cache.get(cache.size() - 1);
-    }
-
-    public T random()
-    {
-        return cache.get(random.nextInt(cache.size()));
+    public T first() {
+        List<T> results = execute();
+        return results.isEmpty() ? null : results.get(0);
     }
 
     /**
-     * get the current list
-     * @return list of Actors
+     * Get the last element from the filtered/sorted list
      */
-    public List<T> collect()
-    {
-        return cache;
+    public T last() {
+        List<T> results = execute();
+        return results.isEmpty() ? null : results.get(results.size() - 1);
     }
 
-    public int count()
-    {
-        return cache.size();
+    /**
+     * Get a random element from the filtered/sorted list
+     */
+    public T random() {
+        List<T> results = execute();
+        return results.isEmpty() ? null : results.get(random.nextInt(results.size()));
     }
 
-    public boolean isEmpty()
-    {
-        return cache.isEmpty();
+    /**
+     * Get the filtered/sorted list
+     */
+    public List<T> collect() {
+        return execute();
+    }
+
+    /**
+     * Get count of filtered results
+     */
+    public int count() {
+        // Optimized version - don't need full list for count
+        return Static.invoke(() -> {
+            Stream<T> stream = dataSource.get().stream();
+            for (Predicate<T> filter : filters) {
+                stream = stream.filter(filter);
+            }
+            return (int) stream.count();
+        });
+    }
+
+    /**
+     * Check if filtered results are empty
+     */
+    public boolean isEmpty() {
+        // Optimized version - stop at first match
+        return Static.invoke(() -> {
+            Stream<T> stream = dataSource.get().stream();
+            for (Predicate<T> filter : filters) {
+                stream = stream.filter(filter);
+            }
+            return stream.findAny().isEmpty();
+        });
+    }
+
+    /**
+     * Generic aggregation method for custom terminal operations
+     * Executes filters and allows custom stream processing
+     */
+    public <R> R aggregate(java.util.function.Function<Stream<T>, R> aggregator) {
+        return Static.invoke(() -> {
+            Stream<T> stream = dataSource.get().stream();
+
+            // Apply all filters
+            for (Predicate<T> filter : filters) {
+                stream = stream.filter(filter);
+            }
+
+            // Apply the aggregation function
+            return aggregator.apply(stream);
+        });
+    }
+
+    /**
+     * Execute filters and process with custom collector
+     */
+    public <R> R collect(java.util.stream.Collector<T, ?, R> collector) {
+        return Static.invoke(() -> {
+            Stream<T> stream = dataSource.get().stream();
+
+            // Apply all filters
+            for (Predicate<T> filter : filters) {
+                stream = stream.filter(filter);
+            }
+
+            // Apply sorting if any
+            if (!sorters.isEmpty()) {
+                Comparator<T> combined = sorters.stream()
+                        .reduce(Comparator::thenComparing)
+                        .orElse(null);
+                if (combined != null) {
+                    stream = stream.sorted(combined);
+                }
+            }
+
+            return stream.collect(collector);
+        });
     }
 }

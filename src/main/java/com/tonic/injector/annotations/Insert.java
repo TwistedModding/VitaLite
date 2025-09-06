@@ -16,6 +16,8 @@ public @interface Insert {
      * @return method name
      */
     String method();
+
+    String desc() default "";
     
     /**
      * Instruction pattern to match for injection.
