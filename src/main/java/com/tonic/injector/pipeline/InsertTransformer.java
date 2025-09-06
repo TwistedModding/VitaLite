@@ -31,7 +31,7 @@ public class InsertTransformer {
         try {
             String gamepackName = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
             String targetMethodName = AnnotationUtil.getAnnotation(method, Insert.class, "method");
-            String targetMethodDesc = AnnotationUtil.getAnnotation(method, Insert.class, "method");
+            String targetMethodDesc = AnnotationUtil.getAnnotation(method, Insert.class, "desc");
 
             JClass jClass = MappingProvider.getClass(gamepackName);
             ClassNode gamepackClass = TransformerUtil.getMethodClass(mixin, targetMethodName);
@@ -45,15 +45,7 @@ public class InsertTransformer {
             if(!insertAnnotation.raw())
                 InjectTransformer.patch(gamepackClass, mixin, method);
 
-            MethodNode targetMethod;
-            if(targetMethodDesc != null && !targetMethodDesc.isBlank())
-            {
-                targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName, targetMethodDesc);
-            }
-            else
-            {
-                targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName);
-            }
+            MethodNode targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName, targetMethodDesc);
 
             if(targetMethod == null) {
                 System.err.println("Target method not found: " + targetMethodName + " in class " + gamepackClass.name);

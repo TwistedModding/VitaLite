@@ -98,6 +98,10 @@ public class TransformerUtil
 
     public static MethodNode getTargetMethod(ClassNode mixin, String targetMethodName, String descriptor)
     {
+        if(descriptor == null || descriptor.isEmpty())
+        {
+            return getTargetMethod(mixin, targetMethodName);
+        }
         String className = AnnotationUtil.getAnnotation(mixin, Mixin.class, "value");
         if(className != null && className.contains("/"))
         {
