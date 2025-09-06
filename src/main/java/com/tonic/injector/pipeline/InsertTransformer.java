@@ -54,6 +54,11 @@ public class InsertTransformer {
             {
                 targetMethod = TransformerUtil.getTargetMethod(mixin, targetMethodName);
             }
+
+            if(targetMethod == null) {
+                System.err.println("Target method not found: " + targetMethodName + " in class " + gamepackClass.name);
+                return;
+            }
             
             List<InstructionMatcher.MatchResult> matches = InstructionMatcher.findMatches(
                     targetMethod, 
