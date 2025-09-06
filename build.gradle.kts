@@ -1,5 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import groovy.json.JsonSlurper
 import java.net.URI
+import java.net.URL
 
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -117,6 +119,42 @@ tasks {
     }
 }
 
+fun getRuneLiteArtifacts(): Map<String, String> {
+    val json = URL("https://static.runelite.net/bootstrap.json").readText()
+    val jsonSlurper = JsonSlurper()
+    val bootstrap = jsonSlurper.parseText(json) as Map<*, *>
+    val artifacts = bootstrap["artifacts"] as List<Map<*, *>>
+
+    val versions = mutableMapOf<String, String>()
+
+    artifacts.forEach { artifact ->
+        val name = artifact["name"] as String
+        val path = artifact["path"] as String
+
+        when {
+            name.startsWith("guava-") -> {
+                val version = name.removePrefix("guava-").removeSuffix(".jar")
+                versions["guava"] = version
+            }
+            name.startsWith("guice-") -> {
+                val version = name.removePrefix("guice-").removeSuffix("-no_aop.jar")
+                versions["guice"] = version
+            }
+            name.startsWith("javax.inject-") -> {
+                versions["javax.inject"] = "1"
+            }
+            name.startsWith("client-") -> {
+                val version = name.removePrefix("client-").removeSuffix(".jar")
+                versions["client"] = version
+            }
+        }
+    }
+
+    return versions
+}
+
+val runeliteVersions by lazy { getRuneLiteArtifacts() }
+
 val TaskContainer.publishToMavenLocal: TaskProvider<DefaultTask>
     get() = named<DefaultTask>("publishToMavenLocal")
 
@@ -142,8 +180,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     //implementation("com.google.inject:guice:4.2.3:no_aop")
-    implementation("com.google.guava:guava:23.2-jre")
-    implementation("com.google.inject:guice:4.1.0:no_aop")
+    implementation("com.google.guava:guava:${runeliteVersions["guava"]}")
+    implementation("com.google.inject:guice:${runeliteVersions["guice"]}:no_aop")
     implementation("javax.inject:javax.inject:1")
 }
 
