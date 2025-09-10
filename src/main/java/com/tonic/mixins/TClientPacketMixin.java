@@ -8,9 +8,9 @@ import lombok.Getter;
 @Mixin("ClientPacket")
 @Getter
 public class TClientPacketMixin implements TClientPacket {
-    @Shadow("id")
+    @Shadow("length")
     public int id;
 
-    @Shadow("length")
+    @Shadow("id")
     public int length;
 }

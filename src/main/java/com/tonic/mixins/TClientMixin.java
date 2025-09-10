@@ -36,20 +36,6 @@ public abstract class TClientMixin implements TClient
     @Shadow("getPacketBufferNode")
     public abstract TPacketBufferNode getPacketBufferNode(TClientPacket clientPacket, TIsaacCipher isaacCipher);
 
-    @Insert(
-            method = "processServerPacket",
-            at = @At(
-                    value = AtTarget.PUTFIELD,
-                    owner = "PacketBuffer",
-                    target = "offset"
-            ),
-            ordinal = 2
-    )
-    public static void processServerPacket(TClient client, TPacketWriter writer)
-    {
-        //TODO: impl structure of server packet stuff for logging
-    }
-
     @Shadow("mouseLastPressedTimeMillis")
     private static long clientMouseLastPressedMillis;
 

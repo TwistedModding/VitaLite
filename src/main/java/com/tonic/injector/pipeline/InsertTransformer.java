@@ -62,7 +62,7 @@ public class InsertTransformer {
             matches = filterMatchesByContext(matches, insertAnnotation.at(), gamepackClass);
             
             if (matches.isEmpty()) {
-                System.err.println("No matching instructions found for pattern in method: " + targetMethod.name);
+                System.err.println("No matching instructions found for pattern in method: " + targetMethod.name + " :: " + targetMethodName + targetMethod.desc);
                 return;
             }
 

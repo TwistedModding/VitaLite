@@ -13,14 +13,11 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
     protected final Supplier<List<T>> dataSource;
     protected final Client client;
     private final Random random = new Random();
-
-    // Store operations instead of applying them immediately
     private final List<Predicate<T>> filters = new ArrayList<>();
     private final List<Comparator<T>> sorters = new ArrayList<>();
-    private boolean negate = false;  // For removeIf vs keepIf
+    private boolean negate = false;
 
     public AbstractQuery(List<T> cache) {
-        // Convert the initial cache to a supplier
         this.dataSource = () -> new ArrayList<>(cache);
         this.client = Static.getClient();
     }
@@ -58,8 +55,6 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
         sorters.add(comparator);
         return self();
     }
-
-    // ============= Terminal Operations (execute in invoke) =============
 
     /**
      * Execute the query and get results
@@ -122,7 +117,6 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
      * Get count of filtered results
      */
     public int count() {
-        // Optimized version - don't need full list for count
         return Static.invoke(() -> {
             Stream<T> stream = dataSource.get().stream();
             for (Predicate<T> filter : filters) {
@@ -136,7 +130,6 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
      * Check if filtered results are empty
      */
     public boolean isEmpty() {
-        // Optimized version - stop at first match
         return Static.invoke(() -> {
             Stream<T> stream = dataSource.get().stream();
             for (Predicate<T> filter : filters) {
@@ -154,12 +147,10 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
         return Static.invoke(() -> {
             Stream<T> stream = dataSource.get().stream();
 
-            // Apply all filters
             for (Predicate<T> filter : filters) {
                 stream = stream.filter(filter);
             }
 
-            // Apply the aggregation function
             return aggregator.apply(stream);
         });
     }
@@ -171,12 +162,10 @@ public abstract class AbstractQuery<T, Q extends AbstractQuery<T, Q>> {
         return Static.invoke(() -> {
             Stream<T> stream = dataSource.get().stream();
 
-            // Apply all filters
             for (Predicate<T> filter : filters) {
                 stream = stream.filter(filter);
             }
 
-            // Apply sorting if any
             if (!sorters.isEmpty()) {
                 Comparator<T> combined = sorters.stream()
                         .reduce(Comparator::thenComparing)
