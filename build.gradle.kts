@@ -22,12 +22,11 @@ repositories {
     }
 }
 
-// Publishing configuration for root project
 publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
-            artifactId = "vitalite" // or whatever you want the root artifact named
+            artifactId = "vitalite"
         }
     }
 }
@@ -81,7 +80,6 @@ tasks {
         finalizedBy("shadowJar")
     }
 
-    // Regular jar task - not really needed since you're using shadowJar
     jar {
         manifest {
             attributes(mutableMapOf("Main-Class" to "com.tonic.VitaLite"))
@@ -129,7 +127,6 @@ fun getRuneLiteArtifacts(): Map<String, String> {
 
     artifacts.forEach { artifact ->
         val name = artifact["name"] as String
-        val path = artifact["path"] as String
 
         when {
             name.startsWith("guava-") -> {
@@ -143,9 +140,17 @@ fun getRuneLiteArtifacts(): Map<String, String> {
             name.startsWith("javax.inject-") -> {
                 versions["javax.inject"] = "1"
             }
-            name.startsWith("client-") -> {
-                val version = name.removePrefix("client-").removeSuffix(".jar")
-                versions["client"] = version
+            name.startsWith("slf4j-api-") -> {
+                val version = name.removePrefix("slf4j-api-").removeSuffix(".jar")
+                versions["slf4j"] = version
+            }
+            name.startsWith("logback-core-") -> {
+                val version = name.removePrefix("logback-core-").removeSuffix(".jar")
+                versions["logback.core"] = version
+            }
+            name.startsWith("logback-classic-") -> {
+                val version = name.removePrefix("logback-classic-").removeSuffix(".jar")
+                versions["logback.classic"] = version
             }
         }
     }
@@ -179,10 +184,14 @@ dependencies {
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    //implementation("com.google.inject:guice:4.2.3:no_aop")
+
     implementation("com.google.guava:guava:${runeliteVersions["guava"]}")
     implementation("com.google.inject:guice:${runeliteVersions["guice"]}:no_aop")
     implementation("javax.inject:javax.inject:1")
+
+    implementation("org.slf4j:slf4j-api:${runeliteVersions["slf4j"]}")
+    implementation("ch.qos.logback:logback-core:${runeliteVersions["logback.core"]}")
+    implementation("ch.qos.logback:logback-classic:${runeliteVersions["logback.classic"]}")
 }
 
 tasks.test {
