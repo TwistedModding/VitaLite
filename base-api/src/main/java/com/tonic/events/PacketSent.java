@@ -27,7 +27,7 @@ public class PacketSent {
     @Override
     public String toString()
     {
-        PacketBuffer pb = new PacketBuffer(id, payload);
+        PacketBuffer pb = getBuffer();
         String out = PacketMapReader.prettify(pb);
         pb.dispose();
         return out;
